@@ -1,0 +1,25 @@
+{
+  "id": "app/",
+  "name": "MAP-A",
+  "short_name": "MAP-A",
+  "description": "Door-to-door trips on jeepneys, UV Express vans, buses and on foot across all 18 cities and municipalities of Albay, with LTFRB fares and a hospital mode.",
+  "lang": "en",
+  "dir": "ltr",
+  "start_url": "app/",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#320611",
+  "theme_color": "#A3161F",
+  "categories": ["travel", "navigation", "education"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Compute a fare", "url": "./#fares", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" }] },
+    { "name": "MAP-A website", "url": "./", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" }] }
+  ]
+}
