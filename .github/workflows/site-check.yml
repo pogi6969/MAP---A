@@ -1,0 +1,32 @@
+name: Site check
+on:
+  push:
+    paths: [".github/workflows/site-check.yml"]
+permissions:
+  contents: read
+  pages: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pages settings
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api repos/${{ github.repository }}/pages --jq '{status, cname, html_url, https_enforced}'
+      - name: Fetch from GitHub's servers (US)
+        run: |
+          for u in https://pogi6969.github.io/MAP---A/ https://pogi6969.github.io/MAP---A/app/ "https://pogi6969.github.io/MAP---A/?v=2" "https://pogi6969.github.io/MAP---A/app/?v=2"; do
+            curl -sS -D - -o /dev/null "$u" | grep -iE '^(HTTP|location|cache-control|age|x-served-by)' | tr -d '\r' | sed "s|^|$u  |"
+          done
+      - name: Fetch from Asia and elsewhere
+        run: |
+          for u in https://pogi6969.github.io/MAP---A/ https://pogi6969.github.io/MAP---A/app/; do
+            req=$(curl -sS -H 'Accept: application/json' "https://check-host.net/check-http?host=$u&max_nodes=40")
+            id=$(echo "$req" | jq -r .request_id)
+            sleep 25
+            res=$(curl -sS -H 'Accept: application/json' "https://check-host.net/check-result/$id")
+            echo "== $u"
+            echo "$req" | jq -r '.nodes | to_entries[] | "\(.key) \(.value[1])"' | while read node country; do
+              echo "$country $(echo "$res" | jq -c --arg n "$node" '.[$n]')"
+            done | sort
+          done
