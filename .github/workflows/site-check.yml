@@ -20,7 +20,8 @@ jobs:
           done
       - name: Fetch from Asia and elsewhere
         run: |
-          for u in https://pogi6969.github.io/MAP---A/ https://pogi6969.github.io/MAP---A/app/; do
+          sleep 60
+          for u in https://pogi6969.github.io/MAP---A/app/; do
             req=$(curl -sS -H 'Accept: application/json' "https://check-host.net/check-http?host=$u&max_nodes=40")
             id=$(echo "$req" | jq -r .request_id)
             sleep 25
