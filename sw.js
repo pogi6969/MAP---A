@@ -1,13 +1,13 @@
 /* MAP-A service worker: keeps a copy of the app and the website so the installed app opens without a signal.
    Pages come from the network when online, so updates show at once, and from the copy when offline.
    Bump VERSION after changing the icons or the manifest. */
-var VERSION = "map-a-v4";
+var VERSION = "map-a-v5";
 var PRECACHE = ["app/", "./", "manifest.webmanifest", "favicon.ico", "icons/favicon-32.png", "icons/app-favicon.ico", "icons/app-favicon-32.png", "icons/icon-192.png", "icons/apple-touch-icon.png"];
 
 self.addEventListener("install", function (event) {
   event.waitUntil(
     caches.open(VERSION)
-      .then(function (cache) { return cache.addAll(PRECACHE); })
+      .then(function (cache) { return cache.addAll(PRECACHE.map(function (u) { return new Request(u, { cache: "reload" }); })); })
       .then(function () { return self.skipWaiting(); })
   );
 });
@@ -27,11 +27,12 @@ function keep(cache, req, res) {
   return cache.put(req, res).catch(function () {});
 }
 
-/* Pages: the network first, the saved copy when offline. Anything under app/ falls back to the app. */
+/* Pages: the network first, checked with the server every time so a new version shows at once,
+   the saved copy when offline. Anything under app/ falls back to the app. */
 function page(event) {
   var req = event.request;
   var home = new URL(req.url).pathname.indexOf("/app/") !== -1 ? "app/" : "./";
-  return fetch(req).then(function (res) {
+  return fetch(req, { cache: "no-cache" }).then(function (res) {
     if (res.ok) {
       var copy = res.clone();
       event.waitUntil(caches.open(VERSION).then(function (cache) { return keep(cache, req, copy); }));
