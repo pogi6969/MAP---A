@@ -1,0 +1,630 @@
+{
+ "seed": 20261013,
+ "S1": {
+  "check_table17": {
+   "A30": [
+    145.0,
+    145.0,
+    145.0,
+    0.0,
+    25.0,
+    40.0
+   ],
+   "gini": 0.2747,
+   "theil": 0.2205,
+   "within": 0.0308,
+   "between": 0.1897,
+   "palma": 0.907
+  },
+  "two_step_fca": {
+   "authorized": {
+    "R_per_10000": [
+     131.15,
+     153.85,
+     24.68
+    ],
+    "A_per_10000": [
+     155.83,
+     155.83,
+     155.83,
+     0.0,
+     24.68,
+     153.85
+    ],
+    "weighted_mean_per_10000": 130.927,
+    "conservation_lhs": 185.0,
+    "gini": 0.1585,
+    "theil": 0.1472,
+    "within_share": 0.758,
+    "zero_share": 0.099
+   },
+   "free": {
+    "R_per_10000": [
+     8.74,
+     34.62,
+     0.0
+    ],
+    "A_per_10000": [
+     8.74,
+     8.74,
+     8.74,
+     0.0,
+     0.0,
+     34.62
+    ],
+    "weighted_mean_per_10000": 12.031,
+    "conservation_lhs": 17.0,
+    "gini": 0.4247,
+    "theil": 0.4093,
+    "within_share": 0.841,
+    "zero_share": 0.168
+   }
+  },
+  "needs": [
+   {
+    "need": "none",
+    "rho": 3,
+    "by_anchor": [
+     [
+      [
+       "S4",
+       29.2
+      ],
+      [
+       "S7",
+       49.0
+      ]
+     ],
+     [
+      [
+       "S4",
+       27.3
+      ],
+      [
+       "S7",
+       61.0
+      ]
+     ],
+     [
+      [
+       "S4",
+       18.6
+      ],
+      [
+       "S7",
+       51.4
+      ]
+     ],
+     [
+      [
+       "S4",
+       43.6
+      ],
+      [
+       "S7",
+       76.6
+      ]
+     ],
+     [
+      [
+       "S4",
+       32.6
+      ],
+      [
+       "S7",
+       65.8
+      ]
+     ],
+     [
+      [
+       "S7",
+       13.0
+      ],
+      [
+       "S4",
+       37.2
+      ]
+     ]
+    ]
+   },
+   {
+    "need": "none",
+    "rho": 0,
+    "by_anchor": [
+     [
+      [
+       "S4",
+       29.2
+      ]
+     ],
+     [
+      [
+       "S4",
+       27.3
+      ]
+     ],
+     [
+      [
+       "S4",
+       18.6
+      ]
+     ],
+     [
+      [
+       "S4",
+       43.6
+      ]
+     ],
+     [
+      [
+       "S4",
+       32.6
+      ]
+     ],
+     [
+      [
+       "S4",
+       37.2
+      ]
+     ]
+    ]
+   },
+   {
+    "need": "normal delivery (MAT)",
+    "rho": 3,
+    "by_anchor": [
+     [
+      [
+       "S4",
+       29.2
+      ],
+      [
+       "S7",
+       49.0
+      ]
+     ],
+     [
+      [
+       "S4",
+       27.3
+      ],
+      [
+       "S7",
+       61.0
+      ]
+     ],
+     [
+      [
+       "S4",
+       18.6
+      ],
+      [
+       "S7",
+       51.4
+      ]
+     ],
+     [
+      [
+       "S4",
+       43.6
+      ],
+      [
+       "S7",
+       76.6
+      ]
+     ],
+     [
+      [
+       "S4",
+       32.6
+      ],
+      [
+       "S7",
+       65.8
+      ]
+     ],
+     [
+      [
+       "S7",
+       13.0
+      ],
+      [
+       "S4",
+       37.2
+      ]
+     ]
+    ]
+   },
+   {
+    "need": "normal delivery (MAT)",
+    "rho": 0,
+    "by_anchor": [
+     [
+      [
+       "S4",
+       29.2
+      ]
+     ],
+     [
+      [
+       "S4",
+       27.3
+      ]
+     ],
+     [
+      [
+       "S4",
+       18.6
+      ]
+     ],
+     [
+      [
+       "S4",
+       43.6
+      ]
+     ],
+     [
+      [
+       "S4",
+       32.6
+      ]
+     ],
+     [
+      [
+       "S4",
+       37.2
+      ]
+     ]
+    ]
+   },
+   {
+    "need": "high-risk pregnancy (HRP)",
+    "rho": 3,
+    "by_anchor": [
+     [
+      [
+       "S4",
+       29.2
+      ],
+      [
+       "S7",
+       49.0
+      ]
+     ],
+     [
+      [
+       "S4",
+       27.3
+      ],
+      [
+       "S7",
+       61.0
+      ]
+     ],
+     [
+      [
+       "S4",
+       18.6
+      ],
+      [
+       "S7",
+       51.4
+      ]
+     ],
+     [
+      [
+       "S4",
+       43.6
+      ],
+      [
+       "S7",
+       76.6
+      ]
+     ],
+     [
+      [
+       "S4",
+       32.6
+      ],
+      [
+       "S7",
+       65.8
+      ]
+     ],
+     [
+      [
+       "S7",
+       13.0
+      ],
+      [
+       "S4",
+       37.2
+      ]
+     ]
+    ]
+   },
+   {
+    "need": "high-risk pregnancy (HRP)",
+    "rho": 0,
+    "by_anchor": [
+     [
+      [
+       "S4",
+       29.2
+      ]
+     ],
+     [
+      [
+       "S4",
+       27.3
+      ]
+     ],
+     [
+      [
+       "S4",
+       18.6
+      ]
+     ],
+     [
+      [
+       "S4",
+       43.6
+      ]
+     ],
+     [
+      [
+       "S4",
+       32.6
+      ]
+     ],
+     [
+      [
+       "S4",
+       37.2
+      ]
+     ]
+    ]
+   },
+   {
+    "need": "dialysis (DIA)",
+    "rho": 3,
+    "by_anchor": [
+     [
+      [
+       "S4",
+       29.2
+      ]
+     ],
+     [
+      [
+       "S4",
+       27.3
+      ]
+     ],
+     [
+      [
+       "S4",
+       18.6
+      ]
+     ],
+     [
+      [
+       "S4",
+       43.6
+      ]
+     ],
+     [
+      [
+       "S4",
+       32.6
+      ]
+     ],
+     [
+      [
+       "S4",
+       37.2
+      ]
+     ]
+    ]
+   },
+   {
+    "need": "dialysis (DIA)",
+    "rho": 0,
+    "by_anchor": [
+     [
+      [
+       "S4",
+       29.2
+      ]
+     ],
+     [
+      [
+       "S4",
+       27.3
+      ]
+     ],
+     [
+      [
+       "S4",
+       18.6
+      ]
+     ],
+     [
+      [
+       "S4",
+       43.6
+      ]
+     ],
+     [
+      [
+       "S4",
+       32.6
+      ]
+     ],
+     [
+      [
+       "S4",
+       37.2
+      ]
+     ]
+    ]
+   }
+  ],
+  "need_gap_dialysis": {
+   "by_anchor": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    24.2
+   ],
+   "weighted_mean": 4.45
+  },
+  "surge": {
+   "patients_per_anchor": [
+    4,
+    3,
+    2,
+    2,
+    1,
+    3
+   ],
+   "independent_load": [
+    12,
+    3,
+    0
+   ],
+   "optimal_load": [
+    8,
+    7,
+    0
+   ],
+   "turned_away_independent": 4,
+   "total_time_independent_if_unlimited": 394.7,
+   "total_time_optimal": 473.9,
+   "assignment": {
+    "A1": [
+     "S7",
+     "S7",
+     "S7",
+     "S7"
+    ],
+    "A2": [
+     "S4",
+     "S4",
+     "S4"
+    ],
+    "A3": [
+     "S4",
+     "S4"
+    ],
+    "A4": [
+     "S4",
+     "S4"
+    ],
+    "A5": [
+     "S4"
+    ],
+    "A6": [
+     "S7",
+     "S7",
+     "S7"
+    ]
+   }
+  }
+ },
+ "ambulance": {
+  "graphs": 200,
+  "queries": 4000,
+  "reachable": 2355,
+  "agree_k1": 4000,
+  "agree_k3": 4000,
+  "need_set_checks": 28037,
+  "need_time_checks": 28037,
+  "need_violations": 0,
+  "diversion_cases": 1399,
+  "diversion_median": 4.790627340417746,
+  "diversion_mean": 6.609327731737386
+ },
+ "catchment": {
+  "graphs": 60,
+  "vertices": 11474,
+  "agree": 11474,
+  "segments_tested": 17168,
+  "segments_in_forest": 8576,
+  "positive_delay": 8576,
+  "positive_outside_forest": 0,
+  "zero_inside_forest": 0
+ },
+ "catchment_timing": [
+  {
+   "vertices": 1000,
+   "segments": 1863,
+   "hospitals": 6,
+   "one_search_ms": 1.26,
+   "per_origin_ms": 0.091,
+   "all_origins_ms": 91.0,
+   "speedup": 72.2
+  },
+  {
+   "vertices": 4000,
+   "segments": 7473,
+   "hospitals": 26,
+   "one_search_ms": 8.85,
+   "per_origin_ms": 0.27,
+   "all_origins_ms": 1079.0,
+   "speedup": 121.9
+  },
+  {
+   "vertices": 16000,
+   "segments": 29821,
+   "hospitals": 106,
+   "one_search_ms": 41.32,
+   "per_origin_ms": 0.241,
+   "all_origins_ms": 3859.0,
+   "speedup": 93.4
+  }
+ ],
+ "two_step_fca_random": {
+  "instances": 500,
+  "largest_residual": 1.1368683772161603e-13
+ },
+ "surge": {
+  "instances": 300,
+  "patients": 8785,
+  "turned_away_independent": 2722,
+  "placed_sequential": 4123,
+  "placed_optimal": 4325,
+  "opt_more_placed": 125,
+  "equal_placed": 170,
+  "fits_cases": 13,
+  "fits_equal": 13,
+  "emerg_unplaced_seq": 2011,
+  "emerg_unplaced_opt": 1970,
+  "min_time_saved_when_equal": 0.0,
+  "mean_time_saved_when_equal": 17.157455339115447,
+  "share_strictly_better_when_equal": 0.711764705882353
+ },
+ "cover": {
+  "instances": 496,
+  "min_ratio": 0.8253290153655344,
+  "mean_ratio": 0.9985247109968414,
+  "share_optimal": 0.9657258064516129,
+  "bound": 0.6321205588285577
+ },
+ "mobility": {
+  "timetables": 120,
+  "queries": 1200,
+  "violations": 0,
+  "both_reach": 673,
+  "changed_hospital": 151,
+  "lost_all": 280,
+  "early_agree": 1200,
+  "early_checks": 1200,
+  "mean_extra": 6.267038201624963,
+  "max_extra": 68.38470317617708,
+  "share_extra_positive": 1.0
+ },
+ "runtime_s": 21.8
+}
