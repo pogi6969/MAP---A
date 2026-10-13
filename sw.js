@@ -1,8 +1,8 @@
 /* MAP-A service worker: keeps a copy of the app and the website so the installed app opens without a signal.
    Pages come from the network when online, so updates show at once, and from the copy when offline.
    Bump VERSION after changing the icons or the manifest. */
-var VERSION = "map-a-v2";
-var PRECACHE = ["app/", "./", "manifest.webmanifest", "favicon.ico", "icons/favicon-32.png", "icons/icon-192.png", "icons/apple-touch-icon.png"];
+var VERSION = "map-a-v3";
+var PRECACHE = ["app/", "./", "manifest.webmanifest", "favicon.ico", "icons/favicon-32.png", "icons/app-favicon.ico", "icons/app-favicon-32.png", "icons/icon-192.png", "icons/apple-touch-icon.png"];
 
 self.addEventListener("install", function (event) {
   event.waitUntil(
