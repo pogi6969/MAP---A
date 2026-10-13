@@ -8,10 +8,10 @@ MAP-A: routes, travel times and fares for public transport across all 18 cities 
 - `app/index.html` – the MAP-A app; the website's Install button installs this, and it can also be downloaded as one file
 - `manifest.webmanifest` – app name, colours, icons and start page (`app/`) used when installing
 - `sw.js` – service worker that keeps an offline copy of the app and the website
-- `icons/` – app icons made from the MAP-A logo (`icon-*`, `maskable-*`, `apple-touch-icon.png`, `app-favicon*`); `favicon-32.png` and `favicon.ico` are the website's tab icons
-- `assets/map-a-app-logo.png` – the MAP-A app logo, used for the app icons
+- `icons/`, `favicon.ico` – icons made from the MAP-A logo
+- `assets/map-a-app-logo.png` – the MAP-A logo, used for the icons and on the website
 - `assets/map-a-interface-logo.png` – the MAP-A interface logo, shown inside the app
-- `assets/official-logo.webp` – the official logo of the Landmark-Anchored Research Initiative, used on the website
+- `assets/official-logo.webp` – the earlier logo of the Landmark-Anchored Research Initiative (no longer shown)
 
 ## Publish
 
