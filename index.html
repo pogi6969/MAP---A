@@ -281,6 +281,11 @@ h2,h3{text-wrap:balance}
 @media (max-width:819px){.beds .phone{width:min(15rem,70%)}}
 .beds-copy{display:grid;gap:.85rem;min-width:0;max-width:38rem}
 .beds-copy p{margin:0;color:var(--on-red-2)}
+.care-cta{margin-top:clamp(3.5rem,7vw,5rem);padding:clamp(1.4rem,3vw,2rem);border:1.5px solid var(--gold-lt);display:grid;gap:.9rem;max-width:62rem}
+.care-cta h3{margin:0;font:700 var(--t-h3)/1.05 var(--f-display)}
+.care-cta>p{margin:0;color:var(--on-red-2);max-width:62ch}
+.care-cta ul{margin:0;padding-left:1.15rem;color:var(--on-red-2);display:grid;gap:.3rem}
+.care-acts{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:.3rem}
 .status{margin:clamp(2.5rem,5vw,3.5rem) 0 0;padding-top:1.25rem;border-top:1px solid var(--on-red-rule);max-width:72ch}
 
 /* Route with stops (agents and pipeline) */
@@ -711,6 +716,22 @@ h2,h3{text-wrap:balance}
         <h3>A bed dashboard by municipality</h3>
         <p>A read-only view of bed availability and how fresh each report is, town by town. Until hospitals agree to report, it shows the licensed beds from the DOH registry and marks every facility as not reported.</p>
       </div>
+    </div>
+
+    <div class="care-cta" id="care">
+      <p class="eyebrow">New · MAP-A Care</p>
+      <h3>The hospital app, on its own</h3>
+      <p>MAP-A Care opens straight into hospital mode and adds what a patient and a health office need: the services the patient needs, how far the patient can walk, backup hospitals if the first one turns the patient away, and planning tools.</p>
+      <ul>
+        <li>Matches eight services to each hospital level: isolation, normal delivery, operation, intensive care, newborn intensive care, high-risk pregnancy, dialysis and blood bank</li>
+        <li>Shows the extra minutes that cost, a needed service or slow walking adds to the trip</li>
+        <li>For the health office: catchment maps, beds per person and bed deserts, placing many patients in few beds, critical roads, and where a new Malasakit Center would reach the most people</li>
+      </ul>
+      <div class="care-acts">
+        <a class="btn btn-gold" href="care/"><span>Open MAP-A Care</span></a>
+        <a class="btn btn-line" href="care/index.html" download="MAP-A-Care.html" data-hosted-only><span>Download as one file</span></a>
+      </div>
+      <p class="fine">To install it, open MAP-A Care and use your browser's Install or Add to Home Screen option. It installs as a separate app with its own icon.</p>
     </div>
 
     <p class="fine status">Hospital mode is in development. It has been tested only on synthetic data in a simulated mail environment. No hospital has been contacted, and none will be until the Scientific Review Committee approves the protocol and each facility agrees.</p>

@@ -1,0 +1,25 @@
+{
+  "id": "care/",
+  "name": "MAP-A Care",
+  "short_name": "MAP-A Care",
+  "description": "Right hospital, right bed, right time: the nearest hospital in Albay that can treat the patient, has a bed and fits what the family can pay, by ambulance or by jeepney, van, bus and on foot, with planning tools for the health office.",
+  "lang": "en",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#320611",
+  "theme_color": "#A3161F",
+  "categories": ["medical", "health", "navigation"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Find the right hospital", "url": "./", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" }] },
+    { "name": "MAP-A transit atlas", "url": "../app/", "icons": [{ "src": "../icons/icon-192.png", "sizes": "192x192", "type": "image/png" }] }
+  ]
+}
