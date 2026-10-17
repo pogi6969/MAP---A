@@ -6,8 +6,7 @@
 <title>BANTA-Y</title>
 <meta name="description" content="BANTA-Y ranks dengue hotspots by where people spend the day, finds the least-cost vector-control plan, traces infections to places and raises an early alarm. Works offline.">
 <link rel="manifest" href="../manifest.webmanifest">
-<link rel="icon" href="../favicon.ico" sizes="48x48">
-<link rel="icon" href="../icons/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="icon" href="{{@favicon32}}" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17,7 +16,7 @@
 <!-- No web font and no outside script: the app is one file that works without a signal and sends nothing anywhere. -->
 <style>
 :root{
-  --bg:#FAF5EC;--card:#FFFFFF;--card-2:#FCF6EC;--ink:#2A1613;--ink-2:#6A4E45;--ink-3:#8C7368;--rule:#EAD9C3;--rule-2:#F3E8D8;
+  --bg:#FAF5EC;--card:#FFFFFF;--card-2:#FCF6EC;--ink:#2A1613;--ink-2:#6A4E45;--ink-3:#765B50;--rule:#EAD9C3;--rule-2:#F3E8D8;
   --red:#A3161F;--red-deep:#5E0A10;--red-ink:#A3161F;--gold:#E0A92A;--gold-lt:#F6D06B;--gold-bg:#FFF1CC;--gold-ink:#6E4700;--on-red:#FFF5DE;--on-red-2:#F1D3A6;
   --teal:#0B6E65;--teal-ink:#0A6A61;--teal-bg:#E1F2EF;--on-teal:#FFFFFF;
   --ok:#1D6B3A;--ok-bg:#E3F3E7;--bad:#A3161F;--bad-bg:#FBE5E3;
@@ -65,7 +64,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 :focus-visible{outline:3px solid var(--teal);outline-offset:2px}
 .skip{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:50}
 .skip:focus{left:8px;top:8px}
-.vh{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.vh{position:absolute!important;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
 /* top bar */
 .bar{position:relative;z-index:5;display:flex;align-items:center;gap:.75rem;padding:calc(.6rem + env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) .6rem max(16px,env(safe-area-inset-left));
@@ -114,7 +113,7 @@ nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;display:grid;grid-tem
 .card-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.5rem .75rem;margin-bottom:.75rem}
 .card-head p{color:var(--ink-2);font-size:.9rem;flex-basis:100%}
 .grid2{display:grid;gap:0 1rem;grid-template-columns:minmax(0,1fr)}
-@media (min-width:1100px){.grid2{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+@media (min-width:1100px){.grid2{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.grid2.wl{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr)}}
 .hint{font-size:.86rem;color:var(--ink-2);margin-top:.6rem}
 .note{font-size:.86rem;color:var(--ink-2)}
 .fine{font-size:.8rem;color:var(--ink-3);margin-top:.5rem}
@@ -138,10 +137,14 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 input[aria-invalid="true"]{border-color:var(--bad);background:var(--bad-bg)}
 textarea{font-family:var(--f-mono);font-size:.85rem;line-height:1.45;resize:vertical}
 .w-s{width:6.5rem}.w-m{width:9rem}
+input.w-s,select.w-s{width:7.5rem}input.w-m,select.w-m{width:11rem}
+.row.fields{align-items:flex-start}
+.row.fields>.btn{margin-top:calc(.8rem * 1.5 + .25rem + 2px)}
 .seg{display:inline-flex;border:1px solid var(--rule);border-radius:10px;overflow:hidden;flex-wrap:wrap}
 .seg button{border:0;background:var(--card);padding:.5rem .85rem;min-height:40px;cursor:pointer;font-weight:600;font-size:.88rem;color:var(--ink-2)}
 .seg button+button{border-left:1px solid var(--rule)}
 .seg button[aria-pressed="true"]{background:var(--teal-bg);color:var(--teal-ink)}
+@media (max-width:640px){#plan-pick{display:grid;grid-template-columns:1fr 1fr;width:100%}#plan-pick button{border-left:0;border-top:1px solid var(--rule)}#plan-pick button:nth-child(-n+2){border-top:0}#plan-pick button:nth-child(even){border-left:1px solid var(--rule)}#plan-pick button:last-child{grid-column:1 / -1}}
 .slider{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap}
 .slider input[type=range]{flex:1;min-width:180px;accent-color:var(--teal);height:32px}
 .slider output{font-family:var(--f-mono);font-weight:700;min-width:3.5rem}
@@ -150,7 +153,7 @@ details.sub>summary{cursor:pointer;font-weight:700;color:var(--teal-ink);padding
 details.sub[open]>summary{margin-bottom:.6rem}
 
 /* tables */
-.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--rule-2);border-radius:10px;max-width:100%}
+.tbl-wrap{position:relative;overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--rule-2);border-radius:10px;max-width:100%}
 table{border-collapse:collapse;width:100%;font-size:.9rem;font-variant-numeric:tabular-nums}
 th,td{padding:.45rem .6rem;text-align:right;border-bottom:1px solid var(--rule-2);white-space:nowrap}
 th{font-size:.76rem;font-weight:700;color:var(--ink-2);background:var(--card-2);vertical-align:bottom;white-space:normal;min-width:5rem;line-height:1.25}
@@ -169,7 +172,9 @@ td.del{width:44px}
 tr.hl td{background:var(--teal-bg)}
 tr.hl td:first-child{background:var(--teal-bg)}
 .num-strong{font-weight:700}
-.heat td{text-align:center;font-size:.82rem;min-width:3.6rem}
+.heat th{min-width:0}
+.heat thead th:first-child{min-width:7rem}
+.heat td{text-align:center;font-size:.82rem;min-width:3.1rem;padding:.45rem .35rem}
 .heat td:first-child{text-align:left}
 .heat tfoot td{font-weight:700;border-top:2px solid var(--rule);background:var(--card-2)}
 
@@ -190,7 +195,7 @@ tr.hl td:first-child{background:var(--teal-bg)}
 
 /* charts */
 .legend{display:flex;flex-wrap:wrap;gap:.35rem 1rem;font-size:.82rem;color:var(--ink-2);margin:.2rem 0 .5rem}
-.legend span{display:inline-flex;align-items:center;gap:.4rem}
+.legend>span{display:inline-flex;align-items:center;gap:.4rem}
 .legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
 .legend i.line{height:3px;border-radius:2px;width:16px}
 .legend i.dash{height:0;border-top:2px dashed var(--ink-2);width:16px;border-radius:0}
@@ -303,7 +308,7 @@ dialog::backdrop{background:rgba(20,8,6,.55)}
     <details class="sub" id="conv">
       <summary>Have a household-survey index instead of mosquito counts?</summary>
       <p class="note">Enter an index for each barangay (for example a house index or a Breteau index from the larval survey) and one barangay where a mosquito count gave mosquitoes per resident. BANTA-Y assumes mosquitoes per resident are proportional to the index and scales the others. Check the result with your health office's entomology staff.</p>
-      <div class="row" style="margin:.7rem 0">
+      <div class="row fields" style="margin:.7rem 0">
         <label class="field"><span>Index used</span><input type="text" id="conv-name" class="w-m" value="Breteau index"></label>
         <label class="field"><span>Calibrated in</span><select id="conv-anchor" class="w-m"></select></label>
         <label class="field"><span>Mosquitoes per resident there</span><input type="number" id="conv-anchor-m" class="w-s" step="any" min="0"></label>
@@ -319,7 +324,7 @@ dialog::backdrop{background:rgba(20,8,6,.55)}
     </div>
     <div id="tm-positions">
       <p class="note">Travel time in minutes = waiting and walking time + distance ÷ speed, from the positions in the table above.</p>
-      <div class="row" style="margin-top:.6rem">
+      <div class="row fields" style="margin-top:.6rem">
         <label class="field"><span>Waiting and walking (min)</span><input type="number" step="any" min="0" class="w-s" id="t0"></label>
         <label class="field"><span>Speed (km per minute)</span><input type="number" step="any" min="0.01" class="w-s" id="speed"><small id="speed-kmh"></small></label>
       </div>
@@ -329,12 +334,12 @@ dialog::backdrop{background:rgba(20,8,6,.55)}
       <div class="tbl-wrap" style="margin-top:.6rem"><table class="edit" id="tbl-travel"></table></div>
       <button type="button" class="btn btn-sm" id="fill-travel" style="margin-top:.6rem">Fill from positions</button>
     </div>
-    <div class="row" style="margin-top:.9rem">
+    <div class="row fields" style="margin-top:.9rem">
       <label class="field"><span>Decay β (per minute)</span><input type="number" step="any" min="0" class="w-s" id="beta"><small>Larger β: people visit nearer places.</small></label>
     </div>
   </div>
 
-  <div class="grid2">
+  <div class="grid2 wl">
     <div class="card">
       <div class="card-head"><h2>Residence-time matrix <i>P</i></h2><p>Row: where residents live. Column: where they spend the biting hours. Each row adds up to 100%. The last row is the number of people present in each place by day.</p></div>
       <div class="tbl-wrap" tabindex="0" role="region" aria-label="Residence-time matrix, scrolls sideways"><table class="heat" id="tbl-heat"></table></div>
@@ -373,7 +378,7 @@ dialog::backdrop{background:rgba(20,8,6,.55)}
     </div>
     <div class="card">
       <div class="card-head"><h2>Transmission parameters</h2><p>Declared design values within published ranges for <i>Aedes aegypti</i> (Mordecai et al., 2017). Change them to test other assumptions.</p></div>
-      <div class="row" id="params"></div>
+      <div class="row fields" id="params"></div>
       <p class="hint" id="kappa-note"></p>
     </div>
   </div>
@@ -393,7 +398,7 @@ dialog::backdrop{background:rgba(20,8,6,.55)}
   </header>
   <div class="card">
     <div class="card-head"><h2>Target and costs</h2></div>
-    <div class="row">
+    <div class="row fields">
       <label class="field"><span>Target R<sub>0</sub></span><input type="number" step="0.01" min="0.1" max="3" class="w-s" id="target"></label>
       <label class="field"><span>Households per team-day</span><input type="number" step="any" min="1" class="w-s" id="perday"></label>
       <button type="button" class="btn btn-sm" id="fill-cost">Set team-days from households</button>
@@ -434,8 +439,8 @@ dialog::backdrop{background:rgba(20,8,6,.55)}
   </header>
   <div class="card">
     <div class="card-head"><h2>Cases by barangay of residence</h2></div>
-    <div class="row" style="margin-bottom:.8rem"><label class="field"><span>Period</span><input type="text" id="period" class="w-m"></label></div>
-    <div class="tbl-wrap"><table class="edit" id="tbl-cases"><thead><tr><th scope="col">Barangay</th><th scope="col">Cases</th></tr></thead><tbody></tbody></table></div>
+    <div class="row fields" style="margin-bottom:.8rem"><label class="field"><span>Period</span><input type="text" id="period" class="w-m"></label></div>
+    <div class="tbl-wrap" style="max-width:30rem"><table class="edit" id="tbl-cases"><thead><tr><th scope="col">Barangay</th><th scope="col">Cases</th></tr></thead><tbody></tbody></table></div>
     <details class="sub"><summary>Paste a column of numbers</summary>
       <label class="field"><span>One number per barangay, in the order of the table</span><textarea id="cases-paste" rows="4"></textarea></label>
       <button type="button" class="btn btn-sm btn-primary" id="cases-apply" style="margin-top:.6rem">Use these numbers</button>
@@ -468,24 +473,24 @@ dialog::backdrop{background:rgba(20,8,6,.55)}
     </div>
     <div class="card">
       <div class="card-head"><h2>Alarm settings</h2></div>
-      <div class="row">
+      <div class="row fields">
         <label class="field"><span>Rise to detect θ</span><input type="number" step="0.05" min="1.05" class="w-s" id="theta"><small>1.5 = a rise of one half</small></label>
         <label class="field"><span>CUSUM threshold h</span><input type="number" step="0.25" min="0.5" class="w-s" id="h"></label>
         <label class="field"><span>Single-week rule z</span><input type="number" step="0.01" min="0" class="w-s" id="zval"></label>
       </div>
-      <p class="hint">Reference value k<sub>t</sub> = (θ − 1) μ<sub>t</sub> ÷ ln θ. Defaults: h = 12.75 and z = 3.64 give the same 5% chance of a false alarm in a normal year for the synthetic municipality of the study (6 to 11 expected cases a week).</p>
+      <p class="hint">Reference value k<sub>t</sub> = (θ − 1) μ<sub>t</sub> ÷ ln θ. Defaults: h = 12.75 and z = 3.64 give both rules about the same chance of a false alarm in a normal year (0.046 and 0.050) for the synthetic municipality of the study (6 to 11 expected cases a week).</p>
     </div>
   </div>
   <div id="alarm-err"></div>
   <div class="status" id="alarm-status"></div>
   <div class="card">
     <div class="card-head"><h2>Weekly cases and the alarm</h2></div>
-    <div class="legend"><span><i style="background:var(--c-case)"></i>Cases</span><span><i class="line" style="background:var(--ink-2)"></i>Expected</span><span><i class="dash"></i>Single-week threshold</span><span><i class="line" style="background:var(--c-place)"></i>CUSUM S<sub>t</sub></span></div>
+    <div class="legend"><span><i style="background:var(--c-case)"></i>Cases</span><span><i class="line" style="background:var(--ink-2)"></i>Expected</span><span><i class="dash"></i>Single-week threshold</span><span><i class="line" style="background:var(--c-place)"></i><span>CUSUM S<sub>t</sub></span></span></div>
     <div class="chart" id="chart-alarm"></div>
   </div>
   <div class="card">
     <div class="card-head"><h2>Design check</h2><p>Guarantees of the alarm (Proposition 12 of the study).</p></div>
-    <div class="row">
+    <div class="row fields">
       <label class="field"><span>Excess per week δ</span><input type="number" step="0.5" min="0.1" class="w-s" id="delta"></label>
       <label class="field"><span>Steady expected count μ</span><input type="number" step="0.5" min="0.5" class="w-s" id="mu"></label>
     </div>
@@ -663,8 +668,15 @@ function cssVar(name) { return getComputedStyle(document.documentElement).getPro
 function hexToRgb(h) { h = h.replace("#", ""); if (h.length === 3) h = h.split("").map((c) => c + c).join(""); const n = parseInt(h, 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
 function mix(a, b, t) { const A = hexToRgb(a), B = hexToRgb(b); return "rgb(" + A.map((x, i) => Math.round(x + (B[i] - x) * t)).join(",") + ")"; }
 function lum(rgb) { const v = rgb.match(/\d+/g).map((x) => { x /= 255; return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4); }); return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2]; }
-function niceMax(v) { if (!(v > 0)) return 1; const p = Math.pow(10, Math.floor(Math.log10(v))); const m = v / p; return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 2.5 ? 2.5 : m <= 5 ? 5 : 10) * p; }
-function ticks(max, n) { const out = []; const step = max / n; for (let i = 0; i <= n; i++) out.push(step * i); return out; }
+/* axis from 0 with a round step (1, 2, 2.5 or 5 times a power of ten) and about n intervals */
+function niceScale(v, n) {
+  n = n || 5; if (!(v > 0)) v = 1;
+  const raw = v / n, p = Math.pow(10, Math.floor(Math.log10(raw))), m = raw / p;
+  const step = (m <= 1 ? 1 : m <= 2 ? 2 : m <= 2.5 ? 2.5 : m <= 5 ? 5 : 10) * p;
+  const k = Math.max(1, Math.ceil(v / step - 1e-9)), t = [];
+  for (let i = 0; i <= k; i++) t.push(i * step);
+  return { max: k * step, ticks: t, dec: step >= 1 && step % 1 === 0 ? 0 : step >= 0.1 ? 1 : 2 };
+}
 function width(el) { return Math.max(280, Math.floor(el.clientWidth || el.getBoundingClientRect().width || 600)); }
 
 /* grouped bar chart: series = [{cls, values, label}], values on a common scale */
@@ -672,15 +684,15 @@ function groupedBars(el, labels, series, opts) {
   opts = opts || {};
   const W = width(el), H = opts.height || 250, ml = 44, mr = 8, mt = 12, mb = 30;
   const iw = W - ml - mr, ih = H - mt - mb, n = labels.length, k = series.length;
-  const max = niceMax(Math.max.apply(null, series.flatMap((s) => s.values)) * 1.05);
+  const sc = niceScale(Math.max(0, ...series.flatMap((s) => s.values).filter(isFinite)) * 1.02, 5), max = sc.max;
   const band = iw / n, bw = Math.max(3, Math.min(26, (band * 0.78) / k));
-  const fmtY = opts.fmtY || ((v) => nf(v, 0));
+  const fmtY = opts.fmtY ? (v) => opts.fmtY(v, sc.dec) : (v) => nf(v, sc.dec);
   let g = "";
-  ticks(max, 4).forEach((t) => { const y = mt + ih - (t / max) * ih; g += `<line class="grid" x1="${ml}" x2="${W - mr}" y1="${y}" y2="${y}"/><text x="${ml - 6}" y="${y + 4}" text-anchor="end">${fmtY(t)}</text>`; });
+  sc.ticks.forEach((t) => { const y = mt + ih - (t / max) * ih; g += `<line class="grid" x1="${ml}" x2="${W - mr}" y1="${y}" y2="${y}"/><text x="${ml - 6}" y="${y + 4}" text-anchor="end">${fmtY(t)}</text>`; });
   labels.forEach((lab, i) => {
     const cx = ml + band * i + band / 2, x0 = cx - (bw * k) / 2;
     series.forEach((s, j) => {
-      const v = s.values[i], h = Math.max(0, (v / max) * ih);
+      const v = s.values[i], h = isFinite(v) ? Math.min(ih, Math.max(0, (v / max) * ih)) : 0;
       g += `<rect class="${s.cls}" x="${(x0 + j * bw).toFixed(1)}" y="${(mt + ih - h).toFixed(1)}" width="${(bw - 1.5).toFixed(1)}" height="${h.toFixed(1)}" rx="2"><title>${esc(lab)}: ${esc(s.label)} ${esc((opts.fmtV || fmtY)(v))}</title></rect>`;
     });
     g += `<text x="${cx}" y="${H - 10}" text-anchor="middle">${esc(n > 14 ? "" : short(lab))}</text>`;
@@ -767,7 +779,7 @@ function drawMap(net, an) {
   const X = (p) => ox + (p[0] - minx) * s, Y = (p) => H - (oy + (p[1] - miny) * s);
   const maxN = Math.max(...net.N), rr = (i) => 8 + 18 * Math.sqrt(net.N[i] / maxN);
   const flows = [];
-  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) if (i !== j) flows.push([net.P[i][j] * net.N[i], i, j]);
+  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) if (i !== j && net.P[i][j] * net.N[i] > 0) flows.push([net.P[i][j] * net.N[i], i, j]);
   flows.sort((p, q) => q[0] - p[0]);
   const top = flows.slice(0, Math.min(flows.length, Math.max(6, 2 * n))), fmax = top.length ? top[0][0] : 1;
   const mmax = Math.max(...an.m), mmin = Math.min(...an.m);
@@ -786,7 +798,12 @@ function drawMap(net, an) {
   for (let i = 0; i < n; i++) {
     const t = mmax > mmin ? (an.m[i] - mmin) / (mmax - mmin) : 0.5;
     g += `<circle class="node" cx="${X(pos[i]).toFixed(1)}" cy="${Y(pos[i]).toFixed(1)}" r="${rr(i).toFixed(1)}" fill="${mix(ca, cb, 0.25 + 0.75 * t)}"><title>${esc(S.rows[i].name)}: ${nf(net.N[i], 0)} residents, ${nf(an.m[i], 2)} mosquitoes per person present</title></circle>`;
-    g += `<text class="lab" x="${(X(pos[i]) + rr(i) + 4).toFixed(1)}" y="${(Y(pos[i]) - rr(i) * 0.4).toFixed(1)}">${esc(short(S.rows[i].name))}</text>`;
+  }
+  /* labels on the side away from the middle of the network, so they do not sit on a neighbour */
+  const cx = xs.reduce((a, b) => a + b, 0) / n;
+  for (let i = 0; i < n; i++) {
+    const left = pos[i][0] < cx - 1e-9, lx = X(pos[i]) + (left ? -1 : 1) * (rr(i) + 4);
+    g += `<text class="lab" x="${lx.toFixed(1)}" y="${(Y(pos[i]) - rr(i) * 0.4).toFixed(1)}" text-anchor="${left ? "end" : "start"}">${esc(short(S.rows[i].name))}</text>`;
   }
   el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Map of the barangays with the largest daily flows">${g}</svg>
     <p class="fine">Mosquitoes per person present: ${nf(mmin, 2)} (lightest) to ${nf(mmax, 2)} (darkest).${S.travelMode !== "positions" ? " Places are drawn on a circle because travel times were entered as a table." : ""}</p>`;
@@ -840,21 +857,25 @@ function renderSpread() {
     <div class="kpi hero"><div class="kpi-label">Network R<sub>0</sub></div><div class="kpi-value">${nf(an.r0, 3)}</div><div class="kpi-sub"><span class="chip ${up ? "up" : "down"}">${up ? "Above 1: dengue can spread" : "Below 1: dengue dies out"}</span></div></div>
     <div class="kpi"><div class="kpi-label">Province-average R<sub>0</sub></div><div class="kpi-value">${nf(an.hom_r0, 3)}</div><div class="kpi-sub">Same mosquitoes spread evenly over the same people. Averaging never overstates the risk.</div></div>
     <div class="kpi"><div class="kpi-label">If nobody left home</div><div class="kpi-value">${nf(an.r0_no_movement, 3)}</div><div class="kpi-sub">Highest barangay on its own: ${esc(names[iso])}</div></div>
-    <div class="kpi"><div class="kpi-label">Check: min R<sub>i</sub> ≤ R<sub>0</sub><sup>2</sup> ≤ max R<sub>i</sub></div><div class="kpi-value" style="font-size:1.55rem">${nf(an.minR, 3)} ≤ ${nf(an.r0_sq, 3)} ≤ ${nf(an.maxR, 3)}</div><div class="kpi-sub">${an.minR <= an.r0_sq + 1e-12 && an.r0_sq <= an.maxR + 1e-12 ? "Holds, as the theory requires." : "Does not hold: check the inputs."}</div></div>`;
-  const tc = argmax(an.case_share), tp = argmax(an.shares);
+    <div class="kpi"><div class="kpi-label">Check: min R<sub>i</sub> ≤ R<sub>0</sub><sup>2</sup> ≤ max R<sub>i</sub></div><div class="kpi-value" style="font-size:1.4rem">${nf(an.minR, 3)} ≤ ${nf(an.r0_sq, 3)} ≤ ${nf(an.maxR, 3)}</div><div class="kpi-sub">${an.minR <= an.r0_sq + 1e-12 && an.r0_sq <= an.maxR + 1e-12 ? "Holds, as the theory requires." : "Does not hold: check the inputs."}</div></div>`;
+  const none = !(an.r0_sq > 0), zero = names.map(() => 0);
+  const caseShare = none ? zero : an.case_share, shares = none ? zero : an.shares;
+  const tc = argmax(caseShare), tp = none ? -1 : argmax(shares);
   const ins = $("#spread-insight"); ins.hidden = false;
-  ins.innerHTML = tc !== tp
+  ins.innerHTML = none
+    ? "With no mosquitoes there is no transmission (R<sub>0</sub> = 0), so there are no shares or hotspots to rank. Enter mosquitoes per resident on the Network screen."
+    : tc !== tp
     ? `Cases by home address point to <b>${esc(names[tc])}</b> (${pct(an.case_share[tc])} of cases), but <b>${pct(an.shares[tp])}</b> of transmission happens at <b>${esc(names[tp])}</b>. A brigade sent where the cases live would start in the wrong place.`
     : `<b>${esc(names[tp])}</b> leads both by home address (${pct(an.case_share[tc])} of cases) and by place (${pct(an.shares[tp])} of transmission).`;
   groupedBars($("#chart-shares"), names, [
     { cls: "s-res", label: "residents", values: an.resident_share.map((x) => 100 * x) },
-    { cls: "s-case", label: "cases by home address", values: an.case_share.map((x) => 100 * x) },
-    { cls: "s-place", label: "transmission by place", values: an.shares.map((x) => 100 * x) }
-  ], { fmtY: (v) => nf(v, 0) + "%", fmtV: (v) => nf(v, 1) + "%", aria: "Shares of residents, cases by home address and transmission by place for each barangay" });
+    { cls: "s-case", label: "cases by home address", values: caseShare.map((x) => 100 * x) },
+    { cls: "s-place", label: "transmission by place", values: shares.map((x) => 100 * x) }
+  ], { fmtY: (v, d) => nf(v, d) + "%", fmtV: (v) => nf(v, 1) + "%", aria: "Shares of residents, cases by home address and transmission by place for each barangay" });
   const order = an.hotspot_per_teamday.map((v, i) => i).sort((p, q) => an.hotspot_per_teamday[q] - an.hotspot_per_teamday[p]);
-  $("#rank").innerHTML = order.slice(0, Math.min(n, 8)).map((i) => `<li><span class="r-name">${esc(names[i])}<small>${pct(an.shares[i])} of transmission · ${nf(S.rows[i].cost, 2)} team-days for full control</small></span><span class="r-val">${nf(1000 * an.hotspot_per_teamday[i], 1)}</span></li>`).join("");
+  $("#rank").innerHTML = none ? "" : order.slice(0, Math.min(n, 8)).map((i) => `<li><span class="r-name">${esc(names[i])}<small>${pct(an.shares[i])} of transmission · ${nf(S.rows[i].cost, 2)} team-days for full control</small></span><span class="r-val">${nf(1000 * an.hotspot_per_teamday[i], 1)}</span></li>`).join("");
   let h = '<thead><tr><th scope="col">Barangay</th><th scope="col">Residents</th><th scope="col">People present by day</th><th scope="col">Mosquitoes per person present</th><th scope="col">Local exposure R<sub>i</sub></th><th scope="col">R<sub>0</sub> if isolated</th><th scope="col">Cases by home (%)</th><th scope="col">Transmission at place (%)</th><th scope="col">Hotspot score per team-day</th></tr></thead><tbody>';
-  for (let i = 0; i < n; i++) h += `<tr${i === tp ? ' class="hl"' : ""}><td>${esc(names[i])}</td><td>${nf(net.N[i], 0)}</td><td>${nf(an.present[i], 0)}</td><td>${nf(an.m[i], 3)}</td><td>${nf(an.R_local[i], 3)}</td><td>${nf(an.iso_r0[i], 3)}</td><td>${nf(100 * an.case_share[i], 1)}</td><td class="num-strong">${nf(100 * an.shares[i], 1)}</td><td>${nf(1000 * an.hotspot_per_teamday[i], 2)}</td></tr>`;
+  for (let i = 0; i < n; i++) h += `<tr${i === tp ? ' class="hl"' : ""}><td>${esc(names[i])}</td><td>${nf(net.N[i], 0)}</td><td>${nf(an.present[i], 0)}</td><td>${nf(an.m[i], 3)}</td><td>${nf(an.R_local[i], 3)}</td><td>${nf(an.iso_r0[i], 3)}</td><td>${none ? "–" : nf(100 * caseShare[i], 1)}</td><td class="num-strong">${none ? "–" : nf(100 * shares[i], 1)}</td><td>${nf(1000 * an.hotspot_per_teamday[i], 2)}</td></tr>`;
   $("#tbl-spread").innerHTML = h + "</tbody>";
 }
 
@@ -900,7 +921,7 @@ function renderControl() {
     const s = st[k];
     return `<div class="bar-row${k === "exact" ? " best" : ""}"><span class="lbl">${label}<small>${sub}</small></span>
       <span class="bar-track" role="img" aria-label="${label}: ${s.feasible ? nf(s.cost, 2) + " team-days" : "cannot reach the target"}"><span class="bar-fill${k === "exact" ? " exact" : k === "certificate" ? " cert" : ""}" style="width:${s.feasible ? (100 * s.cost / cmax).toFixed(2) : 0}%"></span></span>
-      <span class="val">${s.feasible ? nf(s.cost, 2) : "–"}<small style="display:block;font-weight:400;color:var(--ink-3);font-size:.74rem">R<sub>0</sub> ${s.feasible ? nf(s.r0, 3) : "–"}</small></span></div>`;
+      <span class="val">${s.feasible ? nf(s.cost, 2) : "out of reach"}<small style="display:block;font-weight:400;color:var(--ink-3);font-size:.74rem">${s.feasible ? "R<sub>0</sub> " + nf(s.r0, 3) : "even at the maximum"}</small></span></div>`;
   }).join("");
   $("#cert-note").innerHTML = ex.feasible && an.r0 > S.target
     ? `Certified interval for the least cost: [${nf(ex.lower, 4)}, ${nf(ex.upper, 4)}] team-days, so no plan can do better than ${nf(ex.lower, 2)}. Found in ${ex.iterations} Newton steps of the interior-point method. The quick safe plan solves a linear program in which every barangay's local exposure number meets the target, so it never falls short, but it may spend more.`
@@ -921,10 +942,10 @@ function renderSeasonCurve(net) {
   const key = netKey() + "|" + S.target, F = [0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4];
   const draw = (curve) => {
     const el = $("#chart-season"), W = width(el), H = 230, ml = 48, mr = 14, mt = 14, mb = 34, iw = W - ml - mr, ih = H - mt - mb;
-    const vals = curve.map((c) => c.cost == null ? NaN : c.cost), max = niceMax(Math.max(1, ...vals.filter(isFinite)) * 1.05);
+    const vals = curve.map((c) => c.cost == null ? NaN : c.cost), sc = niceScale(Math.max(1, ...vals.filter(isFinite)) * 1.02, 5), max = sc.max;
     const X = (s) => ml + ((s - 0.6) / 0.8) * iw, Yv = (v) => mt + ih - (v / max) * ih;
     let g = "";
-    ticks(max, 4).forEach((t) => { g += `<line class="grid" x1="${ml}" x2="${W - mr}" y1="${Yv(t)}" y2="${Yv(t)}"/><text x="${ml - 6}" y="${Yv(t) + 4}" text-anchor="end">${nf(t, 0)}</text>`; });
+    sc.ticks.forEach((t) => { g += `<line class="grid" x1="${ml}" x2="${W - mr}" y1="${Yv(t)}" y2="${Yv(t)}"/><text x="${ml - 6}" y="${Yv(t) + 4}" text-anchor="end">${nf(t, sc.dec)}</text>`; });
     F.forEach((s) => { g += `<text x="${X(s)}" y="${H - 14}" text-anchor="middle">${nf(s, 1)}</text>`; });
     g += `<text x="${ml + iw / 2}" y="${H}" text-anchor="middle">season factor</text>`;
     const pts = curve.filter((c) => c.cost != null);
@@ -935,8 +956,9 @@ function renderSeasonCurve(net) {
     g += `<line class="ax" x1="${ml}" x2="${W - mr}" y1="${mt + ih}" y2="${mt + ih}"/>`;
     el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Least cost in team-days for each season factor">${g}</svg>`;
     const unreach = curve.filter((c) => c.cost == null).map((c) => nf(c.s, 1));
-    const thr = curve.find((c) => c.r0 > S.target);
-    $("#season-wait").innerHTML = (thr ? `Below a season factor of about ${nf(thr.s, 1)} no control is needed to stay under the target. ` : "") + (unreach.length ? `Target out of reach at season factor ${unreach.join(", ")}. ` : "") +
+    const ref = curve.find((c) => c.r0 > 0), r01 = ref ? ref.r0 / Math.sqrt(ref.s) : NaN, sStar = Math.pow(S.target / r01, 2), sOne = Math.pow(1 / r01, 2);
+    $("#season-wait").innerHTML = (isFinite(sStar) && sStar > 0.6 && sStar < 1.4 ? `R<sub>0</sub><sup>2</sup> grows in proportion to the season factor, so below a season factor of ${nf(sStar, 2)} R<sub>0</sub> stays under the target with no control. ` : "") +
+      (isFinite(sOne) && sOne > 0.6 && sOne < 1.4 ? `Below ${nf(sOne, 2)}, R<sub>0</sub> is under 1 and dengue cannot take hold at all. ` : "") + (unreach.length ? `Target out of reach at season factor ${unreach.join(", ")}. ` : "") +
       '<span class="fine">Points: ' + curve.map((c) => nf(c.s, 1) + " → " + (c.cost == null ? "out of reach" : nf(c.cost, 1))).join(" · ") + "</span>";
   };
   if (memo.curve && memo.curve.key === key) { draw(memo.curve.val); return; }
@@ -983,7 +1005,7 @@ function renderPlaces() {
   $("#places-legend").innerHTML = '<span><i style="background:var(--c-case)"></i>Cases by home address</span><span><i style="background:var(--c-place)"></i>Infections by place (inferred)</span>' + (truth ? '<span><i style="background:var(--c-truth)"></i>Infections by place (model truth, test network only)</span>' : "");
   const series = [{ cls: "s-case", label: "cases by home", values: S.cases.slice() }, { cls: "s-place", label: "infections by place (inferred)", values: inv.infections }];
   if (truth) series.push({ cls: "s-truth", label: "infections by place (model truth)", values: truth });
-  groupedBars($("#chart-places"), names, series, { fmtY: (v) => nf(v, 0), fmtV: (v) => nf(v, 1), aria: "Cases by home address and inferred infections by place" });
+  groupedBars($("#chart-places"), names, series, { fmtV: (v) => nf(v, 1), aria: "Cases by home address and inferred infections by place" });
   let h = `<thead><tr><th scope="col">Barangay</th><th scope="col">Cases by home (${esc(S.period || "period")})</th><th scope="col">Rate per 1,000 residents</th><th scope="col">Infection pressure per 1,000 present</th><th scope="col">Infections by place (inferred)</th><th scope="col">± bound</th>${truth ? '<th scope="col">Model truth (D1 only)</th>' : ""}</tr></thead><tbody>`;
   for (let i = 0; i < n; i++) h += `<tr${i === tp ? ' class="hl"' : ""}><td>${esc(names[i])}</td><td>${nf(S.cases[i], 0)}</td><td>${nf(1000 * inv.rate[i], 2)}</td><td>${nf(1000 * inv.z[i], 2)}</td><td class="num-strong">${nf(inv.infections[i], 1)}</td><td>${isFinite(inv.infErr[i]) ? "± " + nf(inv.infErr[i], 1) : "–"}</td>${truth ? `<td>${nf(truth[i], 1)}</td>` : ""}</tr>`;
   h += `</tbody><tfoot><tr><td>Total</td><td>${nf(total, 0)}</td><td></td><td></td><td>${nf(sum(inv.infections), 1)}</td><td></td>${truth ? `<td>${nf(sum(truth), 1)}</td>` : ""}</tr></tfoot>`;
@@ -1017,21 +1039,24 @@ function renderAlarm() {
 function drawAlarm(x, mu, thr, cu, thAlarm) {
   const el = $("#chart-alarm"), W = width(el), T = x.length, ml = 40, mr = 10, H1 = 200, H2 = 120, gap = 26, mt = 10, mb = 30, H = mt + H1 + gap + H2 + mb;
   const iw = W - ml - mr, bw = iw / T, X = (t) => ml + bw * t + bw / 2;
-  const max1 = niceMax(Math.max(...x, ...thr) * 1.05), Y1 = (v) => mt + H1 - (v / max1) * H1;
-  const smax = niceMax(Math.max(S.alarm.h * 1.25, ...cu.S)), Y2 = (v) => mt + H1 + gap + H2 - (v / smax) * H2;
+  const sc1 = niceScale(Math.max(...x, ...thr) * 1.02, 4), max1 = sc1.max, Y1 = (v) => mt + H1 - (v / max1) * H1;
+  const maxS = Math.max(...cu.S), sc2 = niceScale(Math.max(S.alarm.h * 1.3, Math.min(maxS, S.alarm.h * 2.5)), 3), smax = sc2.max;
+  const Y2 = (v) => mt + H1 + gap + H2 - (v / smax) * H2;
   let g = "";
-  ticks(max1, 4).forEach((t) => { g += `<line class="grid" x1="${ml}" x2="${W - mr}" y1="${Y1(t)}" y2="${Y1(t)}"/><text x="${ml - 6}" y="${Y1(t) + 4}" text-anchor="end">${nf(t, 0)}</text>`; });
+  sc1.ticks.forEach((t) => { g += `<line class="grid" x1="${ml}" x2="${W - mr}" y1="${Y1(t)}" y2="${Y1(t)}"/><text x="${ml - 6}" y="${Y1(t) + 4}" text-anchor="end">${nf(t, sc1.dec)}</text>`; });
   x.forEach((v, t) => { g += `<rect class="s-case" x="${(ml + bw * t + bw * 0.12).toFixed(1)}" y="${Y1(v).toFixed(1)}" width="${Math.max(1, bw * 0.76).toFixed(1)}" height="${(mt + H1 - Y1(v)).toFixed(1)}" rx="1.5"><title>Week ${t + 1}: ${v} cases, expected ${nf(mu[t], 1)}</title></rect>`; });
   g += `<path class="l-exp" d="${mu.map((v, t) => (t ? "L" : "M") + X(t).toFixed(1) + " " + Y1(v).toFixed(1)).join(" ")}"/>`;
   g += `<path class="l-thr" d="${thr.map((v, t) => (t ? "L" : "M") + X(t).toFixed(1) + " " + Y1(v).toFixed(1)).join(" ")}"/>`;
   g += `<line class="ax" x1="${ml}" x2="${W - mr}" y1="${mt + H1}" y2="${mt + H1}"/>`;
-  ticks(smax, 2).forEach((t) => { g += `<line class="grid" x1="${ml}" x2="${W - mr}" y1="${Y2(t)}" y2="${Y2(t)}"/><text x="${ml - 6}" y="${Y2(t) + 4}" text-anchor="end">${nf(t, 0)}</text>`; });
+  sc2.ticks.forEach((t) => { g += `<line class="grid" x1="${ml}" x2="${W - mr}" y1="${Y2(t)}" y2="${Y2(t)}"/><text x="${ml - 6}" y="${Y2(t) + 4}" text-anchor="end">${nf(t, sc2.dec)}</text>`; });
   g += `<line class="l-h" x1="${ml}" x2="${W - mr}" y1="${Y2(S.alarm.h)}" y2="${Y2(S.alarm.h)}"/><text x="${W - mr}" y="${Y2(S.alarm.h) - 5}" text-anchor="end">h = ${nf(S.alarm.h, 2)}</text>`;
-  g += `<path class="l-cus" d="${cu.S.map((v, t) => (t ? "L" : "M") + X(t).toFixed(1) + " " + Y2(v).toFixed(1)).join(" ")}"/>`;
+  /* the CUSUM line leaves the top of its panel when it climbs far past h */
+  g += `<clipPath id="cu-clip"><rect x="${ml}" y="${mt + H1 + gap - 1}" width="${iw}" height="${H2 + 2}"/></clipPath>`;
+  g += `<path class="l-cus" clip-path="url(#cu-clip)" d="${cu.S.map((v, t) => (t ? "L" : "M") + X(t).toFixed(1) + " " + Y2(v).toFixed(1)).join(" ")}"/>`;
   g += `<line class="ax" x1="${ml}" x2="${W - mr}" y1="${mt + H1 + gap + H2}" y2="${mt + H1 + gap + H2}"/>`;
   const every = T > 26 ? (W < 500 ? 8 : 4) : T > 12 ? 2 : 1;
   for (let t = 0; t < T; t++) if ((t + 1) % every === 0 || t === 0) g += `<text x="${X(t)}" y="${H - 12}" text-anchor="middle">${t + 1}</text>`;
-  g += `<text x="${ml}" y="${H}" text-anchor="start">week</text><text x="${ml + 4}" y="${mt + H1 + gap - 6}">CUSUM S<tspan baseline-shift="sub" font-size="8">t</tspan></text>`;
+  g += `<text x="${ml}" y="${H}" text-anchor="start">week</text><text x="${ml + 4}" y="${mt + H1 + gap - 6}">CUSUM S<tspan baseline-shift="sub" font-size="8">t</tspan>${maxS > smax ? " (drawn up to " + nf(smax, 0) + "; it reaches " + nf(maxS, 1) + ")" : ""}</text>`;
   if (cu.alarm !== null) g += `<line class="m-alarm" x1="${X(cu.alarm)}" x2="${X(cu.alarm)}" y1="${mt}" y2="${mt + H1 + gap + H2}"/><text x="${X(cu.alarm) + 4}" y="${mt + 12}" style="fill:var(--c-place);font-weight:700">CUSUM alarm</text>`;
   if (thAlarm !== null) g += `<line class="m-thr" x1="${X(thAlarm)}" x2="${X(thAlarm)}" y1="${mt}" y2="${mt + H1}"/><text x="${X(thAlarm) - 4}" y="${mt + 26}" text-anchor="end" style="fill:var(--teal-ink);font-weight:700">single-week</text>`;
   el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Weekly cases with expected counts, single-week threshold, and the CUSUM statistic">${g}</svg>`;
@@ -1067,10 +1092,14 @@ function render4S() {
 /* ------------------------------------------------------------------ navigation and rendering */
 const RENDER = { network: renderNetwork, spread: renderSpread, control: renderControl, places: renderPlaces, alarm: renderAlarm, fours: render4S };
 let renderTimer = 0;
-function schedule(delay) { clearTimeout(renderTimer); renderTimer = setTimeout(() => { RENDER[S.tab](); }, delay == null ? 120 : delay); }
+function schedule(delay) { clearTimeout(renderTimer); renderTimer = setTimeout(() => { RENDER[S.tab](); updateChrome(); }, delay == null ? 120 : delay); }
+const BANNER_D1 = $("#banner-text").innerHTML;
 function updateChrome() {
+  const pristine = S.synthetic && isPristineD1();
   $("#banner").hidden = !S.synthetic;
-  $("#brand-sub").textContent = S.synthetic ? "Test network D1 · synthetic" : (S.label || "My network");
+  $("#banner-text").innerHTML = pristine ? BANNER_D1
+    : "<b>Edited from the synthetic test network D1.</b> These values started as six made-up barangays, not real Albay data. Load the original from the Data menu, or import a file with your own barangays.";
+  $("#brand-sub").textContent = S.synthetic ? (pristine ? "Test network D1 · synthetic" : "Edited from test network D1") : (S.label || "My network");
 }
 function go(tab, focus) {
   if (TABS.indexOf(tab) < 0) tab = "network";

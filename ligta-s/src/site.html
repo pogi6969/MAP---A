@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>LIGTA-S</title>
+<meta name="description" content="LIGTA-S plans evacuations in Albay by hazard zone, shelter capacity and vulnerability while keeping classrooms open: exact shelter plans, clearance times with lahar bridge closures, and Ligtas Pinoy Center siting. A Legazpi City Science High School research app.">
+<meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#160C0C" media="(prefers-color-scheme: dark)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="LIGTA-S">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/favicon.ico" sizes="48x48">
+<link rel="icon" href="icons/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&amp;family=Overpass:wght@400;600;700;800&amp;family=Overpass+Mono:wght@400;600;700&amp;display=swap">
+<script>try{var t=localStorage.getItem("ligtas.site.theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<!--@SITECSS-->
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 3.5v11.5m0 0-4.6-4.6M12 15l4.6-4.6M4.5 15.5v4h15v-4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-open" viewBox="0 0 24 24"><path d="M14 4.5h5.5V10M19.5 4.5 11 13M17 14v5.5H4.5V7H10" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24"><path d="M6 3.5h8l4 4v13H6z M14 3.5v4h4 M9 12h6M9 15.5h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+  <symbol id="i-auto" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M19.5 14.5A8 8 0 0 1 9.5 4.5a8 8 0 1 0 10 10z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></symbol>
+</svg>
+
+<header class="hdr">
+  <div class="wrap hdr-in">
+    <a class="brand" href="#top" aria-label="LIGTA-S, back to the top">@@LOGO_SVG@@<span class="wm">LIGTA-S</span></a>
+    <nav class="nav" aria-label="Sections">
+      <a href="#why">Why</a>
+      <a href="#features">Features</a>
+      <a href="#demo">Demo</a>
+      <a href="#mcs">How MCS works</a>
+      <a href="#research">Research</a>
+      <a href="#team">Team</a>
+      <a href="#policies">Policies</a>
+    </nav>
+    <div class="hdr-actions">
+      <button type="button" class="theme-btn" id="theme-btn" aria-label="Color theme: automatic"><svg aria-hidden="true"><use href="#i-auto"/></svg></button>
+      <a class="btn btn-red btn-sm" href="#install" data-install><svg class="ico" aria-hidden="true"><use href="#i-down"/></svg><span>Install app</span></a>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+<section class="hero" id="top" aria-labelledby="hero-h">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div class="hero-copy">
+        <p class="kicker">Ligtas na silungan, bukas na paaralan</p>
+        <h1 id="hero-h">Safe shelter. <em>Open schools.</em></h1>
+        <p class="hero-lead">LIGTA-S plans an evacuation the way Philippine law asks: everyone in a hazard zone gets a shelter with room, vulnerable residents first, and classrooms are used only when nothing else is left.</p>
+        <p class="say"><span>Say it like</span><b>ligtas</b><span>(LIG-tas), the Filipino word for safe.</span></p>
+        <div class="hero-cta">
+          <a class="btn btn-gold btn-lg" href="#install" data-install><svg class="ico" aria-hidden="true"><use href="#i-down"/></svg><span>Install LIGTA-S</span></a>
+          <a class="btn btn-line btn-lg" href="#demo">Try the demo</a>
+          <a class="btn btn-line btn-lg" href="app/">Open the app</a>
+        </div>
+        <p class="hero-note">Free for Android, iPhone, iPad and computers. Installs from your browser with no app store, and works without a signal.</p>
+      </div>
+      <div class="hero-phones" aria-hidden="true">
+        <div class="phone"><img src="assets/screens/plan-map.webp" width="600" height="1299" alt="" decoding="async"></div>
+        <div class="phone"><img src="assets/screens/plan-results.webp" width="600" height="1299" alt="" decoding="async"></div>
+      </div>
+    </div>
+    <dl class="hero-facts">
+      <div><dt>14 vs 40</dt><dd>classrooms closed at Alert Level 3: school-preserving plan vs a time-only plan</dd></div>
+      <div><dt>+1.70 min</dt><dd>the whole cost in mean travel time (31.18 vs 29.48 min)</dd></div>
+      <div><dt>53 min</dt><dd>exact clearance time; lower bound 34 min</dd></div>
+      <div><dt>300 of 300</dt><dd>plans matched five sequential linear programs</dd></div>
+      <dd class="syn">The first three numbers come from test network E1, a synthetic volcano built for the study. They are not Albay data.</dd>
+    </dl>
+  </div>
+</section>
+
+<section class="section alt" id="why" aria-labelledby="why-h">
+  <div class="wrap">
+    <div class="head">
+      <p class="kicker">Why it matters</p>
+      <h2 id="why-h">When Mayon stirs, classrooms fill up</h2>
+      <p class="lede">Albay has 18 cities and municipalities, 720 barangays and 1,374,768 residents (PSA 2020 census). In the June 2023 Mayon unrest, more than 19,000 people from 26 barangays stayed in 26 evacuation centers (ReliefWeb, 2023), and in 2026 schools became shelters again.</p>
+    </div>
+    <div class="facts">
+      <article class="fact"><b>Jan 6, 2026</b><p>PHIVOLCS raised Mayon Volcano to Alert Level 3, and Albay ordered the preemptive evacuation of the 6-km Permanent Danger Zone.</p><cite>Interaksyon / Philstar, January 6, 2026</cite></article>
+      <article class="fact"><b>608 and 3,424</b><p>In January 2026, 608 learners were displaced from the danger zone, and 3,424 learners were affected because four schools became evacuation centers. Some schools shifted to modular or blended learning.</p><cite>Philippine Daily Inquirer, 2026</cite></article>
+      <article class="fact"><b>34 classrooms</b><p>In May 2026, 34 classrooms in three Camalig schools sheltered 488 families, about 1,315 people. Ashfall reached up to 132 schools.</p><cite>Daily Tribune, May 4, 2026; Philippine Star, May 6, 2026</cite></article>
+      <article class="fact law"><b>RA 10821</b><p>The Children's Emergency Relief and Protection Act (2016): schools may be evacuation centers only when no other suitable space exists. DepEd guidance: gyms and open spaces before classrooms, and at most 15 days for medium or long-term displacement unless the LGU documents the need.</p><cite>Republic Act No. 10821 and DepEd guidance</cite></article>
+      <article class="fact law"><b>RA 12076</b><p>The Ligtas Pinoy Centers Act, signed December 6, 2024, provides for an evacuation center in every city and municipality. Where should each one go?</p><cite>Republic Act No. 12076</cite></article>
+      <article class="fact std"><b>3.5 m²</b><p>Covered living space per person in the Sphere Handbook (2018). A DepEd standard classroom, 7 m by 9 m = 63 m², therefore shelters 18 evacuees.</p><cite>Sphere Handbook, 2018; DepEd classroom standard</cite></article>
+    </div>
+    <p class="why-q">How many classrooms does an evacuation <span>really</span> need, how long until everyone is safe, and where should new centers be built? LIGTA-S answers all three with mathematics that is proven, then checked.</p>
+  </div>
+</section>
+
+<section class="section" id="install" aria-labelledby="install-h">
+  <div class="wrap install-grid">
+    <div>
+      <p class="kicker">Download the app</p>
+      <div class="app-id">@@LOGO_SVG@@<h2 id="install-h">Get LIGTA-S on your phone</h2></div>
+      <p class="lede">Install LIGTA-S straight from this page. It gets its own icon on your home screen, opens in its own window, and keeps working when the signal drops during a typhoon or an eruption warning.</p>
+      <div class="install-cta">
+        <button type="button" class="btn btn-red btn-lg" id="install-btn" data-install><svg class="ico" aria-hidden="true"><use href="#i-down"/></svg><span>Install LIGTA-S</span></button>
+        <a class="btn btn-ghost btn-lg" href="app/"><svg class="ico" aria-hidden="true"><use href="#i-open"/></svg><span>Open in browser</span></a>
+      </div>
+      <p class="install-status" id="install-status" role="status" aria-live="polite"></p>
+      <dl class="spec">
+        <div><dt>Price</dt><dd>Free</dd></div>
+        <div><dt>Version</dt><dd>@@VERSION@@</dd></div>
+        <div><dt>Size</dt><dd>About 0.2 MB</dd></div>
+        <div><dt>Works on</dt><dd>Android, iPhone, iPad and computers</dd></div>
+      </dl>
+      <p class="fine">Everything runs on your device: the planner, the clearance time, the siting and the resident mode. No account and no server.</p>
+      <p class="fine" style="margin-top:.6rem"><a href="app/index.html" download="LIGTA-S.html">Download the app as one file</a> (LIGTA-S.html, about 160 KB). It opens in any browser without installing, even with no internet.</p>
+    </div>
+    <div class="how-install" id="how-install">
+      <h3 id="steps-h">How to install</h3>
+      <div class="dev-tabs" role="tablist" aria-labelledby="steps-h">
+        <button type="button" role="tab" id="dt-android" aria-controls="dp-android" aria-selected="true" data-dev="android">Android</button>
+        <button type="button" role="tab" id="dt-ios" aria-controls="dp-ios" aria-selected="false" data-dev="ios">iPhone and iPad</button>
+        <button type="button" role="tab" id="dt-desktop" aria-controls="dp-desktop" aria-selected="false" data-dev="desktop">Computer</button>
+      </div>
+      <ol class="steps" id="dp-android" role="tabpanel" aria-labelledby="dt-android">
+        <li>Open this page in Chrome, Edge or Samsung Internet.</li>
+        <li>Tap Install LIGTA-S. If no install window opens, tap the ⋮ menu, then Add to Home screen or Install app.</li>
+        <li>Tap Install. LIGTA-S appears with your other apps.</li>
+      </ol>
+      <ol class="steps" id="dp-ios" role="tabpanel" aria-labelledby="dt-ios" hidden>
+        <li>Open this page in Safari.</li>
+        <li>Tap the Share button (the square with an arrow pointing up).</li>
+        <li>Scroll down and tap Add to Home Screen, then Add. LIGTA-S appears on your home screen.</li>
+      </ol>
+      <ol class="steps" id="dp-desktop" role="tabpanel" aria-labelledby="dt-desktop" hidden>
+        <li>Open this page in Chrome or Microsoft Edge. On a Mac you can also use Safari.</li>
+        <li>Click Install LIGTA-S, or the install icon at the right end of the address bar. In Safari, choose File, then Add to Dock.</li>
+        <li>Click Install. LIGTA-S opens in its own window, and you can pin it to the taskbar or Dock.</li>
+      </ol>
+      <p class="fine">To remove LIGTA-S, uninstall it like any other app. The copy kept for offline use is removed with it.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section alt" id="features" aria-labelledby="features-h">
+  <div class="wrap">
+    <div class="head">
+      <p class="kicker">Features</p>
+      <h2 id="features-h">One app for the planner and the resident</h2>
+      <p class="lede">Every screen below is the working LIGTA-S app, shown on the synthetic test network E1 that comes with it. Replace the demo with your own barangays, shelters and roads.</p>
+    </div>
+    <article class="feature">
+      <div class="feature-shot"><div class="phone"><img src="assets/screens/plan-results.webp" width="600" height="1299" alt="The LIGTA-S planner on test network E1 at Alert Level 3: 14 classrooms closed, 532 learners displaced, 210 classroom-days, nobody left unplaced." loading="lazy" decoding="async"></div></div>
+      <div>
+        <p class="kicker">Planner mode</p>
+        <h3>Who goes where, with classrooms last</h3>
+        <p>Pick a scenario and LIGTA-S finds the exact plan in the order the law sets: the most vulnerable residents placed, then the most residents placed, then the fewest in classrooms, the fewest in school gyms and covered courts, and the least travel.</p>
+        <ul class="ticks">
+          <li>Alert Level 3, Alert Level 4 and a compound lahar scenario with closed bridges</li>
+          <li>Editable tables of origins (population, vulnerable residents) and shelters (floor areas, classrooms, accessibility)</li>
+          <li>Persons per tier, classrooms closed (packed 18 per room), learners displaced and classroom-days for any length of stay</li>
+          <li>The time-only plan and the nearest-site rule side by side, so the classrooms saved and the extra minutes are plain</li>
+        </ul>
+        <p class="fine">Test network E1 (synthetic), Alert Level 3.</p>
+      </div>
+    </article>
+    <article class="feature flip">
+      <div class="feature-shot"><div class="phone"><img src="assets/screens/clearance.webp" width="600" height="1299" alt="Clearance time on test network E1: 53 minutes, lower bound 34 minutes, with the curve of evacuees inside shelters by minute." loading="lazy" decoding="async"></div></div>
+      <div>
+        <p class="kicker">Clearance time</p>
+        <h3>The exact minute everyone is safe</h3>
+        <p>Roads carry only so many people per minute. LIGTA-S expands the road map over time and solves maximum flows to find the first minute by which every evacuee of the plan can be inside a shelter, not an estimate.</p>
+        <ul class="ticks">
+          <li>Clearance time by doubling and bisection, with a quick lower bound beside it</li>
+          <li>Tap a bridge to close it, or close every bridge over a lahar channel at once</li>
+          <li>See how many minutes a closure adds, and who is cut off from every shelter</li>
+        </ul>
+        <p class="fine">Test network E1 (synthetic), Alert Level 3.</p>
+      </div>
+    </article>
+    <article class="feature">
+      <div class="feature-shot"><div class="phone"><img src="assets/screens/siting.webp" width="600" height="1299" alt="Ligtas Pinoy Center siting on test network E1: three sites chosen by the greedy rule, marked on the map." loading="lazy" decoding="async"></div></div>
+      <div>
+        <p class="kicker">Ligtas Pinoy Center siting</p>
+        <h3>Where the next evacuation center should go</h3>
+        <p>For each set of candidate sites, LIGTA-S counts how many more evacuees could be sheltered outside classrooms within a travel-time standard. It picks sites greedily, a rule proven to reach at least 63.2% of the best possible set, and checks the choice against every set.</p>
+        <ul class="ticks">
+          <li>Candidate sites with floor areas, a 30-minute standard by default, any number of sites</li>
+          <li>The plan recomputed with the new centers: classrooms, learners and clearance time</li>
+        </ul>
+        <p class="fine">Test network E1 (synthetic), Alert Level 4 with lahar.</p>
+      </div>
+    </article>
+    <article class="feature flip">
+      <div class="feature-shot"><div class="phone"><img src="assets/screens/resident.webp" width="600" height="1299" alt="Resident mode on test network E1: for barangay O1, the assigned shelter at each alert level with its trip time and accessibility." loading="lazy" decoding="async"></div></div>
+      <div>
+        <p class="kicker">Resident mode and tools</p>
+        <h3>“Where do I go?” in one tap</h3>
+        <p>Residents choose their barangay and see their assigned shelter at each alert level, the trip time, and whether the shelter is accessible, with a switch for households that include a senior, a small child, a person with disability or a pregnant woman.</p>
+        <ul class="ticks">
+          <li>Capacity calculator: floor area to persons at 3.5 m² each, classrooms to evacuees at 18 per room</li>
+          <li>Edits saved on the device; export and import as JSON or CSV</li>
+          <li>Works offline once installed</li>
+        </ul>
+        <p class="fine">Test network E1 (synthetic). A planning aid, not an evacuation order.</p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section class="section" id="demo" aria-labelledby="demo-h">
+  <div class="wrap">
+    <div class="head">
+      <p class="kicker">Try it here</p>
+      <h2 id="demo-h">Plan an evacuation on the test network</h2>
+      <p class="lede">This is the real LIGTA-S engine running in your browser on test network E1, a synthetic volcano with six slope barangays, three evacuation centers, three schools and two lahar channels. Change the scenario or the rule and every number is recomputed.</p>
+    </div>
+    <div class="demo">
+      <div class="panel">
+        <div class="map-wrap"><svg class="map" id="demo-map" role="img" aria-label="Map of test network E1"></svg></div>
+        <div class="legend" aria-hidden="true">
+          <span><i class="sw o"></i>Origin that must evacuate</span>
+          <span><i class="sw ec"></i>Non-school shelter</span>
+          <span><i class="sw sc"></i>School</span>
+          <span><i class="sw fl"></i>Evacuees on their way</span>
+          <span><i class="sw pdz"></i>6-km danger zone</span>
+          <span><i class="sw br"></i>Bridge on a lahar channel</span>
+        </div>
+      </div>
+      <div class="panel" id="demo-panel">
+        <div class="ctl"><span id="d-scen-l">Scenario</span><div class="seg" id="d-scen" role="group" aria-labelledby="d-scen-l"></div></div>
+        <div class="ctl"><span id="d-rule-l">Rule</span><div class="seg" id="d-rule" role="group" aria-labelledby="d-rule-l">
+          <button type="button" data-v="lex" aria-pressed="true">School-preserving</button>
+          <button type="button" data-v="time" aria-pressed="false">Time-only</button>
+          <button type="button" data-v="near" aria-pressed="false">Nearest site</button>
+        </div></div>
+        <div class="ctl"><span id="d-ch-l">Lahar damage</span><div class="seg" id="d-ch" role="group" aria-labelledby="d-ch-l">
+          <button type="button" data-v="" aria-pressed="true">All bridges open</button>
+          <button type="button" data-v="A" aria-pressed="false">Channel A cut</button>
+          <button type="button" data-v="B" aria-pressed="false">Channel B cut</button>
+        </div></div>
+        <div id="demo-out" aria-live="polite"></div>
+        <div class="demo-foot">
+          <a class="btn btn-teal btn-sm" href="app/"><svg class="ico" aria-hidden="true"><use href="#i-open"/></svg><span>Open the full app</span></a>
+          <span class="fine">Synthetic test network E1 from the paper. Not real Albay data.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section alt" id="mcs" aria-labelledby="mcs-h">
+  <div class="wrap">
+    <div class="head">
+      <p class="kicker">Mathematics and Computational Sciences</p>
+      <h2 id="mcs-h">How MCS comes into play</h2>
+      <p class="lede">The road map is a graph G = (N, E): each road e takes τ<sub>e</sub> minutes and carries at most u<sub>e</sub> evacuees per minute. Shelters split into three tiers: non-school space, school open space (gyms and covered courts), and classrooms. The rest is mathematics, computing and science working together.</p>
+    </div>
+    <div class="mcs">
+      <article class="mcs-col m">
+        <div class="mcs-text">
+        <h3>Mathematics<small>A lexicographic minimum-cost flow, with ten propositions proven</small></h3>
+        <p>The legal order of priorities becomes one objective, compared level by level. Penalty weights turn it into a single minimum-cost flow, and because that network is totally unimodular, every plan comes out in whole persons.</p>
+        <p>Ten propositions are proven, among them: packing classrooms full is nearly optimal, a higher alert level never frees classrooms, and greedy siting is near-optimal.</p>
+        </div>
+        <div class="eqs">
+        <figure class="eq">@@EQ_LEX@@<figcaption>Most vulnerable placed, then most placed, then fewest in classrooms (Y), in school open spaces (O), and fewest person-minutes (Θ).</figcaption></figure>
+        <figure class="eq">@@EQ_PENALTIES@@<figcaption>Penalty weights that make one minimum-cost flow respect that order exactly (Proposition 3). Flows on this network come out in whole persons (total unimodularity).</figcaption></figure>
+        <figure class="eq">@@EQ_ROOMS@@<figcaption>Classrooms closed at each school, learners displaced, and classroom-days for a stay of d days.</figcaption></figure>
+        <figure class="eq">@@EQ_PACKING@@<figcaption>Proposition 4: packing closes at most one extra classroom per school in use beyond the true minimum.</figcaption></figure>
+        <figure class="eq">@@EQ_MONOTONE@@<figcaption>Proposition 5: a higher alert level never frees classrooms.</figcaption></figure>
+        <figure class="eq">@@EQ_GREEDY@@<figcaption>Proposition 10: the siting gain is monotone and submodular, so greedy reaches at least 63.2% of the best (Nemhauser et al., 1978).</figcaption></figure>
+        </div>
+      </article>
+      <article class="mcs-col c">
+        <div class="mcs-text">
+        <h3>Computing<small>Exact algorithms small enough for a phone</small></h3>
+        <p>In the app each trip costs a vector, compared entry by entry, so no huge penalty number can lose precision. The time-expanded network turns “how fast can everyone get out?” into maximum flows.</p>
+        <ul class="algo">
+          <li>Two maximum flows (Dinic) fix how many vulnerable residents and how many residents in all can be placed.</li>
+          <li>Successive shortest paths with a queue-based Bellman-Ford on vector costs then find the exact lexicographic plan.</li>
+          <li>Doubling and bisection find the clearance time with about 2 log<sub>2</sub> T* maximum flows.</li>
+        </ul>
+        </div>
+        <div class="eqs">
+        <figure class="eq">@@EQ_VECTOR@@<figcaption>One if the trip ends in a classroom, one if in a school open space, then its minutes.</figcaption></figure>
+        <figure class="eq">@@EQ_EXPANDED@@<figcaption>The time-expanded network (Ford and Fulkerson, 1958): each road carries u<sub>e</sub> per minute and takes τ<sub>e</sub>; anyone may wait.</figcaption></figure>
+        <figure class="eq">@@EQ_CLEARANCE@@<figcaption>Clearance time: the first minute T at which F(T), the most evacuees inside shelters, equals everyone.</figcaption></figure>
+        <figure class="eq">@@EQ_LOWERBOUND@@<figcaption>Proposition 8: a lower bound from one static maximum flow of value c.</figcaption></figure>
+        </div>
+      </article>
+      <article class="mcs-col s">
+        <div class="mcs-text">
+        <h3>Sciences<small>Hazard zones, space standards and the law</small></h3>
+        <p>Volcanology and hydrology decide who must move: the 6-km Permanent Danger Zone, an extended zone, and lahar channels whose bridges fail together. Humanitarian standards decide how many fit: 3.5 m² per person, so 18 per classroom. The law decides the order: RA 10821 puts classrooms last.</p>
+        </div>
+        <div class="eqs">
+        <figure class="eq">@@EQ_SCENARIO@@<figcaption>A hazard scenario: the active zones (the 6-km Permanent Danger Zone, an extended zone, lahar-prone areas) and the bridges a lahar closes.</figcaption></figure>
+        <figure class="eq">@@EQ_DEMAND@@<figcaption>An origin evacuates when it lies in an active zone.</figcaption></figure>
+        <figure class="eq">@@EQ_CAPACITY@@<figcaption>Shelter capacity from covered floor area at 3.5 m² per person (Sphere Handbook, 2018).</figcaption></figure>
+        <figure class="eq">@@EQ_SPHERE@@<figcaption>A DepEd standard classroom shelters 18 evacuees.</figcaption></figure>
+        <figure class="eq">@@EQ_CLOSURE@@<figcaption>Proposition 9: closing roads never shortens the evacuation, and adding shelters never adds classroom use.</figcaption></figure>
+        </div>
+      </article>
+    </div>
+    <div class="verify" aria-label="Verification results">
+      <div class="vcard"><b>300 / 300</b><span>plans matched five sequential linear programs (1,500 values)</span></div>
+      <div class="vcard"><b>150 / 150</b><span>packing bound held; exactly the minimum in 144</span></div>
+      <div class="vcard"><b>660 / 660</b><span>time-expanded network matched the Ford-Fulkerson formula</span></div>
+      <div class="vcard"><b>79 / 79</b><span>bisection matched a minute-by-minute scan</span></div>
+      <div class="vcard"><b>0</b><span>monotonicity violations, and 0 in 4,796 submodularity checks</span></div>
+      <div class="vcard"><b>0.890</b><span>worst greedy ratio (mean 0.997, optimal in 94.7% of 320 cases)</span></div>
+      <div class="vcard"><b>@@APPCHECKS@@</b><span>values from this app's engine matched the Python model (tests/verify.mjs)</span></div>
+    </div>
+    <p class="fine vnote">Each proposition was proven, then checked on synthetic instances against reference code written separately. The app's JavaScript engine is checked against the paper's Python model on test network E1 and on random synthetic instances.</p>
+  </div>
+</section>
+
+<section class="section" id="research" aria-labelledby="research-h">
+  <div class="wrap">
+    <div class="head">
+      <p class="kicker">The research</p>
+      <h2 id="research-h">Read the paper</h2>
+    </div>
+    <div class="paper">
+      <div class="paper-card">
+        <h3>Safe Shelter, Open Schools: A Verified Network-Flow Model for Planning Evacuations in Albay by Hazard Zone, Shelter Capacity, and Vulnerability While Keeping Classrooms Open</h3>
+        <p class="by">Brimbuela, Peter John A.; De Asis, Dave Justin Ll.; Shin, Yeaseong. Adviser: Calleja, Dick Anthony M. Legazpi City Science High School. Mathematics and Computational Sciences, Team (MCS-T), 2026.</p>
+        <p style="margin-top:1rem">A laptop-solvable network model built from open data sends every evacuee in a hazard zone to a reachable shelter with room, vulnerable residents first, then everyone, then the fewest persons in classrooms, the fewest in school open spaces, and the least travel. A time-expanded network gives the clearance time with and without lahar-damaged bridges, and a coverage function locates the Ligtas Pinoy Centers required by Republic Act No. 12076. Ten results were proven, then checked on synthetic instances.</p>
+        <div class="btns">
+          <a class="btn btn-red" href="../research/safe-shelter-open-schools/paper/Safe-Shelter-Open-Schools_MCS-T.pdf"><svg class="ico" aria-hidden="true"><use href="#i-doc"/></svg><span>Read the paper (PDF, 53 pages)</span></a>
+          <a class="btn btn-ghost" href="https://github.com/pogi6969/MAP---A">Code and data</a>
+        </div>
+      </div>
+      <div class="tbl">
+        <table class="results">
+          <caption>Results on test network E1 (synthetic)</caption>
+          <thead><tr><th>Question</th><th class="n">Answer</th></tr></thead>
+          <tbody>
+            <tr><td>Alert Level 3: evacuees (vulnerable)</td><td class="n">1,560 (342)</td></tr>
+            <tr><td>Nearest-site rule: evacuees who arrive at full shelters</td><td class="n">298</td></tr>
+            <tr><td>Time-only plan: classrooms closed, learners displaced</td><td class="n">40 / 1,702</td></tr>
+            <tr><td>School-preserving plan: classrooms closed, learners displaced</td><td class="n">14 / 532</td></tr>
+            <tr><td>Mean trip, school-preserving vs time-only</td><td class="n">31.18 vs 29.48 min</td></tr>
+            <tr><td>Clearance time (lower bound)</td><td class="n">53 min (34)</td></tr>
+            <tr><td>Alert Level 4: evacuees, classrooms closed</td><td class="n">2,390 / 60</td></tr>
+            <tr><td>Alert Level 4, plan held fixed: lahar cuts the channel A / channel B bridges (added clearance time)</td><td class="n">+42 / +21 min</td></tr>
+            <tr><td>Both channels cut: residents trapped in a pocket served by one school</td><td class="n">450</td></tr>
+            <tr><td>First Ligtas Pinoy Center (south town, inside the pocket): trapped residents sheltered</td><td class="n">400 of 450</td></tr>
+            <tr><td>Second center: persons in classrooms (classrooms)</td><td class="n">920 → 570 (52 → 32)</td></tr>
+          </tbody>
+        </table>
+        <p class="fine" style="margin-top:.8rem">Test network E1 is a synthetic volcano used to test the method. None of these numbers describe real places in Albay.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section alt" id="team" aria-labelledby="team-h">
+  <div class="wrap team">
+    <figure class="school-fig">
+      <img class="bldg" src="assets/school_building.webp" width="1200" height="676" alt="Illustration of the Legazpi City Science High School building" loading="lazy" decoding="async">
+      <img class="seal" src="assets/legasci-seal.webp" width="348" height="353" alt="Seal of Legazpi City Science High School" loading="lazy" decoding="async">
+      <figcaption class="fine">Legazpi City Science High School, Bitano, Legazpi City.</figcaption>
+    </figure>
+    <div>
+      <p class="kicker">The team</p>
+      <h2 id="team-h">Made in Legazpi City, for Albay</h2>
+      <p class="lede">LIGTA-S is a companion to <a href="../">MAP-A</a>, built by the same team.</p>
+      <dl class="people">
+        <div><dt>Researchers</dt><dd>
+          <div class="lead-row"><b>De Asis, Dave Justin Ll.</b><span class="badge">Lead researcher and founder</span></div>
+          <span class="others">Brimbuela, Peter John A.</span>
+          <span class="others">Shin, Yeaseong</span>
+        </dd></div>
+        <div class="pair">
+          <div><dt>Research adviser</dt><dd>Calleja, Dick Anthony M.</dd></div>
+          <div><dt>Category</dt><dd>Mathematics and Computational Sciences, Team (MCS-T)</dd></div>
+        </div>
+        <div><dt>School</dt><dd>Legazpi City Science High School, Bitano, Legazpi City, Albay, Bicol Region (Region V), Philippines</dd></div>
+      </dl>
+      <p class="fine" style="margin-top:1rem">The logo: a Mayon-shaped cone, a gold shelter at its foot, and a teal check for ligtas (safe) and for verified.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="policies" aria-labelledby="policies-h">
+  <div class="wrap">
+    <div class="head">
+      <p class="kicker">Policies</p>
+      <h2 id="policies-h">Disclaimer and privacy</h2>
+    </div>
+    <div class="legal-grid">
+      <article>
+        <h3>A planning aid, not an order</h3>
+        <p>LIGTA-S is a student research project. It is not an evacuation order, not an official plan of PHIVOLCS, the Office of Civil Defense, DepEd or any local government, and not medical advice.</p>
+        <p>In an emergency, follow your barangay officials and the MDRRMO, and call 911.</p>
+      </article>
+      <article>
+        <h3>Synthetic test network</h3>
+        <p>Every number on this site about plans, classrooms, clearance times or sites comes from test network E1, a synthetic volcano built to test the method. It is not Albay data. Facts about Mayon, Albay and the law are cited with their sources.</p>
+        <p>Results for real places are only as good as the shelter, road and population data entered.</p>
+      </article>
+      <article>
+        <h3>Privacy</h3>
+        <p>LIGTA-S has no account, no analytics and no tracking. The app makes no network requests: your edits stay in your browser's storage on your device, and clearing the site's data deletes them.</p>
+        <p>This website loads its typefaces from Google Fonts, which receives your IP address; the app uses only the fonts on your device. If you install LIGTA-S, your browser keeps a copy of the app and this site so they open offline.</p>
+      </article>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <div>
+      <a class="brand" href="#top">@@LOGO_SVG@@<span class="wm">LIGTA-S</span></a>
+      <p style="margin-top:.8rem">Safe shelter, open schools. © 2026 Brimbuela, De Asis and Shin, Legazpi City Science High School.</p>
+    </div>
+    <nav class="foot-links" aria-label="More">
+      <a href="app/">Open the app</a>
+      <a href="../research/safe-shelter-open-schools/paper/Safe-Shelter-Open-Schools_MCS-T.pdf">The paper (PDF)</a>
+      <a href="../">MAP-A</a>
+      <a href="#policies">Policies</a>
+    </nav>
+  </div>
+</footer>
+
+<!--@DATA-->
+<!--@ENGINE-->
+<!--@MAP-->
+<!--@SITEJS-->
+</body>
+</html>

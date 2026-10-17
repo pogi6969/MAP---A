@@ -56,16 +56,33 @@ const EQ = {
   sphere: [String.raw`\frac{7\,\mathrm{m} \times 9\,\mathrm{m}}{3.5\,\mathrm{m}^2\ \text{per person}} = 18\ \text{evacuees per classroom}`,
     'Seven meters by nine meters, at 3.5 square meters per person, is 18 evacuees per classroom.']
 };
-const out = {};
-for (const [k, [tex, label]] of Object.entries(EQ)) {
+// The same equations broken over two lines, for phones: the website shows these below 560 px
+// instead of shrinking the one-line form until it is too small to read.
+const NARROW = {
+  scenario: String.raw`\begin{gathered}\sigma = (Z_\sigma,\,X_\sigma),\\ G_\sigma = (N,\;E \setminus X_\sigma)\end{gathered}`,
+  capacity: String.raw`\begin{gathered}C(F) = \left\lfloor \frac{F}{3.5} \right\rfloor,\\ q = C(63) = 18\end{gathered}`,
+  lex: String.raw`\begin{gathered}\max F_V \;\succ\; \max F \;\succ\; \min Y\\ \succ\; \min O \;\succ\; \min \Theta\end{gathered}`,
+  penalties: String.raw`\begin{gathered}M_O = D\,T_{\max} + 1,\\ M_Y = D\,(M_O + T_{\max}) + 1\end{gathered}`,
+  vector: String.raw`\begin{gathered}\mathbf{c}(a,s,\iota) =\\ \big(\,\mathbf{1}[\iota = 2],\; \mathbf{1}[\iota = 1],\; T_\sigma(a,s)\,\big)\end{gathered}`,
+  rooms: String.raw`\begin{gathered}K_s = \left\lceil \frac{y_s}{q} \right\rceil,\qquad L = \sum_s K_s\,\ell_s,\\ \text{classroom-days} = K\,d\end{gathered}`,
+  expanded: String.raw`\begin{gathered}(v,t)\;\xrightarrow{\;u_e\;}\;(w,\,t+\tau_e),\\ (v,t)\;\xrightarrow{\;\infty\;}\;(v,\,t+1)\end{gathered}`,
+  lowerbound: String.raw`\begin{aligned} T^{*}_\sigma \;\ge\; \max\Big\{\, & \tau_{\min} - 1 + \Big\lceil \frac{D'}{c} \Big\rceil,\\ & \max_{a} \min_{s} T_\sigma(a, s) \,\Big\}\end{aligned}`,
+  greedy: String.raw`\begin{aligned} f(S_g) &\;\ge\; \Big[1 - \Big(1 - \frac{1}{k}\Big)^{k}\Big] f(S^{\mathrm{opt}})\\ &\;\ge\; 0.632\, f(S^{\mathrm{opt}})\end{aligned}`,
+  sphere: String.raw`\begin{gathered}\frac{7\,\mathrm{m} \times 9\,\mathrm{m}}{3.5\,\mathrm{m}^2\ \text{per person}}\\ = 18\ \text{evacuees per classroom}\end{gathered}`
+};
+function render(tex, label, id) {
   const node = doc.convert(tex, { display: true });
   let svg = adaptor.innerHTML(node);
   // one role and label per svg; the TeX stays in a data attribute for anyone who wants it
   svg = svg.replace(/ role="img"/g, '').replace(/ focusable="false"/g, '').replace(/ aria-hidden="true"/g, '');
   svg = svg.replace(/<svg /, '<svg role="img" focusable="false" aria-label="' + label.replace(/"/g, '&quot;') + '" ');
   // MathJax ids restart in every conversion: make them unique per equation
-  svg = svg.replace(/MJX-(\d+)-/g, 'MJX-' + k + '-$1-');
-  out[k] = { tex, label, svg };
+  return svg.replace(/MJX-(\d+)-/g, 'MJX-' + id + '-$1-');
+}
+const out = {};
+for (const [k, [tex, label]] of Object.entries(EQ)) {
+  out[k] = { tex, label, svg: render(tex, label, k) };
+  if (NARROW[k]) { out[k].texNarrow = NARROW[k]; out[k].svgNarrow = render(NARROW[k], label, k + 'n'); }
 }
 fs.writeFileSync(path.join(__dirname, 'equations.json'), JSON.stringify(out, null, 1));
 console.log('wrote', Object.keys(out).length, 'equations,', JSON.stringify(out).length, 'bytes');

@@ -1,0 +1,26 @@
+{
+  "id": "app/",
+  "name": "BANTA-Y: dengue watch for barangays",
+  "short_name": "BANTA-Y",
+  "description": "Ranks dengue hotspots by where people spend the day, finds the least-cost vector-control plan with a certified gap, traces cases from home addresses to places of infection, and raises an early CUSUM alarm. Works offline.",
+  "lang": "en",
+  "dir": "ltr",
+  "start_url": "app/",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#2A0609",
+  "theme_color": "#8E1219",
+  "categories": ["health", "medical", "education", "utilities"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Least-cost plan", "short_name": "Control", "url": "app/#control", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" }] },
+    { "name": "Early warning", "short_name": "Alarm", "url": "app/#alarm", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" }] },
+    { "name": "BANTA-Y website", "short_name": "Website", "url": "./", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" }] }
+  ]
+}

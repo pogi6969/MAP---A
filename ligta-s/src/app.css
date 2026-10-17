@@ -215,7 +215,7 @@ rect.lm-site-edge:not(.lm-ec):not(.lm-school){fill:none}
 .err{color:var(--red-ink);font-weight:600}
 
 /* tables */
-.tbl-wrap{overflow-x:auto;margin:0 -2px;-webkit-overflow-scrolling:touch}
+.tbl-wrap{position:relative;overflow-x:auto;margin:0 -2px;-webkit-overflow-scrolling:touch}
 table{border-collapse:collapse;width:100%;font-size:.86rem}
 th,td{padding:.42rem .5rem;text-align:left;border-bottom:1px solid var(--rule);vertical-align:middle}
 th{font-size:.74rem;font-weight:700;color:var(--ink-2);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;background:var(--surface)}
@@ -335,3 +335,22 @@ dialog::backdrop{background:rgba(20,6,6,.55)}
   .top,.tabs,.banner,.btn,.rules{display:none!important}
   .card{box-shadow:none}
 }
+
+/* fixes */
+.check{display:flex;gap:.6rem;align-items:flex-start;cursor:pointer;margin-top:.8rem}
+.check input{flex:none;width:20px;height:20px;margin:.1rem 0 0;accent-color:var(--teal)}
+.check span{flex:1 1 auto;min-width:0}
+.fine,.small,.note{overflow-wrap:anywhere}
+.tbl-wrap select{min-width:6.5rem}
+.tbl-wrap input.wide{min-width:11rem}
+/* editable tables: let long headers wrap so the shelters table fits a desktop screen */
+#tbl-origins th,#tbl-shelters th,#tbl-roads th,#tbl-nodes th,#tbl-candidates th{white-space:normal;vertical-align:bottom;line-height:1.25}
+#tbl-shelters td input[type=number]{width:5.2rem}
+
+.lm-bridge .hit{fill:transparent;stroke:none}
+.lm-pdz,.lm-edz,.lm-channel,.lm-chlabel{pointer-events:none}
+
+table.compact{font-size:.8rem}
+table.compact th,table.compact td{padding-left:.35rem;padding-right:.35rem}
+table.compact td:first-child{white-space:nowrap}
+table.compact th{white-space:normal;vertical-align:bottom}

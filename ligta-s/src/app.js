@@ -126,7 +126,9 @@
     });
     return notes;
   }
-  function mapLabel(prefix, sp) { return prefix + " " + sp.name + ". Test network E1, synthetic."; }
+  /* which data the numbers come from: the synthetic test network, or the user's own */
+  function dataNote() { return S.data.synthetic ? "Test network E1 (synthetic)." : "Your own data."; }
+  function mapLabel(prefix, sp) { return prefix + " " + sp.name + ". " + dataNote(); }
 
   /* ---------------------------------------------------------------- shell: tabs, theme, banner */
   var TABS = ["plan", "clear", "site", "res", "cap", "data"];
@@ -231,6 +233,7 @@
       M.draw($("map-plan"), S.data, { scenario: sp, flows: flowsOf(p), siteNotes: siteNotesOf(p), label: mapLabel(ruleName(S.ui.rule) + ",", sp) });
       $("plan-detail").innerHTML = S.ui.rule === "near" ? nearDetail(p) : planDetail(p);
       $("plan-detail-pill").textContent = ruleName(S.ui.rule);
+      ["lex", "time", "near"].forEach(function (r) { planFor(S.ui.scen, r); });
       renderCompare();
     });
   }
@@ -275,7 +278,10 @@
     if (p.rule === "time") {
       var lx = planFor(S.ui.scen, "lex");
       var dm = p.meanTime ? (lx.meanTime - p.meanTime) : 0;
-      h += '<p class="note">The school-preserving plan closes ' + fmt(lx.roomsClosedTotal) + ' classrooms instead of ' + fmt(p.roomsClosedTotal) + ' (' + fmt(lx.learnersDisplaced) + ' learners displaced instead of ' + fmt(p.learnersDisplaced) + '), with a mean trip ' + fmt2(Math.abs(dm)) + ' min ' + (dm >= 0 ? "longer" : "shorter") + '.</p>';
+      if (lx.roomsClosedTotal < p.roomsClosedTotal)
+        h += '<p class="note">The school-preserving plan closes ' + fmt(lx.roomsClosedTotal) + ' classrooms instead of ' + fmt(p.roomsClosedTotal) + ' (' + fmt(lx.learnersDisplaced) + ' learners displaced instead of ' + fmt(p.learnersDisplaced) + '), with a mean trip ' + fmt2(Math.abs(dm)) + ' min ' + (dm >= 0 ? "longer" : "shorter") + '.</p>';
+      else
+        h += '<p class="note">Here the school-preserving plan closes the same ' + fmt(lx.roomsClosedTotal) + ' classrooms' + (lx.personsRoom < p.personsRoom ? ', with ' + fmt(p.personsRoom - lx.personsRoom) + ' fewer persons in classrooms' : '') + '.</p>';
     }
     return h;
   }
@@ -329,25 +335,23 @@
     });
     return h + '</tbody></table>';
   }
+  function ruleShort(r) { return r === "lex" ? "School-preserving" : r === "time" ? "Time-only" : "Nearest site"; }
   function compareKey() { return S.rev + "|" + S.ui.theta + "|plan|" + S.ui.scen + "|"; }
   function renderCompare() {
     var rules = ["lex", "time", "near"], have = {};
     rules.forEach(function (r) { var k = compareKey() + r + "|"; if (k in S.cache) have[r] = S.cache[k]; });
     var sp = scenById(S.ui.scen);
-    var h = '<table><thead><tr><th>Rule</th><th class="n">Classrooms closed</th><th class="n">Learners displaced</th><th class="n">In classrooms</th><th class="n">Not placed or over</th><th class="n">Mean trip</th></tr></thead><tbody>';
+    var h = '<table><thead><tr><th>Rule</th><th class="n">Rooms closed</th><th class="n">Learners</th><th class="n">In rooms</th><th class="n">Unplaced or over</th><th class="n">Mean min</th></tr></thead><tbody>';
     rules.forEach(function (r) {
       var p = have[r];
-      if (!p) { h += '<tr><td>' + ruleName(r) + '</td><td colspan="5" class="muted">not computed yet</td></tr>'; return; }
-      if (r === "near") h += '<tr><td>' + ruleName(r) + '</td><td class="n muted">not planned</td><td class="n muted">–</td><td class="n muted">–</td><td class="n">' + fmt(p.overflow) + ' over</td><td class="n">' + fmt2(p.meanTime) + '</td></tr>';
-      else h += '<tr' + (r === "lex" ? ' class="sel"' : '') + '><td>' + ruleName(r) + '</td><td class="n"><b>' + fmt(p.roomsClosedTotal) + '</b></td><td class="n">' + fmt(p.learnersDisplaced) + '</td><td class="n">' + fmt(p.personsRoom) + '</td><td class="n">' + fmt(p.unplaced) + '</td><td class="n">' + fmt2(p.meanTime) + '</td></tr>';
+      if (!p) { h += '<tr><td>' + ruleShort(r) + '</td><td colspan="5" class="muted">not computed yet</td></tr>'; return; }
+      if (r === "near") h += '<tr><td>' + ruleShort(r) + '</td><td class="n muted" title="The nearest-site rule does not plan classrooms">–</td><td class="n muted">–</td><td class="n muted">–</td><td class="n">' + fmt(p.overflow) + ' over</td><td class="n">' + fmt2(p.meanTime) + '</td></tr>';
+      else h += '<tr' + (r === "lex" ? ' class="sel"' : '') + '><td>' + ruleShort(r) + '</td><td class="n"><b>' + fmt(p.roomsClosedTotal) + '</b></td><td class="n">' + fmt(p.learnersDisplaced) + '</td><td class="n">' + fmt(p.personsRoom) + '</td><td class="n">' + fmt(p.unplaced) + '</td><td class="n">' + fmt2(p.meanTime) + '</td></tr>';
     });
-    $("compare").innerHTML = h + '</tbody></table><p class="fine" style="margin-top:.4rem">' + esc(sp.name) + ', trip limit ' + fmt(S.ui.theta) + ' min. Test network E1 (synthetic).</p>';
+    $("compare").innerHTML = h.replace("<table>", '<table class="compact">') + '</tbody></table><p class="fine" style="margin-top:.4rem">' + esc(sp.name) + ', trip limit ' + fmt(S.ui.theta) + ' min. ' + dataNote() + '</p>';
   }
   qa("[data-rule]").forEach(function (b) {
     b.addEventListener("click", function () { S.ui.rule = b.getAttribute("data-rule"); saveUI(); renderPlan(); });
-  });
-  $("compare-btn").addEventListener("click", function () {
-    later(function () { ["lex", "time", "near"].forEach(function (r) { planFor(S.ui.scen, r); }); renderCompare(); });
   });
   function numInput(el, key, min) {
     el.addEventListener("change", function () {
@@ -363,7 +367,7 @@
   var TABLES = {
     origins: { cols: [["id", "ID", "text"], ["name", "Name", "wide"], ["node", "Map point", "node"], ["zones", "Zones", "zones"], ["pop", "Population", "int"], ["vul", "Vulnerable", "int"]],
       blank: function () { return { id: nextId("O", S.data.origins), name: "New origin", node: firstNode("origin"), zones: ["PDZ"], pop: 100, vul: 20 }; } },
-    shelters: { cols: [["id", "ID", "text"], ["name", "Name", "wide"], ["node", "Map point", "node"], ["kind", "Kind", "kind"], ["areaNonSchool", "Non-school m²", "num"], ["areaOpen", "School open m²", "num"], ["rooms", "Classrooms", "int"], ["learnersPerRoom", "Learners per room", "int"], ["accessible", "Accessible", "bool"], ["cap", "Capacity", "cap"]],
+    shelters: { cols: [["id", "ID", "text"], ["name", "Name", "wide"], ["node", "Map point", "node"], ["kind", "Kind", "kind"], ["areaNonSchool", "Non-school m²", "num"], ["areaOpen", "School open m²", "num"], ["rooms", "Classrooms", "int"], ["learnersPerRoom", "Learners per room", "int"], ["accessible", "Accessible", "bool"], ["zones", "Zones", "zones"], ["cap", "Capacity", "cap"]],
       blank: function () { return { id: nextId("SH", S.data.shelters), name: "New shelter", node: firstNode("town"), kind: "ec", areaNonSchool: 700, areaOpen: 0, rooms: 0, learnersPerRoom: 0, accessible: true, zones: [] }; } },
     roads: { cols: [["u", "From", "node"], ["v", "To", "node"], ["tau", "Minutes τ", "int"], ["cap", "Capacity u", "int"], ["tag", "Tag", "text"]],
       blank: function () { return { u: S.data.nodes[0] ? S.data.nodes[0].id : "", v: S.data.nodes[1] ? S.data.nodes[1].id : "", tau: 10, cap: 20, tag: "new" + (S.data.roads.length + 1) }; } },
@@ -409,12 +413,21 @@
       h += '<tr>' + def.cols.map(function (c) { return '<td' + (c[2] === "cap" || c[2] === "ccap" ? ' class="n"' : '') + '>' + cell(tbl, i, row, c) + '</td>'; }).join("") +
         '<td><button type="button" class="del" data-del="' + tbl + '" data-i="' + i + '" aria-label="Delete row ' + (i + 1) + '"><svg aria-hidden="true"><use href="#i-x"/></svg></button></td></tr>';
     });
-    el.innerHTML = h + '</tbody></table>' + (list.length ? "" : '<p class="muted small">No rows.</p>');
+    /* keep the keyboard focus on the same cell: the table is redrawn after every edit */
+    var act = document.activeElement, key = act && act.getAttribute && act.getAttribute("data-t") === tbl ?
+      '[data-t="' + tbl + '"][data-i="' + act.getAttribute("data-i") + '"][data-f="' + act.getAttribute("data-f") + '"]' : null;
+    tableBusy = true;
+    try { el.innerHTML = h + '</tbody></table>' + (list.length ? "" : '<p class="muted small">No rows.</p>'); }
+    finally { tableBusy = false; }
+    if (key) { var again = el.querySelector(key); if (again) { try { again.focus({ preventScroll: true }); } catch (e) { again.focus(); } } }
   }
+  /* removing a focused input that holds an uncommitted value fires a second "change" while the
+     table is being redrawn; that value has already been taken, so the handler ignores it */
+  var tableBusy = false;
   function renderTables() { Object.keys(TABLES).forEach(renderTable); }
   document.addEventListener("change", function (e) {
     var el = e.target, tbl = el.getAttribute && el.getAttribute("data-t");
-    if (!tbl) return;
+    if (!tbl || tableBusy) return;
     var list = tbl === "candidates" ? S.data.candidates : S.data[tbl], i = +el.getAttribute("data-i"), f = el.getAttribute("data-f");
     var row = list[i], col = TABLES[tbl].cols.filter(function (c) { return c[0] === f; })[0];
     if (!row || !col) return;
@@ -521,7 +534,7 @@
     var h = '<div class="kpis" style="grid-template-columns:repeat(3,minmax(0,1fr))">' +
       '<div class="kpi bad"><b>' + (fixed === Infinity ? "∞" : fmt(fixed)) + '</b><span>clearance, same plan (min)</span></div>' +
       '<div class="kpi bad"><b>' + (delta === Infinity ? "∞" : (delta > 0 ? "+" : "") + fmt(delta)) + '</b><span>change Δ (min)</span></div>' +
-      '<div class="kpi ' + (fresh.unplaced ? "bad" : "good") + '"><b>' + fmt(fresh.unplaced) + '</b><span>trapped: no shelter reachable</span></div></div>';
+      '<div class="kpi ' + (fresh.unplaced ? "bad" : "good") + '"><b>' + fmt(fresh.unplaced) + '</b><span>not placed: no reachable shelter with room</span></div></div>';
     if (fixed === Infinity) h += '<p class="note warn">With the plan held fixed, some evacuees can no longer reach the shelter the plan gave them at all.</p>';
     h += '<p class="small">A fresh plan for the damaged network places ' + fmt(fresh.placed) + ' of ' + fmt(fresh.demand) + ' evacuees, closes ' + fmt(fresh.roomsClosedTotal) + ' classrooms, and clears in ' + minutes(fresh.clearance) + '.</p>';
     if (trapped.length) h += '<p class="note warn"><b>Cut off:</b> ' + trapped.map(function (u) { return esc(u.id) + " (" + fmt(u.n) + " residents)"; }).join(", ") + '. No open road leads to a shelter with room within the trip limit.</p>';
@@ -566,7 +579,8 @@
   }
   function chartSVG(c1, c2, goal, T, LB, T2) {
     if (!c1 || !c1.length) return "";
-    var W = 560, H = 230, L = 46, R = 14, Tp = 14, B = 34;
+    var box = $("clear-result"), bw = box && box.clientWidth ? box.clientWidth : 560;
+    var W = Math.max(300, Math.min(560, Math.round(bw))), H = W < 420 ? 210 : 230, L = 46, R = 14, Tp = 14, B = 34;
     var xmax = Math.max(c1[c1.length - 1][0], c2 && c2.length ? c2[c2.length - 1][0] : 0, 10);
     var ymax = Math.max(goal, 1);
     var X = function (t) { return L + (W - L - R) * t / xmax; }, Y = function (v) { return H - B - (H - B - Tp) * v / ymax; };
@@ -604,13 +618,13 @@
     var rows = res.rows, sel = S.ui.siteRow != null && rows[S.ui.siteRow] ? S.ui.siteRow : rows.length - 1;
     var h = '<div class="res-title"><h2>Greedy choice</h2><span class="pill">' + esc(sp.name) + '</span><span class="pill gold">θ = ' + fmt(res.theta) + ' min</span></div>';
     h += '<p class="small muted" style="margin:.3rem 0 .5rem">Coverage now: ' + fmt(res.phi0) + ' evacuees can be sheltered outside classrooms within ' + fmt(res.theta) + ' minutes.</p>';
-    h += '<div class="tbl-wrap"><table><thead><tr><th>k</th><th>Greedy sites</th><th class="n">Gain f(S)</th><th class="n">Best gain</th><th class="n">Greedy / best</th><th class="n">Guarantee</th></tr></thead><tbody>';
+    h += '<div class="tbl-wrap"><table><thead><tr><th>k</th><th>Greedy sites</th><th class="n">Gain f(S)</th><th class="n">Best</th><th class="n">Ratio</th><th class="n">Guarantee</th></tr></thead><tbody>';
     rows.forEach(function (r, i) {
       var ratio = r.bestGain ? r.gain / r.bestGain : 1, g = 1 - Math.pow(1 - 1 / r.k, r.k);
       h += '<tr' + (i === sel ? ' class="sel"' : '') + ' data-site-row="' + i + '" style="cursor:pointer"><td>' + r.k + '</td><td><b>' + esc(r.sites.join(", ")) + '</b></td><td class="n">' + fmt(r.gain) + '</td><td class="n">' + (r.bestGain == null ? "–" : fmt(r.bestGain)) + '</td><td class="n">' + (r.bestGain == null ? "–" : (100 * ratio).toFixed(1) + "%") + '</td><td class="n">≥ ' + (100 * g).toFixed(1) + '%</td></tr>';
     });
     h += '</tbody></table></div>';
-    h += '<h3>Plan with the new centers</h3><div class="tbl-wrap"><table><thead><tr><th>k</th><th class="n">Not placed</th><th class="n">In classrooms</th><th class="n">Classrooms closed</th><th class="n">Learners displaced</th><th class="n">Clearance</th></tr></thead><tbody>';
+    h += '<h3>Plan with the new centers</h3><div class="tbl-wrap"><table><thead><tr><th>k</th><th class="n">Unplaced</th><th class="n">In rooms</th><th class="n">Rooms closed</th><th class="n">Learners</th><th class="n">Clearance</th></tr></thead><tbody>';
     h += '<tr><td>0</td><td class="n">' + fmt(res.base.unplaced) + '</td><td class="n">' + fmt(res.base.personsRoom) + '</td><td class="n">' + fmt(res.base.roomsClosedTotal) + '</td><td class="n">' + fmt(res.base.learnersDisplaced) + '</td><td class="n">' + minutes(res.base.clearance) + '</td></tr>';
     rows.forEach(function (r, i) {
       h += '<tr' + (i === sel ? ' class="sel"' : '') + ' data-site-row="' + i + '" style="cursor:pointer"><td>' + r.k + '</td><td class="n">' + fmt(r.unplaced) + '</td><td class="n">' + fmt(r.personsRoom) + '</td><td class="n">' + fmt(r.roomsClosed) + '</td><td class="n">' + fmt(r.learners) + '</td><td class="n">' + minutes(r.clearance) + '</td></tr>';
@@ -706,16 +720,19 @@
           html += h + '<span class="pill teal">No evacuation for your area</span></h3><p class="small muted">Your area is outside the active hazard zones in this scenario. Stay alert for announcements.</p></div>';
           return;
         }
-        var want = S.ui.resVul ? "V" : "N";
+        /* the household's group; when the barangay has nobody in that group, show the other one */
+        var nV = E.vulnerable(o, p.sc), nN = E.demand(o, p.sc) - nV;
+        var want = S.ui.resVul ? (nV > 0 ? "V" : "N") : (nN > 0 ? "N" : "V");
         var rows = {}, total = 0;
         p.x.forEach(function (r) {
           if (r.a !== a) return;
-          if (r.cls !== want && !(want === "N" && o.vul === o.pop)) return;
-          var sl = p.slots[r.k], k = sl.s + "|" + sl.tier;
-          if (!rows[k]) rows[k] = { s: sl.s, tier: sl.tier, f: 0 };
+          if (r.cls !== want) return;
+          var sl = p.slots[r.k], k = String(sl.s);
+          if (!rows[k]) rows[k] = { s: sl.s, tiers: [], f: 0 };
+          if (rows[k].tiers.indexOf(sl.tier) < 0) rows[k].tiers.push(sl.tier);
           rows[k].f += r.f; total += r.f;
         });
-        var groupSize = want === "V" ? E.vulnerable(o, p.sc) : E.demand(o, p.sc) - E.vulnerable(o, p.sc);
+        var groupSize = want === "V" ? nV : nN;
         var list = Object.keys(rows).map(function (k) { return rows[k]; }).sort(function (x, y) { return y.f - x.f; });
         h += '<span class="pill red">Evacuate</span></h3>';
         if (!list.length) {
@@ -726,8 +743,9 @@
         var tierName = ["non-school space", "school open space", "classroom"];
         h += '<div class="dest">' + list.map(function (r) {
           var sh = I.shelters[r.s], town = nodeName(I.nodes[sh.node]);
-          return '<div><span class="big">' + fmt(p.T[a][r.s]) + '<small>min</small></span><b>' + esc(sh.name) + ' (' + esc(sh.id) + ')</b><p>' + esc(town) + ' · ' + tierName[r.tier] + ' · ' + (sh.accessible ? "accessible" : "not accessible (stairs)") + ' · ' + fmt(r.f) + ' of ' + fmt(groupSize) + ' ' + (want === "V" ? "vulnerable residents" : "residents") + '</p></div>';
+          return '<div><span class="big">' + fmt(p.T[a][r.s]) + '<small>min</small></span><b>' + esc(sh.name) + ' (' + esc(sh.id) + ')</b><p>' + esc(town) + ' · ' + r.tiers.sort().map(function (t) { return tierName[t]; }).join(" and ") + ' · ' + (sh.accessible ? "accessible" : "not accessible (stairs)") + ' · ' + fmt(r.f) + ' of ' + fmt(groupSize) + ' ' + (want === "V" ? "vulnerable residents" : "residents") + '</p></div>';
         }).join("") + '</div>';
+        if (S.ui.resVul && nV === 0) h += '<p class="small muted" style="margin-top:.4rem">The data lists no vulnerable residents for this barangay, so this is the shelter for everyone.</p>';
         if (list.length > 1) h += '<p class="small muted" style="margin-top:.4rem">Your barangay is split between ' + list.length + ' places. Officials say which group you are in.</p>';
         if (total < groupSize) h += '<p class="note warn">' + fmt(groupSize - total) + ' in this group have no planned place within the trip limit.</p>';
         html += h + '</div>';

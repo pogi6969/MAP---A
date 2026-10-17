@@ -1,0 +1,2542 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>LIGTA-S</title>
+<meta name="description" content="LIGTA-S plans evacuations by hazard zone, shelter capacity and vulnerability while keeping classrooms open. Exact shelter plans, clearance times and Ligtas Pinoy Center siting. Works offline.">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20512%20512%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22bg%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%234A0A12%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%231F0407%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%22512%22%20height%3D%22512%22%20rx%3D%22104%22%20fill%3D%22url(%23bg)%22%2F%3E%3Cg%20transform%3D%22translate(-30.72%20-30.72)%20scale(1.1200)%22%3E%3Cpath%20d%3D%22M30%20404%20C150%20372%20214%20262%20234%20118%20L278%20118%20C298%20262%20362%20372%20482%20404%20Z%22%20fill%3D%22%23B81E28%22%2F%3E%3Cpath%20d%3D%22M258%20118%20L278%20118%20C298%20262%20362%20372%20482%20404%20L372%20404%20C318%20332%20270%20236%20258%20118%20Z%22%20fill%3D%22%23D9454A%22%2F%3E%3Cpath%20d%3D%22M172%20330%20L256%20264%20L340%20330%20L340%20440%20L172%20440%20Z%22%20fill%3D%22%23F6D06B%22%2F%3E%3Cpath%20d%3D%22M134%20344%20L256%20248%20L378%20344%22%20fill%3D%22none%22%20stroke%3D%22%23FFF5DE%22%20stroke-width%3D%2228%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M206%20380%20L242%20414%20L306%20342%22%20fill%3D%22none%22%20stroke%3D%22%230E7C74%22%20stroke-width%3D%2230%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
+<meta name="theme-color" content="#6E0C13">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="LIGTA-S">
+<style>
+/* LIGTA-S app. Legazpi City Science High School crimson and gold, with LIGTA-S teal for "safe".
+   System fonts only, so the app opens instantly and offline. */
+:root{
+  --bg:#FBF6EE;--surface:#FFFFFF;--surface-2:#FFF5E3;--surface-3:#F6EAD6;
+  --ink:#2A1613;--ink-2:#6B5048;--ink-3:#836A60;--rule:#EADBC6;--rule-2:#D9C3A6;
+  --red:#A3161F;--red-ink:#A3161F;--red-deep:#6E0C13;--red-soft:#FBE4E1;
+  --gold:#E0A92A;--gold-lt:#F6D06B;--gold-ink:#8A5B00;--gold-soft:#FFF0C9;
+  --teal:#0E7C74;--teal-ink:#0B6A63;--teal-soft:#DDF2EE;--on-teal:#FFFFFF;
+  --on-red:#FFF5DE;--on-red-2:#F1D6AC;
+  --bar-a:#6E0C13;--bar-b:#4A0A12;
+  --t-ec:#0E7C74;--t-open:#D49A12;--t-room:#B81E28;--t-none:#8C7A72;
+  --m-bg:#FFFDF8;--m-road:#97A0A3;--m-local:#B9C0C2;--m-pdz:#C0392B;--m-edz:#E67E22;--m-lahar:#8C6A4F;
+  --m-flow:#0E7C74;--m-ink:#2A1613;--m-halo:#FFFDF8;--m-origin:#C0392B;--m-off:#B7A79F;
+  --focus:#2A1613;--shadow:0 1px 2px rgba(60,20,10,.06),0 8px 24px -12px rgba(60,20,10,.18);
+  --radius:14px;
+  --f:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --f-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#120909;--surface:#1C1110;--surface-2:#241614;--surface-3:#2E1C19;
+    --ink:#FBEFD9;--ink-2:#D2BBA7;--ink-3:#AE968A;--rule:#3A251F;--rule-2:#523830;
+    --red:#B81E28;--red-ink:#FF9095;--red-deep:#4B0910;--red-soft:#3A1517;
+    --gold-ink:#F0C463;--gold-soft:#33260E;
+    --teal:#2BB3A5;--teal-ink:#63D6C9;--teal-soft:#0F2E2B;--on-teal:#06201D;
+    --bar-a:#3A070C;--bar-b:#240407;
+    --t-ec:#2BB3A5;--t-open:#E9B949;--t-room:#EF5A5F;--t-none:#8E7B73;
+    --m-bg:#170D0C;--m-road:#6F787B;--m-local:#535B5D;--m-pdz:#E0605A;--m-edz:#F0954A;--m-lahar:#B08E70;
+    --m-flow:#3CC2B4;--m-ink:#FBEFD9;--m-halo:#170D0C;--m-origin:#F06A64;--m-off:#6F625D;
+    --focus:#FBEFD9;--shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px -14px rgba(0,0,0,.7);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#120909;--surface:#1C1110;--surface-2:#241614;--surface-3:#2E1C19;
+  --ink:#FBEFD9;--ink-2:#D2BBA7;--ink-3:#AE968A;--rule:#3A251F;--rule-2:#523830;
+  --red:#B81E28;--red-ink:#FF9095;--red-deep:#4B0910;--red-soft:#3A1517;
+  --gold-ink:#F0C463;--gold-soft:#33260E;
+  --teal:#2BB3A5;--teal-ink:#63D6C9;--teal-soft:#0F2E2B;--on-teal:#06201D;
+  --bar-a:#3A070C;--bar-b:#240407;
+  --t-ec:#2BB3A5;--t-open:#E9B949;--t-room:#EF5A5F;--t-none:#8E7B73;
+  --m-bg:#170D0C;--m-road:#6F787B;--m-local:#535B5D;--m-pdz:#E0605A;--m-edz:#F0954A;--m-lahar:#B08E70;
+  --m-flow:#3CC2B4;--m-ink:#FBEFD9;--m-halo:#170D0C;--m-origin:#F06A64;--m-off:#6F625D;
+  --focus:#FBEFD9;--shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px -14px rgba(0,0,0,.7);
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%;background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.5 var(--f);font-variant-numeric:tabular-nums}
+a{color:var(--red-ink)}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+button,input,select{font:inherit;color:inherit}
+h1,h2,h3,h4{margin:0;line-height:1.2;text-wrap:balance}
+p{margin:0}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+/* top bar */
+.top{position:sticky;top:0;z-index:40;background:linear-gradient(100deg,var(--bar-a),var(--bar-b));color:var(--on-red);padding-top:env(safe-area-inset-top,0px)}
+.top-in{display:flex;align-items:center;gap:.75rem;max-width:1360px;margin:0 auto;padding:.55rem 16px}
+.brand{display:flex;align-items:center;gap:.6rem;color:inherit;text-decoration:none;min-width:0}
+.brand svg{width:36px;height:36px;flex:none;border-radius:9px;box-shadow:0 0 0 1px rgba(255,245,222,.25)}
+.brand b{font:800 1.3rem/1 var(--f);letter-spacing:.02em}
+.brand small{display:block;font-size:.72rem;color:var(--on-red-2);letter-spacing:.02em;margin-top:.15rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top-actions{margin-left:auto;display:flex;gap:.4rem}
+.icon-btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;min-width:40px;height:40px;padding:0 .65rem;border-radius:10px;border:1px solid rgba(255,245,222,.28);background:rgba(255,245,222,.06);color:var(--on-red);cursor:pointer;font-size:.85rem;font-weight:600}
+.icon-btn:hover{background:rgba(255,245,222,.14)}
+.icon-btn svg{width:20px;height:20px}
+
+/* tabs */
+.tabs{position:sticky;top:calc(52px + env(safe-area-inset-top,0px));z-index:35;background:var(--surface);border-bottom:1px solid var(--rule)}
+.tabs-in{display:flex;gap:.25rem;max-width:1360px;margin:0 auto;padding:0 16px;overflow-x:auto;scrollbar-width:none}
+.tab{display:inline-flex;align-items:center;gap:.45rem;padding:.8rem .85rem .7rem;border:0;border-bottom:3px solid transparent;background:none;color:var(--ink-2);font-weight:650;font-size:.92rem;cursor:pointer;white-space:nowrap}
+.tab svg{width:18px;height:18px;flex:none}
+.tab[aria-selected="true"]{color:var(--red-ink);border-bottom-color:var(--red-ink)}
+.tab:hover{color:var(--ink)}
+
+/* synthetic banner */
+.banner{max-width:1360px;margin:12px auto 0;padding:0 16px}
+.banner p{display:flex;gap:.6rem;align-items:flex-start;background:var(--gold-soft);border:1px solid var(--rule-2);border-left:4px solid var(--gold);border-radius:10px;padding:.55rem .8rem;font-size:.86rem;color:var(--ink)}
+.banner svg{flex:none;width:18px;height:18px;margin-top:.1rem;color:var(--gold-ink)}
+.banner.user p{background:var(--teal-soft);border-left-color:var(--teal)}
+
+main{max-width:1360px;margin:0 auto;padding:12px 16px 40px}
+.view-head{display:flex;flex-wrap:wrap;align-items:flex-end;gap:.4rem 1rem;margin:.4rem 0 1rem}
+.view-head h1{font-size:1.55rem;font-weight:800;letter-spacing:-.01em}
+.view-head p{color:var(--ink-2);max-width:70ch;font-size:.93rem}
+
+.grid{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr);gap:16px;align-items:start}
+.stack{display:grid;gap:16px;min-width:0}
+.sticky{position:sticky;top:116px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);min-width:0}
+.card h2{font-size:1.08rem;font-weight:750;margin-bottom:.5rem}
+.card h3{font-size:.95rem;font-weight:700;margin:.9rem 0 .4rem}
+.muted{color:var(--ink-2)}
+.small{font-size:.84rem}
+.fine{font-size:.8rem;color:var(--ink-3)}
+.row{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center}
+.row + .row{margin-top:.7rem}
+.spacer{flex:1}
+
+/* map */
+.map-card{padding:10px}
+.map-wrap{position:relative;background:var(--m-bg);border-radius:10px;overflow:hidden;border:1px solid var(--rule)}
+.map{display:block;width:100%;height:auto;aspect-ratio:1/0.93;max-height:74vh;font-family:var(--f)}
+.map-legend{display:flex;flex-wrap:wrap;gap:.3rem .9rem;padding:.55rem .3rem .1rem;font-size:.78rem;color:var(--ink-2)}
+.map-legend span{display:inline-flex;align-items:center;gap:.35rem}
+.sw{display:inline-block;width:12px;height:12px;border-radius:3px;flex:none}
+.sw.o{border-radius:50%;background:var(--m-origin)}
+.sw.ec{background:var(--t-ec)}
+.sw.sc{background:var(--gold)}
+.sw.br{background:var(--m-lahar)}
+.sw.pdz{background:color-mix(in srgb,var(--m-pdz) 30%,transparent);border:1.5px dashed var(--m-pdz)}
+.sw.edz{background:color-mix(in srgb,var(--m-edz) 40%,transparent)}
+.sw.fl{height:4px;border-radius:2px;background:var(--m-flow)}
+.lm-pdz{fill:var(--m-pdz);fill-opacity:.07;stroke:var(--m-pdz);stroke-width:.09;stroke-dasharray:.35 .25;stroke-opacity:.6}
+.lm-pdz.on{fill-opacity:.16;stroke-opacity:1}
+.lm-edz{fill:var(--m-edz);fill-opacity:.09}
+.lm-edz.on{fill-opacity:.32}
+.lm-channel{stroke:var(--m-lahar);stroke-opacity:.22;stroke-width:.55;stroke-linecap:round}
+.lm-channel.on{stroke-opacity:.5;stroke-width:.85}
+.lm-chlabel{fill:var(--m-lahar);font-weight:600;font-style:italic}
+.lm-road{stroke:var(--m-road);stroke-width:.13;stroke-linecap:round}
+.lm-road.local{stroke:var(--m-local);stroke-width:.09;stroke-dasharray:.22 .14}
+.lm-road.closed{stroke:var(--red-ink);stroke-opacity:.55;stroke-dasharray:.3 .22;stroke-width:.12}
+.lm-junction{fill:var(--m-road)}
+.lm-summit{fill:var(--m-ink);opacity:.85}
+.lm-flow{fill:none;stroke:var(--m-flow);stroke-opacity:.55;stroke-linecap:round;stroke-linejoin:round}
+.lm-flow.room{stroke:var(--t-room);stroke-opacity:.5}
+.lm-flow.over{stroke:var(--t-room)}
+.lm-route-under{fill:none;stroke:var(--m-halo);stroke-width:.75;stroke-linecap:round;stroke-linejoin:round}
+.lm-route{fill:none;stroke:var(--gold);stroke-width:.45;stroke-linecap:round;stroke-linejoin:round}
+.lm-bridge rect{fill:var(--m-lahar);stroke:var(--m-halo);stroke-width:.08}
+.lm-bridge.closed rect{fill:var(--red-ink)}
+.lm-bridge path{stroke:var(--m-halo);stroke-width:.12}
+.lm-bridge text{fill:var(--m-lahar);font-weight:700}
+.lm-bridge.closed text{fill:var(--red-ink)}
+.lm-bridge.click{cursor:pointer}
+.lm-bridge.click:hover rect,.lm-bridge.click:focus rect{stroke:var(--m-ink);stroke-width:.14}
+.lm-bridge:focus{outline:none}
+.lm-site rect,.lm-site path{stroke:none}
+.lm-ec{fill:var(--t-ec)}
+.lm-school{fill:var(--gold)}
+.lm-site-edge{stroke:var(--m-halo)!important;stroke-width:.1!important;fill-opacity:1}
+rect.lm-site-edge:not(.lm-ec):not(.lm-school){fill:none}
+.lm-site.unsafe{opacity:.35}
+.lm-sitelabel{fill:var(--m-ink);font-weight:700;paint-order:stroke;stroke:var(--m-halo);stroke-width:.22;stroke-linejoin:round}
+.lm-sitenote{fill:var(--teal-ink);font-weight:650;paint-order:stroke;stroke:var(--m-halo);stroke-width:.22;stroke-linejoin:round}
+.lm-sitenote.room,.lm-sitenote.over{fill:var(--red-ink)}
+.lm-origin circle{fill:var(--m-off);stroke:var(--m-halo);stroke-width:.12}
+.lm-origin.on circle{fill:var(--m-origin)}
+.lm-origin.sel circle{stroke:var(--gold);stroke-width:.28}
+.lm-origin text{fill:var(--m-ink);font-weight:800;paint-order:stroke;stroke:var(--m-halo);stroke-width:.22;stroke-linejoin:round}
+.lm-origin.click{cursor:pointer}
+.lm-origin:focus{outline:none}
+.lm-origin.click:focus circle{stroke:var(--m-ink);stroke-width:.25}
+.lm-cand{fill:var(--gold);fill-opacity:.08;stroke:var(--gold-ink);stroke-width:.1;stroke-dasharray:.25 .18}
+.lm-cand.chosen{fill-opacity:.35;stroke-dasharray:none;stroke-width:.16}
+.lm-candlabel{fill:var(--gold-ink);font-weight:800;paint-order:stroke;stroke:var(--m-halo);stroke-width:.22}
+
+/* controls */
+.field{display:grid;gap:.25rem;min-width:0}
+.field > span{font-size:.78rem;font-weight:650;color:var(--ink-2);letter-spacing:.01em}
+.field input,.field select{height:40px;padding:0 .65rem;border:1px solid var(--rule-2);border-radius:9px;background:var(--surface);min-width:0;width:100%}
+.field input[type=number]{width:7.5rem}
+.fields{display:flex;flex-wrap:wrap;gap:.7rem 1rem;align-items:end}
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--rule-2);border-radius:10px;padding:3px;background:var(--surface-2);gap:3px;max-width:100%}
+.seg button{border:0;background:none;padding:.5rem .75rem;border-radius:7px;font-weight:650;font-size:.88rem;cursor:pointer;color:var(--ink-2);white-space:nowrap}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.18)}
+.seg button[aria-pressed="true"] .dot{opacity:1}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.45rem;min-height:42px;padding:.55rem .95rem;border-radius:10px;border:1.5px solid var(--rule-2);background:var(--surface);color:var(--ink);font-weight:700;font-size:.9rem;cursor:pointer;text-decoration:none;text-align:center;line-height:1.2}
+.btn:hover{border-color:var(--ink-3)}
+.btn svg{width:18px;height:18px;flex:none}
+.btn.primary{background:var(--red);border-color:var(--red);color:var(--on-red)}
+.btn.primary:hover{background:var(--red-deep);border-color:var(--red-deep)}
+.btn.teal{background:var(--teal);border-color:var(--teal);color:var(--on-teal)}
+.btn.teal:hover{filter:brightness(.92)}
+.btn.small{min-height:34px;padding:.35rem .65rem;font-size:.82rem}
+.btn[aria-pressed="true"]{outline:3px solid var(--gold);outline-offset:1px}
+.rules{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.5rem}
+.rules .btn{flex-direction:column;align-items:flex-start;text-align:left;padding:.6rem .75rem}
+.rules .btn small{font-weight:500;font-size:.76rem;opacity:.85}
+
+/* results */
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.5rem;margin:.6rem 0}
+.kpi{background:var(--surface-2);border:1px solid var(--rule);border-radius:11px;padding:.6rem .7rem;min-width:0}
+.kpi b{display:block;font-size:1.65rem;font-weight:800;line-height:1.05;letter-spacing:-.01em}
+.kpi span{display:block;font-size:.74rem;color:var(--ink-2);font-weight:600;margin-top:.2rem;line-height:1.25}
+.kpi.bad b{color:var(--red-ink)}
+.kpi.good b{color:var(--teal-ink)}
+.res-title{display:flex;flex-wrap:wrap;align-items:baseline;gap:.3rem .7rem}
+.res-title h2{margin:0}
+.pill{display:inline-flex;align-items:center;gap:.3rem;padding:.15rem .55rem;border-radius:99px;font-size:.74rem;font-weight:700;background:var(--surface-3);color:var(--ink-2)}
+.pill.red{background:var(--red-soft);color:var(--red-ink)}
+.pill.teal{background:var(--teal-soft);color:var(--teal-ink)}
+.pill.gold{background:var(--gold-soft);color:var(--gold-ink)}
+.tierbar{display:flex;height:16px;border-radius:6px;overflow:hidden;background:var(--surface-3);margin:.5rem 0 .4rem}
+.tierbar i{display:block;height:100%}
+.tierbar i + i{box-shadow:inset 2px 0 0 var(--surface)}
+.t-ec{background:var(--t-ec)}.t-open{background:var(--t-open)}.t-room{background:var(--t-room)}
+.t-none{background:repeating-linear-gradient(135deg,var(--t-none) 0 4px,transparent 4px 7px)}
+.tierlegend{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.4rem;font-size:.8rem}
+.tierlegend div{display:flex;gap:.4rem;align-items:flex-start;min-width:0}
+.tierlegend .sw{margin-top:.2rem}
+.tierlegend b{display:block;font-size:.98rem}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.15rem 1rem;margin:.7rem 0 0;font-size:.86rem}
+.stats div{display:flex;justify-content:space-between;gap:.5rem;border-bottom:1px dashed var(--rule);padding:.25rem 0}
+.stats dt{color:var(--ink-2)}
+.stats dd{margin:0;font-weight:700;text-align:right}
+.note{margin-top:.7rem;padding:.55rem .7rem;border-radius:9px;background:var(--surface-2);font-size:.84rem;color:var(--ink-2)}
+.note.warn{background:var(--red-soft);color:var(--ink)}
+.note.ok{background:var(--teal-soft);color:var(--ink)}
+.computing{opacity:.55;transition:opacity .15s}
+.err{color:var(--red-ink);font-weight:600}
+
+/* tables */
+.tbl-wrap{position:relative;overflow-x:auto;margin:0 -2px;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:.86rem}
+th,td{padding:.42rem .5rem;text-align:left;border-bottom:1px solid var(--rule);vertical-align:middle}
+th{font-size:.74rem;font-weight:700;color:var(--ink-2);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;background:var(--surface)}
+td.n,th.n{text-align:right}
+tbody tr:hover td{background:var(--surface-2)}
+tr.sel td{background:var(--gold-soft)}
+td input,td select{height:34px;border:1px solid var(--rule-2);border-radius:7px;background:var(--surface);padding:0 .45rem;width:100%;min-width:4.5rem}
+td input[type=number]{width:6rem;text-align:right}
+td input[type=checkbox]{width:20px;height:20px;min-width:0;accent-color:var(--teal)}
+td input.wide{min-width:11rem}
+td input.bad{border-color:var(--red-ink);background:var(--red-soft)}
+.del{border:0;background:none;color:var(--ink-3);cursor:pointer;width:34px;height:34px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center}
+.del:hover{background:var(--red-soft);color:var(--red-ink)}
+.del svg{width:16px;height:16px}
+details.card > summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:.5rem;font-weight:750;font-size:1.02rem}
+details.card > summary::-webkit-details-marker{display:none}
+details.card > summary::before{content:"";width:9px;height:9px;border-right:2.5px solid currentColor;border-bottom:2.5px solid currentColor;transform:rotate(-45deg);transition:transform .15s;margin-right:.2rem}
+details.card[open] > summary::before{transform:rotate(45deg)}
+details.card > summary .pill{margin-left:auto}
+details.card[open] > summary{margin-bottom:.6rem}
+
+/* chart */
+.chart{display:block;width:100%;height:auto}
+.chart .ax{stroke:var(--rule-2);stroke-width:1}
+.chart .grid{stroke:var(--rule);stroke-width:1}
+.chart text{fill:var(--ink-2);font-size:11px;font-family:var(--f)}
+.chart .s1{fill:none;stroke:var(--teal);stroke-width:2.2;stroke-linejoin:round}
+.chart .s2{fill:none;stroke:var(--red-ink);stroke-width:2.2;stroke-linejoin:round;stroke-dasharray:6 3}
+.chart .goal{stroke:var(--ink-3);stroke-dasharray:3 3}
+.chart .mk{stroke:var(--teal-ink);stroke-width:1.5}
+.chart .mk2{stroke:var(--red-ink);stroke-width:1.5}
+.chart .lb{stroke:var(--gold-ink);stroke-width:1.5;stroke-dasharray:4 3}
+.chart .lab{font-weight:700}
+.chart .lab.t{fill:var(--teal-ink)}.chart .lab.r{fill:var(--red-ink)}.chart .lab.g{fill:var(--gold-ink)}
+
+.chips{display:flex;flex-wrap:wrap;gap:.4rem}
+.chip{display:inline-flex;align-items:center;gap:.35rem;min-height:36px;padding:.3rem .7rem;border-radius:99px;border:1.5px solid var(--rule-2);background:var(--surface);cursor:pointer;font-weight:650;font-size:.85rem}
+.chip[aria-pressed="true"]{background:var(--red-soft);border-color:var(--red-ink);color:var(--red-ink)}
+.chip[disabled]{opacity:.7;cursor:not-allowed}
+.chip .bx{width:10px;height:10px;border-radius:2px;background:var(--m-lahar)}
+.chip[aria-pressed="true"] .bx{background:var(--red-ink)}
+
+.bars{display:grid;gap:.35rem;margin-top:.4rem}
+.bars div{display:grid;grid-template-columns:7.5rem 1fr 3.2rem;gap:.5rem;align-items:center;font-size:.84rem}
+.bars i{display:block;height:12px;border-radius:4px;background:var(--gold)}
+.bars i.top{background:var(--teal)}
+.bars em{font-style:normal;text-align:right;font-weight:700}
+
+/* resident */
+.res-cards{display:grid;gap:12px}
+.rc{border:1px solid var(--rule);border-radius:12px;padding:.8rem .9rem;background:var(--surface)}
+.rc.sel{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold-soft)}
+.rc h3{margin:0 0 .35rem;font-size:1rem;display:flex;flex-wrap:wrap;align-items:center;gap:.5rem}
+.dest{display:grid;gap:.45rem;margin-top:.4rem}
+.dest > div{display:grid;grid-template-columns:auto 1fr;gap:.1rem .65rem;align-items:start;padding:.5rem .6rem;border-radius:9px;background:var(--surface-2)}
+.dest .big{font-size:1.3rem;font-weight:800;line-height:1.1;grid-row:span 2;min-width:3.6rem;text-align:center;color:var(--teal-ink)}
+.dest .big small{display:block;font-size:.7rem;font-weight:650;color:var(--ink-2)}
+.dest b{font-size:.95rem}
+.dest p{font-size:.82rem;color:var(--ink-2)}
+
+/* calculators */
+.calc-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.answer{margin-top:.8rem;padding:.75rem .85rem;border-radius:11px;background:var(--teal-soft)}
+.answer b{display:block;font-size:2rem;font-weight:800;line-height:1.1;color:var(--teal-ink)}
+.answer span{font-size:.84rem;color:var(--ink-2)}
+.formula{font-family:var(--f-mono);font-size:.8rem;color:var(--ink-2);margin-top:.5rem;overflow-wrap:anywhere}
+
+dialog{border:0;border-radius:16px;padding:0;max-width:min(640px,calc(100vw - 24px));width:100%;background:var(--surface);color:var(--ink);box-shadow:0 30px 80px -20px rgba(0,0,0,.6)}
+dialog::backdrop{background:rgba(20,6,6,.55)}
+.dlg-head{display:flex;align-items:center;gap:.7rem;padding:1rem 1.1rem;background:linear-gradient(100deg,var(--bar-a),var(--bar-b));color:var(--on-red)}
+.dlg-head svg{width:44px;height:44px;border-radius:11px;flex:none}
+.dlg-head h2{font-size:1.2rem}
+.dlg-head .icon-btn{margin-left:auto}
+.dlg-body{padding:1rem 1.15rem 1.2rem;display:grid;gap:.8rem;font-size:.9rem;max-height:70vh;overflow:auto}
+.dlg-body h3{font-size:.95rem}
+.people{display:grid;gap:.35rem;margin:0}
+.people div{display:grid;grid-template-columns:8.5rem 1fr;gap:.6rem}
+.people dt{color:var(--ink-2);font-size:.82rem;font-weight:650}
+.people dd{margin:0}
+.lead{font-weight:800;color:var(--red-ink)}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--surface);padding:.6rem 1rem;border-radius:10px;font-size:.88rem;z-index:80;box-shadow:var(--shadow);max-width:calc(100vw - 32px)}
+
+@media (max-width:1100px){
+  .grid{grid-template-columns:minmax(0,1fr)}
+  .sticky{position:static}
+  .map{max-height:none}
+  .calc-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+}
+@media (max-width:760px){
+  body{font-size:14.5px}
+  .brand small{display:none}
+  .icon-btn .lbl{display:none}
+  .tabs{position:fixed;top:auto;bottom:0;left:0;right:0;border-top:1px solid var(--rule);border-bottom:0;padding-bottom:env(safe-area-inset-bottom,0px);box-shadow:0 -6px 18px -12px rgba(0,0,0,.35)}
+  .tabs-in{padding:0 4px;gap:0;justify-content:space-between}
+  .tab{flex:1 1 0;flex-direction:column;gap:.15rem;padding:.45rem .1rem .4rem;font-size:.66rem;border-bottom:0;border-top:3px solid transparent;min-width:0}
+  .tab svg{width:21px;height:21px}
+  .tab[aria-selected="true"]{border-top-color:var(--red-ink)}
+  main{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+  .view-head h1{font-size:1.3rem}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .kpi b{font-size:1.45rem}
+  .tierlegend{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stats{grid-template-columns:minmax(0,1fr)}
+  .rules{grid-template-columns:minmax(0,1fr)}
+  .rules .btn{flex-direction:row;justify-content:space-between;align-items:center}
+  .calc-grid{grid-template-columns:minmax(0,1fr)}
+  .card{padding:14px}
+  .map-card{padding:6px}
+  .bars div{grid-template-columns:5.6rem 1fr 2.8rem}
+  .people div{grid-template-columns:minmax(0,1fr)}
+  .people dd{margin-bottom:.3rem}
+}
+@media (max-width:380px){
+  .seg button{padding:.45rem .55rem;font-size:.82rem}
+}
+@media print{
+  .top,.tabs,.banner,.btn,.rules{display:none!important}
+  .card{box-shadow:none}
+}
+
+/* fixes */
+.check{display:flex;gap:.6rem;align-items:flex-start;cursor:pointer;margin-top:.8rem}
+.check input{flex:none;width:20px;height:20px;margin:.1rem 0 0;accent-color:var(--teal)}
+.check span{flex:1 1 auto;min-width:0}
+.fine,.small,.note{overflow-wrap:anywhere}
+.tbl-wrap select{min-width:6.5rem}
+.tbl-wrap input.wide{min-width:11rem}
+/* editable tables: let long headers wrap so the shelters table fits a desktop screen */
+#tbl-origins th,#tbl-shelters th,#tbl-roads th,#tbl-nodes th,#tbl-candidates th{white-space:normal;vertical-align:bottom;line-height:1.25}
+#tbl-shelters td input[type=number]{width:5.2rem}
+
+.lm-bridge .hit{fill:transparent;stroke:none}
+.lm-pdz,.lm-edz,.lm-channel,.lm-chlabel{pointer-events:none}
+
+table.compact{font-size:.8rem}
+table.compact th,table.compact td{padding-left:.35rem;padding-right:.35rem}
+table.compact td:first-child{white-space:nowrap}
+table.compact th{white-space:normal;vertical-align:bottom}
+
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-plan" viewBox="0 0 24 24"><path d="M3 6.5 9 4l6 2.5L21 4v13.5L15 20l-6-2.5L3 20z M9 4v13.5 M15 6.5V20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M12 7v5.2l3.4 2" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
+  <symbol id="i-site" viewBox="0 0 24 24"><path d="M4 11 12 4l8 7v9H4z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><path d="M12 10.5v6M9 13.5h6" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M5 20c.8-3.6 3.6-5.6 7-5.6s6.2 2 7 5.6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
+  <symbol id="i-calc" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M4 12h16M12 4v16" stroke="currentColor" stroke-width="1.9"/></symbol>
+  <symbol id="i-data" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7.5" ry="2.8" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M4.5 6v12c0 1.5 3.4 2.8 7.5 2.8s7.5-1.3 7.5-2.8V6M4.5 12c0 1.5 3.4 2.8 7.5 2.8s7.5-1.3 7.5-2.8" fill="none" stroke="currentColor" stroke-width="1.9"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M12 11v5.5M12 7.6v.1" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M19.5 14.5A8 8 0 0 1 9.5 4.5a8 8 0 1 0 10 10z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></symbol>
+  <symbol id="i-auto" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 3.5v11.5m0 0-4.6-4.6M12 15l4.6-4.6M4.5 15.5v4h15v-4" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 15.5V4m0 0L7.4 8.6M12 4l4.6 4.6M4.5 15.5v4h15v-4" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 3.5 2.8 19.5h18.4z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><path d="M12 9.5v4.5M12 16.8v.1" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+</svg>
+
+<header class="top">
+  <div class="top-in">
+    <a class="brand" href="#plan" aria-label="LIGTA-S home">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="logo" aria-hidden="true" focusable="false"><defs><linearGradient id="lg-bg-1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4A0A12"/><stop offset="1" stop-color="#1F0407"/></linearGradient></defs><rect x="8" y="8" width="496" height="496" rx="112" fill="url(#lg-bg-1)"/><g transform="translate(0.00 0.00) scale(1.0000)"><path d="M30 404 C150 372 214 262 234 118 L278 118 C298 262 362 372 482 404 Z" fill="#B81E28"/><path d="M258 118 L278 118 C298 262 362 372 482 404 L372 404 C318 332 270 236 258 118 Z" fill="#D9454A"/><g fill="#FFF5DE"><circle cx="270" cy="88" r="20"/><circle cx="304" cy="64" r="25"/><circle cx="344" cy="58" r="18"/></g><path d="M172 330 L256 264 L340 330 L340 440 L172 440 Z" fill="#F6D06B"/><path d="M134 344 L256 248 L378 344" fill="none" stroke="#FFF5DE" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/><path d="M206 380 L242 414 L306 342" fill="none" stroke="#0E7C74" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/></g></svg>
+      <span><b>LIGTA-S</b><small>Safe shelter, open schools</small></span>
+    </a>
+    <div class="top-actions">
+      <button type="button" class="icon-btn" id="theme-btn" aria-label="Color theme: automatic"><svg aria-hidden="true"><use href="#i-auto"/></svg></button>
+      <button type="button" class="icon-btn" id="about-btn"><svg aria-hidden="true"><use href="#i-info"/></svg><span class="lbl">About</span></button>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="Modes">
+  <div class="tabs-in" role="tablist" aria-label="LIGTA-S modes">
+    <button type="button" class="tab" role="tab" id="tab-plan" aria-controls="view-plan" data-tab="plan"><svg aria-hidden="true"><use href="#i-plan"/></svg><span>Planner</span></button>
+    <button type="button" class="tab" role="tab" id="tab-clear" aria-controls="view-clear" data-tab="clear"><svg aria-hidden="true"><use href="#i-clock"/></svg><span>Clearance</span></button>
+    <button type="button" class="tab" role="tab" id="tab-site" aria-controls="view-site" data-tab="site"><svg aria-hidden="true"><use href="#i-site"/></svg><span>Siting</span></button>
+    <button type="button" class="tab" role="tab" id="tab-res" aria-controls="view-res" data-tab="res"><svg aria-hidden="true"><use href="#i-home"/></svg><span>Resident</span></button>
+    <button type="button" class="tab" role="tab" id="tab-cap" aria-controls="view-cap" data-tab="cap"><svg aria-hidden="true"><use href="#i-calc"/></svg><span>Capacity</span></button>
+    <button type="button" class="tab" role="tab" id="tab-data" aria-controls="view-data" data-tab="data"><svg aria-hidden="true"><use href="#i-data"/></svg><span>Data</span></button>
+  </div>
+</nav>
+
+<div class="banner" id="banner"><p><svg aria-hidden="true"><use href="#i-info"/></svg><span id="banner-text">Demo data: test network E1, a synthetic volcano. Not real Albay data; every number here is from this test network.</span></p></div>
+
+<main>
+<!-- PLANNER -->
+<section id="view-plan" role="tabpanel" aria-labelledby="tab-plan" hidden>
+  <div class="view-head">
+    <h1>Shelter planner</h1>
+    <p>Who goes to which shelter, by hazard zone, capacity and vulnerability, with classrooms used last.</p>
+  </div>
+  <div class="grid">
+    <div class="card map-card sticky">
+      <div class="map-wrap"><svg class="map" id="map-plan" aria-label="Map of the road network"></svg></div>
+      <div class="map-legend" aria-hidden="true">
+        <span><i class="sw o"></i>Origin that must evacuate</span>
+        <span><i class="sw ec"></i>Non-school shelter</span>
+        <span><i class="sw sc"></i>School</span>
+        <span><i class="sw fl"></i>Evacuees on their way</span>
+        <span><i class="sw pdz"></i>6-km danger zone</span>
+        <span><i class="sw edz"></i>Extended zone</span>
+        <span><i class="sw br"></i>Bridge on a lahar channel</span>
+      </div>
+    </div>
+    <div class="stack">
+      <div class="card">
+        <h2>Scenario and rules</h2>
+        <div class="seg scen-seg" role="group" aria-label="Hazard scenario" data-scen-target="scen"></div>
+        <div class="fields" style="margin-top:.8rem">
+          <label class="field"><span>Trip limit θ<sub>max</sub> (minutes)</span><input type="number" id="theta" min="1" max="100000" step="1" inputmode="numeric"></label>
+          <label class="field"><span>Stay length (days)</span><input type="number" id="days" min="1" max="365" step="1" inputmode="numeric"></label>
+        </div>
+        <h3>Compute a plan</h3>
+        <div class="rules" role="group" aria-label="Plan rule">
+          <button type="button" class="btn teal" data-rule="lex"><span>School-preserving plan</span><small>Exact lexicographic optimum</small></button>
+          <button type="button" class="btn" data-rule="time"><span>Time-only plan</span><small>Fewest person-minutes</small></button>
+          <button type="button" class="btn" data-rule="near"><span>Nearest-site rule</span><small>Baseline, with overflow</small></button>
+        </div>
+      </div>
+      <div class="card" id="plan-result" aria-live="polite"></div>
+      <div class="card">
+        <h2>Compare the three rules</h2>
+        <div class="tbl-wrap" id="compare"></div>
+      </div>
+    </div>
+  </div>
+  <div class="stack" style="margin-top:16px">
+    <details class="card" id="plan-detail-box" open><summary>Who goes where <span class="pill" id="plan-detail-pill"></span></summary><div class="tbl-wrap" id="plan-detail"></div></details>
+    <details class="card" open><summary>Origins (barangays or puroks) <span class="pill">editable</span></summary>
+      <p class="fine" style="margin-bottom:.5rem">Zones: space-separated tags such as PDZ, EDZ or LAHAR. An origin evacuates when one of its tags is active in the scenario. Vulnerable: seniors 60 and over, children under five, persons with disability and pregnant women.</p>
+      <div class="tbl-wrap" id="tbl-origins"></div>
+      <div class="row" style="margin-top:.6rem"><button type="button" class="btn small" data-add="origins"><svg aria-hidden="true"><use href="#i-plus"/></svg>Add origin</button></div>
+    </details>
+    <details class="card" open><summary>Shelters <span class="pill">editable</span></summary>
+      <p class="fine" style="margin-bottom:.5rem">Capacity is covered floor area over 3.5 m² per person (Sphere). Classrooms hold 18 each (7 m × 9 m). Accessible: vulnerable evacuees are placed only in accessible shelters.</p>
+      <div class="tbl-wrap" id="tbl-shelters"></div>
+      <div class="row" style="margin-top:.6rem"><button type="button" class="btn small" data-add="shelters"><svg aria-hidden="true"><use href="#i-plus"/></svg>Add shelter</button></div>
+    </details>
+  </div>
+</section>
+
+<!-- CLEARANCE -->
+<section id="view-clear" role="tabpanel" aria-labelledby="tab-clear" hidden>
+  <div class="view-head">
+    <h1>Clearance time</h1>
+    <p>The exact minute by which everyone in the school-preserving plan can be inside a shelter, from a maximum flow on the time-expanded road network. Close bridges to see what a lahar does.</p>
+  </div>
+  <div class="grid">
+    <div class="card map-card sticky">
+      <div class="map-wrap"><svg class="map" id="map-clear" aria-label="Map of the road network with bridges"></svg></div>
+      <div class="map-legend" aria-hidden="true">
+        <span><i class="sw br"></i>Bridge: tap to close or reopen</span>
+        <span><i class="sw" style="background:var(--red-ink)"></i>Closed</span>
+        <span><i class="sw fl"></i>Evacuees on their way</span>
+      </div>
+    </div>
+    <div class="stack">
+      <div class="card">
+        <h2>Scenario</h2>
+        <div class="seg scen-seg" role="group" aria-label="Hazard scenario" data-scen-target="scen"></div>
+        <div id="clear-result" aria-live="polite" style="margin-top:.6rem"></div>
+      </div>
+      <div class="card">
+        <h2>Close roads</h2>
+        <p class="small muted">Close single bridges, or every bridge over a lahar channel. The plan stays as it was (so the change is the closure's own effect), and a fresh plan for the damaged network shows who is cut off.</p>
+        <div class="chips" id="bridge-chips" style="margin-top:.6rem"></div>
+        <div class="row" style="margin-top:.6rem">
+          <button type="button" class="btn small" data-close="A">Close channel A</button>
+          <button type="button" class="btn small" data-close="B">Close channel B</button>
+          <button type="button" class="btn small" data-close="AB">Close both</button>
+          <button type="button" class="btn small" data-close="none">Reopen all</button>
+        </div>
+        <div id="closure-result" aria-live="polite" style="margin-top:.6rem"></div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <div class="row"><h2 style="margin:0">Lahar study</h2><span class="pill" id="study-pill"></span></div>
+    <p class="small muted" style="margin:.3rem 0 .5rem">The scenario's hazard zones with no bridge, one channel or both channels cut. Plan held fixed, then a fresh plan.</p>
+    <div class="tbl-wrap" id="study"></div>
+  </div>
+</section>
+
+<!-- SITING -->
+<section id="view-site" role="tabpanel" aria-labelledby="tab-site" hidden>
+  <div class="view-head">
+    <h1>Ligtas Pinoy Center siting</h1>
+    <p>Where should new evacuation centers go? The gain of a set of sites is how many more evacuees can be sheltered outside classrooms within the travel-time standard. It is monotone and submodular, so the greedy choice reaches at least 63.2% of the best.</p>
+  </div>
+  <div class="grid">
+    <div class="card map-card sticky">
+      <div class="map-wrap"><svg class="map" id="map-site" aria-label="Map with candidate sites"></svg></div>
+      <div class="map-legend" aria-hidden="true">
+        <span><i class="sw" style="background:transparent;border:1.5px dashed var(--gold-ink);border-radius:50%"></i>Candidate site</span>
+        <span><i class="sw" style="background:var(--gold);border-radius:50%"></i>Chosen site</span>
+        <span><i class="sw fl"></i>Plan with the chosen sites</span>
+      </div>
+    </div>
+    <div class="stack">
+      <div class="card">
+        <h2>Settings</h2>
+        <div class="seg" role="group" aria-label="Hazard scenario for siting" id="site-scen"></div>
+        <div class="fields" style="margin-top:.8rem">
+          <label class="field"><span>Travel-time standard θ (minutes)</span><input type="number" id="site-theta" min="1" max="1000" step="1" inputmode="numeric"></label>
+          <label class="field"><span>Sites to build k</span><input type="number" id="site-k" min="1" max="8" step="1" inputmode="numeric"></label>
+        </div>
+        <div class="row" style="margin-top:.8rem"><button type="button" class="btn teal" id="site-run">Choose sites</button><span class="fine" id="site-time"></span></div>
+      </div>
+      <div class="card" id="site-result" aria-live="polite"></div>
+    </div>
+  </div>
+  <details class="card" style="margin-top:16px" open><summary>Candidate sites <span class="pill">editable</span></summary>
+    <div class="tbl-wrap" id="tbl-candidates"></div>
+    <div class="row" style="margin-top:.6rem"><button type="button" class="btn small" data-add="candidates"><svg aria-hidden="true"><use href="#i-plus"/></svg>Add candidate</button></div>
+  </details>
+</section>
+
+<!-- RESIDENT -->
+<section id="view-res" role="tabpanel" aria-labelledby="tab-res" hidden>
+  <div class="view-head">
+    <h1>Where do I go?</h1>
+    <p>Choose your barangay to see your assigned shelter at each alert level, the trip time and whether the shelter is accessible.</p>
+  </div>
+  <div class="grid">
+    <div class="card map-card sticky">
+      <div class="map-wrap"><svg class="map" id="map-res" aria-label="Map with your route"></svg></div>
+      <div class="map-legend" aria-hidden="true">
+        <span><i class="sw" style="background:var(--gold);height:5px"></i>Your route</span>
+        <span><i class="sw o"></i>Must evacuate</span>
+        <span><i class="sw ec"></i>Non-school shelter</span>
+        <span><i class="sw sc"></i>School</span>
+      </div>
+    </div>
+    <div class="stack">
+      <div class="card">
+        <div class="fields">
+          <label class="field" style="flex:1 1 14rem"><span>Your barangay (test network)</span><select id="res-origin"></select></label>
+        </div>
+        <label class="check"><input type="checkbox" id="res-vul"><span class="small">My household includes a senior (60+), a child under five, a person with disability or a pregnant woman.</span></label>
+      </div>
+      <div class="res-cards" id="res-cards" aria-live="polite"></div>
+      <p class="fine">A planning aid, not an evacuation order. Follow your barangay officials, the MDRRMO and PHIVOLCS. The real assignment comes from them.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CAPACITY -->
+<section id="view-cap" role="tabpanel" aria-labelledby="tab-cap" hidden>
+  <div class="view-head">
+    <h1>Capacity calculator</h1>
+    <p>Sphere Handbook (2018): 3.5 m² of covered living space per person. DepEd standard classroom: 7 m × 9 m = 63 m², so 18 evacuees per classroom.</p>
+  </div>
+  <div class="calc-grid">
+    <div class="card">
+      <h2>Floor area to persons</h2>
+      <label class="field"><span>Covered, usable floor area (m²)</span><input type="number" id="cap-area" min="0" step="1" value="600" inputmode="decimal"></label>
+      <div class="answer"><b id="cap-area-out">171</b><span>persons at 3.5 m² each</span></div>
+      <p class="formula" id="cap-area-f"></p>
+    </div>
+    <div class="card">
+      <h2>Classrooms to evacuees</h2>
+      <div class="fields">
+        <label class="field"><span>Classrooms</span><input type="number" id="cap-rooms" min="0" step="1" value="10" inputmode="numeric"></label>
+        <label class="field"><span>Room length (m)</span><input type="number" id="cap-len" min="0" step="0.1" value="9" inputmode="decimal"></label>
+        <label class="field"><span>Room width (m)</span><input type="number" id="cap-wid" min="0" step="0.1" value="7" inputmode="decimal"></label>
+      </div>
+      <div class="answer"><b id="cap-rooms-out">180</b><span id="cap-rooms-sub">evacuees, 18 per classroom</span></div>
+      <p class="formula" id="cap-rooms-f"></p>
+    </div>
+    <div class="card">
+      <h2>Evacuees to classrooms closed</h2>
+      <div class="fields">
+        <label class="field"><span>Evacuees in classrooms</span><input type="number" id="cap-ev" min="0" step="1" value="240" inputmode="numeric"></label>
+        <label class="field"><span>Learners per room</span><input type="number" id="cap-lpr" min="0" step="1" value="38" inputmode="numeric"></label>
+        <label class="field"><span>Stay (days)</span><input type="number" id="cap-days" min="0" step="1" value="15" inputmode="numeric"></label>
+      </div>
+      <div class="answer"><b id="cap-ev-out">14</b><span id="cap-ev-sub">classrooms closed</span></div>
+      <p class="formula" id="cap-ev-f"></p>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <h2>Why classrooms come last</h2>
+    <p class="small muted">Republic Act 10821 (2016, Children's Emergency Relief and Protection Act): schools may serve as evacuation centers only when no other suitable space exists. DepEd guidance: use gyms and open spaces before classrooms, and limit the use to 15 days for medium or long-term displacement unless the LGU documents the need. Republic Act 12076 (Ligtas Pinoy Centers Act, 2024) provides for an evacuation center in every city and municipality.</p>
+  </div>
+</section>
+
+<!-- DATA -->
+<section id="view-data" role="tabpanel" aria-labelledby="tab-data" hidden>
+  <div class="view-head">
+    <h1>Data</h1>
+    <p>Edits are saved in this browser only. Export them to share or keep a copy; import a JSON file from LIGTA-S or a CSV table.</p>
+  </div>
+  <div class="card">
+    <div class="row">
+      <button type="button" class="btn" id="exp-json"><svg aria-hidden="true"><use href="#i-down"/></svg>Export JSON</button>
+      <button type="button" class="btn" data-csv="origins"><svg aria-hidden="true"><use href="#i-down"/></svg>Origins CSV</button>
+      <button type="button" class="btn" data-csv="shelters"><svg aria-hidden="true"><use href="#i-down"/></svg>Shelters CSV</button>
+      <button type="button" class="btn" data-csv="roads"><svg aria-hidden="true"><use href="#i-down"/></svg>Roads CSV</button>
+      <button type="button" class="btn" data-csv="nodes"><svg aria-hidden="true"><use href="#i-down"/></svg>Map points CSV</button>
+    </div>
+    <div class="row">
+      <label class="btn teal" for="imp-file" style="cursor:pointer"><svg aria-hidden="true"><use href="#i-up"/></svg>Import JSON or CSV</label>
+      <input type="file" id="imp-file" accept=".json,.csv,application/json,text/csv" class="sr-only">
+      <button type="button" class="btn" id="reset-data">Reset to the demo network</button>
+    </div>
+    <p class="fine" id="save-status" role="status" style="margin-top:.6rem"></p>
+    <p class="fine" style="margin-top:.3rem">CSV import replaces one table, recognised by its header: origins (id,name,node,zones,pop,vul), shelters (id,name,node,kind,areaNonSchool,areaOpen,rooms,learnersPerRoom,accessible,zones), roads (u,v,tau,cap,tag) or map points (id,name,x,y,kind).</p>
+  </div>
+  <details class="card" style="margin-top:16px" open><summary>Roads <span class="pill">editable</span></summary>
+    <p class="fine" style="margin-bottom:.5rem">Minutes τ (whole minutes, at least 1) and capacity u (evacuees per minute) apply in both directions. Roads that share a tag close together; bridges over a lahar channel carry the channel letter.</p>
+    <div class="tbl-wrap" id="tbl-roads"></div>
+    <div class="row" style="margin-top:.6rem"><button type="button" class="btn small" data-add="roads"><svg aria-hidden="true"><use href="#i-plus"/></svg>Add road</button></div>
+  </details>
+  <details class="card" style="margin-top:16px"><summary>Map points <span class="pill">editable</span></summary>
+    <p class="fine" style="margin-bottom:.5rem">x and y in km east and north of the summit. Kind: origin, town or ring (a road junction).</p>
+    <div class="tbl-wrap" id="tbl-nodes"></div>
+    <div class="row" style="margin-top:.6rem"><button type="button" class="btn small" data-add="nodes"><svg aria-hidden="true"><use href="#i-plus"/></svg>Add map point</button></div>
+  </details>
+</section>
+</main>
+
+<dialog id="about" aria-labelledby="about-h">
+  <div class="dlg-head"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="logo" aria-hidden="true" focusable="false"><defs><linearGradient id="lg-bg-2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4A0A12"/><stop offset="1" stop-color="#1F0407"/></linearGradient></defs><rect x="8" y="8" width="496" height="496" rx="112" fill="url(#lg-bg-2)"/><g transform="translate(0.00 0.00) scale(1.0000)"><path d="M30 404 C150 372 214 262 234 118 L278 118 C298 262 362 372 482 404 Z" fill="#B81E28"/><path d="M258 118 L278 118 C298 262 362 372 482 404 L372 404 C318 332 270 236 258 118 Z" fill="#D9454A"/><g fill="#FFF5DE"><circle cx="270" cy="88" r="20"/><circle cx="304" cy="64" r="25"/><circle cx="344" cy="58" r="18"/></g><path d="M172 330 L256 264 L340 330 L340 440 L172 440 Z" fill="#F6D06B"/><path d="M134 344 L256 248 L378 344" fill="none" stroke="#FFF5DE" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/><path d="M206 380 L242 414 L306 342" fill="none" stroke="#0E7C74" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/></g></svg><div><h2 id="about-h">LIGTA-S</h2><p class="small" style="color:var(--on-red-2)">Say it like ligtas, "LIG-tas": safe.</p></div>
+    <button type="button" class="icon-btn" id="about-close" aria-label="Close"><svg aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <div class="dlg-body">
+    <p>The app of the study <i>Safe Shelter, Open Schools: A Verified Network-Flow Model for Planning Evacuations in Albay by Hazard Zone, Shelter Capacity, and Vulnerability While Keeping Classrooms Open</i>.</p>
+    <dl class="people">
+      <div><dt>Researchers</dt><dd><span class="lead">De Asis, Dave Justin Ll.</span> (lead researcher and founder)<br>Brimbuela, Peter John A.<br>Shin, Yeaseong</dd></div>
+      <div><dt>Research adviser</dt><dd>Calleja, Dick Anthony M.</dd></div>
+      <div><dt>School</dt><dd>Legazpi City Science High School, Bitano, Legazpi City, Albay, Bicol Region (Region V), Philippines</dd></div>
+      <div><dt>Category</dt><dd>Mathematics and Computational Sciences, Team (MCS-T)</dd></div>
+    </dl>
+    <h3>Not an official order</h3>
+    <p>LIGTA-S is a planning aid from a student research project. It is not an evacuation order, not an official plan of PHIVOLCS, the OCD, DepEd or any LGU, and not medical advice. In an emergency follow your barangay officials and the MDRRMO, and call 911.</p>
+    <h3>Synthetic test network</h3>
+    <p>The demo data is test network E1, a synthetic volcano built for the paper. Its places, roads, schools and numbers are made up to test the method; they are not Albay data.</p>
+    <h3>Privacy</h3>
+    <p>LIGTA-S has no account, no analytics and no tracking, and sends nothing anywhere. Your edits stay in this browser. Clearing the site's data deletes them.</p>
+    <p class="row"><a class="btn small" href="https://pogi6969.github.io/MAP---A/ligta-s/">LIGTA-S website</a><a class="btn small" href="https://pogi6969.github.io/MAP---A/research/safe-shelter-open-schools/paper/Safe-Shelter-Open-Schools_MCS-T.pdf">Read the paper (PDF)</a></p>
+    <p class="fine">Version 1.0.0 · engine 1.0.1</p>
+  </div>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script type="application/json" id="ligtas-demo">{"format":"ligta-s/1","name":"Test network E1 (synthetic volcano)","synthetic":true,"note":"Synthetic test network from the paper (verify_evacuation.build_e1). Not real Albay data.","units":{"x":"km east of the summit","y":"km north of the summit","tau":"minutes","cap":"evacuees per minute"},"nodes":[{"id":"R0","x":8,"y":0,"kind":"ring","name":"R0"},{"id":"R1","x":6.928,"y":4,"kind":"ring","name":"R1"},{"id":"R2","x":4,"y":6.928,"kind":"ring","name":"R2"},{"id":"R3","x":0,"y":8,"kind":"ring","name":"R3"},{"id":"R4","x":-4,"y":6.928,"kind":"ring","name":"R4"},{"id":"R5","x":-6.928,"y":4,"kind":"ring","name":"R5"},{"id":"R6","x":-8,"y":0,"kind":"ring","name":"R6"},{"id":"R7","x":-6.928,"y":-4,"kind":"ring","name":"R7"},{"id":"R8","x":-4,"y":-6.928,"kind":"ring","name":"R8"},{"id":"R9","x":0,"y":-8,"kind":"ring","name":"R9"},{"id":"R10","x":4,"y":-6.928,"kind":"ring","name":"R10"},{"id":"R11","x":6.928,"y":-4,"kind":"ring","name":"R11"},{"id":"TE","x":12,"y":0,"kind":"town","name":"East town"},{"id":"TNE","x":9.192,"y":9.192,"kind":"town","name":"North-east town"},{"id":"TSE","x":10.649,"y":-7.456,"kind":"town","name":"South-east town"},{"id":"TS","x":0.959,"y":-10.958,"kind":"town","name":"South town"},{"id":"TSW","x":-9.193,"y":-7.713,"kind":"town","name":"South-west town"},{"id":"O1","x":0.799,"y":4.53,"kind":"origin","name":"O1"},{"id":"O2","x":5.074,"y":1.847,"kind":"origin","name":"O2"},{"id":"O3","x":2.8,"y":-4.85,"kind":"origin","name":"O3"},{"id":"O4","x":-0.919,"y":-6.536,"kind":"origin","name":"O4"},{"id":"O5","x":-4.55,"y":-5.053,"kind":"origin","name":"O5"},{"id":"O6","x":6.986,"y":-6.29,"kind":"origin","name":"O6"}],"roads":[{"u":"R0","v":"R1","tau":9,"cap":30,"tag":"ring0"},{"u":"R1","v":"R2","tau":9,"cap":30,"tag":"ring1"},{"u":"R2","v":"R3","tau":9,"cap":30,"tag":"ring2"},{"u":"R3","v":"R4","tau":9,"cap":30,"tag":"ring3"},{"u":"R4","v":"R5","tau":9,"cap":30,"tag":"ring4"},{"u":"R5","v":"R6","tau":9,"cap":30,"tag":"ring5"},{"u":"R6","v":"R7","tau":9,"cap":30,"tag":"ring6"},{"u":"R7","v":"R8","tau":9,"cap":30,"tag":"ring7"},{"u":"R8","v":"R9","tau":9,"cap":30,"tag":"B1"},{"u":"R9","v":"R10","tau":9,"cap":30,"tag":"ring9"},{"u":"R10","v":"R11","tau":9,"cap":30,"tag":"A1"},{"u":"R11","v":"R0","tau":9,"cap":30,"tag":"ring11"},{"u":"TE","v":"R0","tau":8,"cap":40,"tag":"hTE"},{"u":"TNE","v":"R1","tau":12,"cap":40,"tag":"hTNE1"},{"u":"TNE","v":"R2","tau":12,"cap":40,"tag":"hTNE2"},{"u":"TSE","v":"R10","tau":14,"cap":40,"tag":"A2"},{"u":"TSE","v":"R11","tau":11,"cap":40,"tag":"hTSE2"},{"u":"TS","v":"R9","tau":7,"cap":40,"tag":"hTS"},{"u":"TSW","v":"R7","tau":9,"cap":40,"tag":"hTSW1"},{"u":"TSW","v":"R8","tau":11,"cap":40,"tag":"hTSW2"},{"u":"TE","v":"TSE","tau":16,"cap":30,"tag":"oE"},{"u":"TSE","v":"TS","tau":21,"cap":30,"tag":"A3"},{"u":"TS","v":"TSW","tau":22,"cap":30,"tag":"B2"},{"u":"TE","v":"TNE","tau":20,"cap":30,"tag":"oN"},{"u":"O1","v":"R3","tau":15,"cap":20,"tag":"bO1R3"},{"u":"O1","v":"R2","tau":16,"cap":20,"tag":"bO1R2"},{"u":"O2","v":"R1","tau":12,"cap":20,"tag":"bO2R1"},{"u":"O2","v":"R0","tau":14,"cap":20,"tag":"bO2R0"},{"u":"O3","v":"R10","tau":10,"cap":20,"tag":"bO3R10"},{"u":"O3","v":"R11","tau":17,"cap":20,"tag":"A4"},{"u":"O4","v":"R9","tau":7,"cap":20,"tag":"bO4R9"},{"u":"O4","v":"R8","tau":13,"cap":20,"tag":"B3"},{"u":"O5","v":"R8","tau":8,"cap":20,"tag":"bO5R8"},{"u":"O5","v":"R7","tau":11,"cap":20,"tag":"bO5R7"},{"u":"O6","v":"R11","tau":10,"cap":20,"tag":"bO6R11"},{"u":"O6","v":"TSE","tau":16,"cap":20,"tag":"bO6TSE"}],"origins":[{"id":"O1","name":"O1, north slope (4.6 km)","node":"O1","zones":["PDZ"],"pop":520,"vul":114},{"id":"O2","name":"O2, east slope (5.4 km)","node":"O2","zones":["PDZ"],"pop":430,"vul":82},{"id":"O3","name":"O3, south-east slope (5.6 km)","node":"O3","zones":["PDZ"],"pop":610,"vul":146},{"id":"O4","name":"O4, south slope (6.6 km)","node":"O4","zones":["EDZ"],"pop":380,"vul":80},{"id":"O5","name":"O5, south-west slope (6.8 km)","node":"O5","zones":["EDZ"],"pop":450,"vul":90},{"id":"O6","name":"O6, south-east slope (9.4 km)","node":"O6","zones":["LAHAR"],"pop":300,"vul":75}],"shelters":[{"id":"EC1","name":"Municipal evacuation center","node":"TE","kind":"ec","areaNonSchool":1400,"areaOpen":0,"rooms":0,"learnersPerRoom":0,"accessible":true,"zones":[]},{"id":"EC2","name":"Parish hall","node":"TSE","kind":"ec","areaNonSchool":700,"areaOpen":0,"rooms":0,"learnersPerRoom":0,"accessible":true,"zones":[]},{"id":"EC3","name":"Barangay covered court","node":"TSW","kind":"ec","areaNonSchool":1050,"areaOpen":0,"rooms":0,"learnersPerRoom":0,"accessible":true,"zones":[]},{"id":"SCH1","name":"Central elementary school","node":"TS","kind":"school","areaNonSchool":0,"areaOpen":630,"rooms":20,"learnersPerRoom":40,"accessible":true,"zones":[]},{"id":"SCH2","name":"National high school","node":"TSE","kind":"school","areaNonSchool":0,"areaOpen":840,"rooms":30,"learnersPerRoom":45,"accessible":true,"zones":[]},{"id":"SCH3","name":"Two-storey elementary school","node":"TNE","kind":"school","areaNonSchool":0,"areaOpen":0,"rooms":14,"learnersPerRoom":38,"accessible":false,"zones":[]}],"zones":[{"id":"PDZ","name":"6-km Permanent Danger Zone"},{"id":"EDZ","name":"Extended Danger Zone (7 km, south flank)"},{"id":"LAHAR","name":"Lahar-prone area"}],"channels":[{"id":"A","bearing":312,"bridges":["A1","A2","A3","A4"]},{"id":"B","bearing":248,"bridges":["B1","B2","B3"]}],"scenarios":[{"id":"AL3","name":"Alert Level 3","zones":["PDZ"],"closed":[]},{"id":"AL4","name":"Alert Level 4","zones":["PDZ","EDZ"],"closed":[]},{"id":"AL4+L","name":"Alert Level 4 + lahar","zones":["EDZ","LAHAR","PDZ"],"closed":["A1","A2","A3","A4","B1","B2","B3"]}],"thetaMax":120,"thetaSite":30,"candidates":[{"node":"TS","name":"Ligtas Pinoy Center, South town","area":1400},{"node":"TSW","name":"Ligtas Pinoy Center, South-west town","area":1050},{"node":"TNE","name":"Ligtas Pinoy Center, North-east town","area":1225},{"node":"TE","name":"Ligtas Pinoy Center, East town","area":1050},{"node":"TSE","name":"Ligtas Pinoy Center, South-east town","area":875}],"geo":{"summit":[0,0],"pdzRadius":6,"edz":{"r0":6,"r1":7,"from":200,"to":340},"channelRange":[1.5,14.5]}}</script>
+<script id="ligtas-engine">
+/* LIGTAS-ENGINE:BEGIN */
+/* LIGTA-S engine: the algorithms of "Safe Shelter, Open Schools" (Brimbuela, De Asis & Shin, 2026).
+ *
+ *   plan()          lexicographic shelter plan: max vulnerable placed, max placed, then
+ *                   min persons in classrooms, min persons in school open spaces, min
+ *                   person-minutes. Two maximum flows (Dinic), then one minimum-cost flow
+ *                   whose arc costs are VECTORS compared lexicographically (successive
+ *                   shortest paths with a queue-based Bellman-Ford). No big-M numbers.
+ *   nearest()       baseline: everyone to the nearest safe shelter site, overflow counted.
+ *   clearance()     exact clearance time on the time-expanded network (Ford & Fulkerson),
+ *                   Dinic maximum flow, doubling then bisection; static lower bound.
+ *   siting()        Ligtas Pinoy Center siting: coverage outside classrooms within a
+ *                   travel-time standard, greedy choice (>= 63.2% of the best), exhaustive check.
+ *
+ * Plain ES5, no dependencies. Works in the browser (window.LigtasEngine) and in Node
+ * (module.exports, or evaluated in a vm context by tests/verify.mjs).
+ */
+(function (root) {
+  "use strict";
+
+  var SPHERE_M2 = 3.5;            // covered living space per person (Sphere Handbook, 2018)
+  var CLASSROOM_M2 = 63;          // DepEd standard classroom, 7 m x 9 m
+  var Q = 18;                     // evacuees per classroom = floor(63 / 3.5)
+  var TIER_EC = 0, TIER_OPEN = 1, TIER_ROOM = 2;
+  var TIER_NAMES = ["non-school space", "school open space", "classroom"];
+  var MAX_HORIZON = 1 << 15;      // clearance search gives up (reports "no finite time") beyond this
+
+  /* ------------------------------------------------------------------ helpers */
+
+  function capFromArea(area) {
+    var a = +area;
+    if (!(a > 0)) return 0;
+    return Math.floor(a / SPHERE_M2 + 1e-9);
+  }
+  function toInt(v, dflt) {
+    var n = Math.round(+v);
+    return isFinite(n) ? n : (dflt || 0);
+  }
+  function setOf(list) {
+    var s = {};
+    (list || []).forEach(function (z) { if (z !== "" && z != null) s[String(z)] = true; });
+    return s;
+  }
+  function meets(a, b) {
+    for (var k in a) if (a.hasOwnProperty(k) && b[k]) return true;
+    return false;
+  }
+  /* Tie-break between two node ids: as numbers when both are whole numbers, else as text
+     (the same order the Python reference uses for integer and for named nodes). */
+  function idLess(x, y) {
+    var nx = /^-?\d+$/.test(x), ny = /^-?\d+$/.test(y);
+    if (nx && ny) return +x < +y;
+    return x < y;
+  }
+
+  /* ------------------------------------------------------------------ instance */
+
+  /* data: {nodes:[{id,x,y}], roads:[{u,v,tau,cap,tag,oneWay?}], origins:[...], shelters:[...], thetaMax}
+     opts.extraShelters: more shelters in the same format (e.g. new Ligtas Pinoy Centers). */
+  function makeInstance(data, opts) {
+    opts = opts || {};
+    var nodes = (data.nodes || []).map(function (n) { return String(n.id); });
+    var index = {};
+    nodes.forEach(function (id, i) { index[id] = i; });
+    var arcs = [];
+    (data.roads || []).forEach(function (r) {
+      var u = index[String(r.u)], v = index[String(r.v)];
+      if (u === undefined || v === undefined || u === v) return;
+      var tau = Math.max(1, toInt(r.tau, 1));
+      var cap = Math.max(0, toInt(r.cap, 0));
+      var tag = String(r.tag == null ? "" : r.tag);
+      arcs.push({ u: u, v: v, tau: tau, cap: cap, tag: tag });
+      if (!r.oneWay) arcs.push({ u: v, v: u, tau: tau, cap: cap, tag: tag });
+    });
+    var origins = (data.origins || []).filter(function (o) { return index[String(o.node)] !== undefined; })
+      .map(function (o) {
+        var pop = Math.max(0, toInt(o.pop));
+        return { id: String(o.id), name: String(o.name || o.id), node: index[String(o.node)],
+                 zones: setOf(o.zones), pop: pop, vul: Math.min(pop, Math.max(0, toInt(o.vul))) };
+      });
+    var shel = (data.shelters || []).concat(opts.extraShelters || []);
+    var shelters = shel.filter(function (s) { return index[String(s.node)] !== undefined; })
+      .map(function (s) {
+        var school = s.kind === "school";
+        return { id: String(s.id), name: String(s.name || s.id), node: index[String(s.node)],
+                 kind: school ? "school" : "ec",
+                 capEc: capFromArea(s.areaNonSchool),
+                 capOpen: school ? capFromArea(s.areaOpen) : 0,
+                 rooms: school ? Math.max(0, toInt(s.rooms)) : 0, q: Q,
+                 learnersPerRoom: school ? Math.max(0, toInt(s.learnersPerRoom)) : 0,
+                 accessible: s.accessible !== false && s.accessible !== "no" && s.accessible !== "false",
+                 zones: setOf(s.zones) };
+      });
+    var theta = +(opts.thetaMax != null ? opts.thetaMax : data.thetaMax);
+    return { nodes: nodes, index: index, arcs: arcs, origins: origins, shelters: shelters,
+             thetaMax: theta > 0 ? theta : 1e9 };
+  }
+
+  function scenario(spec) {
+    return { id: spec.id || "", name: spec.name || spec.id || "", zones: setOf(spec.zones), closed: setOf(spec.closed) };
+  }
+  function demand(o, sc) { return meets(o.zones, sc.zones) ? o.pop : 0; }
+  function vulnerable(o, sc) { return meets(o.zones, sc.zones) ? o.vul : 0; }
+  function shelterSafe(s, sc) { return !meets(s.zones, sc.zones); }
+  function openArcs(inst, sc) { return inst.arcs.filter(function (e) { return !sc.closed[e.tag]; }); }
+
+  /* ------------------------------------------------------------------ shortest paths */
+
+  function adjacency(inst, sc) {
+    var adj = inst.nodes.map(function () { return []; });
+    openArcs(inst, sc).forEach(function (e) { adj[e.u].push(e); });
+    return adj;
+  }
+
+  /* Dijkstra with a binary heap. Returns {dist, prev} (prev = arc used to reach each node). */
+  function dijkstra(adj, src) {
+    var n = adj.length, dist = new Array(n), prev = new Array(n), heap = [];
+    for (var i = 0; i < n; i++) { dist[i] = Infinity; prev[i] = null; }
+    dist[src] = 0;
+    function push(d, v) {
+      heap.push([d, v]);
+      var c = heap.length - 1;
+      while (c > 0) {
+        var p = (c - 1) >> 1;
+        if (heap[p][0] <= heap[c][0]) break;
+        var t = heap[p]; heap[p] = heap[c]; heap[c] = t; c = p;
+      }
+    }
+    function pop() {
+      var top = heap[0], last = heap.pop();
+      if (heap.length) {
+        heap[0] = last;
+        var c = 0;
+        for (;;) {
+          var l = 2 * c + 1, r = l + 1, m = c;
+          if (l < heap.length && heap[l][0] < heap[m][0]) m = l;
+          if (r < heap.length && heap[r][0] < heap[m][0]) m = r;
+          if (m === c) break;
+          var t = heap[m]; heap[m] = heap[c]; heap[c] = t; c = m;
+        }
+      }
+      return top;
+    }
+    push(0, src);
+    while (heap.length) {
+      var it = pop(), d = it[0], u = it[1];
+      if (d > dist[u]) continue;
+      var out = adj[u];
+      for (var k = 0; k < out.length; k++) {
+        var e = out[k], nd = d + e.tau;
+        if (nd < dist[e.v]) { dist[e.v] = nd; prev[e.v] = e; push(nd, e.v); }
+      }
+    }
+    return { dist: dist, prev: prev };
+  }
+
+  /* T[a][s]: shortest minutes from origin a to shelter s on the open graph. */
+  function travelTimes(inst, sc) {
+    var adj = adjacency(inst, sc);
+    return inst.origins.map(function (o) {
+      var d = dijkstra(adj, o.node).dist;
+      return inst.shelters.map(function (s) { return d[s.node]; });
+    });
+  }
+
+  /* Node ids along the fastest open route from node a to node b ([] if none). */
+  function route(inst, sc, fromNode, toNode) {
+    var r = dijkstra(adjacency(inst, sc), fromNode);
+    if (!isFinite(r.dist[toNode])) return { minutes: Infinity, path: [], arcs: [] };
+    var path = [toNode], arcs = [], v = toNode;
+    while (v !== fromNode) { var e = r.prev[v]; arcs.unshift(e); v = e.u; path.unshift(v); }
+    return { minutes: r.dist[toNode], path: path.map(function (i) { return inst.nodes[i]; }), arcs: arcs };
+  }
+
+  /* ------------------------------------------------------------------ maximum flow (Dinic) */
+
+  function Dinic(n) {
+    this.n = n;
+    this.head = new Int32Array(n).fill(-1);
+    this.to = []; this.cap = []; this.next = [];
+  }
+  Dinic.prototype.add = function (u, v, c) {
+    var e = this.to.length;
+    this.to.push(v); this.cap.push(c); this.next.push(this.head[u]); this.head[u] = e;
+    this.to.push(u); this.cap.push(0); this.next.push(this.head[v]); this.head[v] = e + 1;
+    return e;
+  };
+  Dinic.prototype.flowOn = function (e) { return this.cap[e ^ 1]; };
+  Dinic.prototype.run = function (s, t) {
+    if (s === t) return 0;
+    var n = this.n, head = this.head, to = this.to, cap = this.cap, next = this.next;
+    var level = new Int32Array(n), it = new Int32Array(n), queue = new Int32Array(n);
+    var total = 0;
+    for (;;) {
+      level.fill(-1);
+      level[s] = 0;
+      var qh = 0, qt = 0;
+      queue[qt++] = s;
+      while (qh < qt) {
+        var u = queue[qh++];
+        for (var e = head[u]; e !== -1; e = next[e]) {
+          if (cap[e] > 0 && level[to[e]] < 0) { level[to[e]] = level[u] + 1; queue[qt++] = to[e]; }
+        }
+      }
+      if (level[t] < 0) return total;
+      for (var i = 0; i < n; i++) it[i] = head[i];
+      /* iterative blocking-flow search: walk forward along level arcs, retreat from dead ends */
+      var path = [];
+      var x = s;
+      for (;;) {
+        if (x === t) {
+          var f = Infinity, k;
+          for (k = 0; k < path.length; k++) if (cap[path[k]] < f) f = cap[path[k]];
+          if (f === Infinity) return Infinity;
+          for (k = 0; k < path.length; k++) { cap[path[k]] -= f; cap[path[k] ^ 1] += f; }
+          total += f;
+          path.length = 0;
+          x = s;
+          continue;
+        }
+        var e2 = it[x];
+        while (e2 !== -1 && !(cap[e2] > 0 && level[to[e2]] === level[x] + 1)) e2 = next[e2];
+        it[x] = e2;
+        if (e2 === -1) {
+          if (x === s) break;
+          level[x] = -1;                       // dead end: never enter it again this phase
+          var back = path.pop();
+          x = to[back ^ 1];
+          it[x] = next[it[x]];
+          continue;
+        }
+        path.push(e2);
+        x = to[e2];
+      }
+    }
+  };
+
+  /* ------------------------------------------------------------------ min-cost flow, vector costs */
+
+  function lexLess(a, ai, b, bi, dim) {
+    for (var i = 0; i < dim; i++) {
+      var x = a[ai + i], y = b[bi + i];
+      if (x !== y) return x < y;
+    }
+    return false;
+  }
+
+  /* Successive shortest paths. Arc costs are integer vectors of length dim, ordered
+     lexicographically (an ordered group, so shortest-path optimality conditions hold).
+     Distances are found by a queue-based Bellman-Ford, which allows the negative
+     costs of residual reverse arcs. */
+  function VecMCF(n, dim) {
+    this.n = n; this.dim = dim;
+    this.head = new Int32Array(n).fill(-1);
+    this.to = []; this.cap = []; this.next = []; this.cost = [];
+  }
+  VecMCF.prototype.add = function (u, v, c, costVec) {
+    var e = this.to.length, d = this.dim;
+    this.to.push(v); this.cap.push(c); this.next.push(this.head[u]); this.head[u] = e;
+    this.to.push(u); this.cap.push(0); this.next.push(this.head[v]); this.head[v] = e + 1;
+    for (var i = 0; i < d; i++) this.cost.push(costVec ? costVec[i] : 0);
+    for (i = 0; i < d; i++) this.cost.push(costVec ? -costVec[i] : 0);
+    return e;
+  };
+  VecMCF.prototype.flowOn = function (e) { return this.cap[e ^ 1]; };
+  VecMCF.prototype.run = function (s, t, need) {
+    var n = this.n, d = this.dim, head = this.head, to = this.to, cap = this.cap, next = this.next, cost = this.cost;
+    var flow = 0, total = new Array(d).fill(0);
+    var dist = new Float64Array(n * d), reach = new Uint8Array(n), inq = new Uint8Array(n);
+    var prevE = new Int32Array(n), count = new Int32Array(n), cand = new Float64Array(d);
+    while (flow < need) {
+      reach.fill(0); inq.fill(0); count.fill(0); prevE.fill(-1);
+      for (var i = 0; i < d; i++) dist[s * d + i] = 0;
+      reach[s] = 1;
+      var queue = [s], qh = 0;
+      inq[s] = 1;
+      while (qh < queue.length) {
+        var u = queue[qh++];
+        inq[u] = 0;
+        for (var e = head[u]; e !== -1; e = next[e]) {
+          if (!(cap[e] > 0)) continue;
+          var v = to[e];
+          for (i = 0; i < d; i++) cand[i] = dist[u * d + i] + cost[e * d + i];
+          if (!reach[v] || lexLess(cand, 0, dist, v * d, d)) {
+            for (i = 0; i < d; i++) dist[v * d + i] = cand[i];
+            reach[v] = 1; prevE[v] = e;
+            if (!inq[v]) {
+              if (++count[v] > n + 1) throw new Error("negative cycle in residual network");
+              inq[v] = 1; queue.push(v);
+            }
+          }
+        }
+        if (qh > 4096) { queue = queue.slice(qh); qh = 0; }
+      }
+      if (!reach[t]) break;
+      var f = need - flow, x = t;
+      while (x !== s) { e = prevE[x]; if (cap[e] < f) f = cap[e]; x = to[e ^ 1]; }
+      x = t;
+      while (x !== s) { e = prevE[x]; cap[e] -= f; cap[e ^ 1] += f; x = to[e ^ 1]; }
+      for (i = 0; i < d; i++) total[i] += f * dist[t * d + i];
+      flow += f;
+    }
+    return { flow: flow, cost: total };
+  };
+
+  /* ------------------------------------------------------------------ shelter slots */
+
+  function slots(inst, sc, extraCaps) {
+    var out = [];
+    inst.shelters.forEach(function (sh, s) {
+      if (!shelterSafe(sh, sc)) return;
+      var add = (extraCaps && extraCaps[s]) || 0;
+      if (sh.capEc + add > 0) out.push({ s: s, tier: TIER_EC, cap: sh.capEc + add, acc: sh.accessible });
+      if (sh.capOpen > 0) out.push({ s: s, tier: TIER_OPEN, cap: sh.capOpen, acc: sh.accessible });
+      if (sh.rooms > 0) out.push({ s: s, tier: TIER_ROOM, cap: sh.rooms * sh.q, acc: sh.accessible });
+    });
+    return out;
+  }
+  function suitable(inst, T, a, slot, isVul) {
+    if (!(T[a][slot.s] <= inst.thetaMax)) return false;
+    if (isVul && !slot.acc) return false;
+    return true;
+  }
+
+  /* Maximum number placed: vulnerable only (classes "V") or everyone. */
+  function maxPlaced(inst, sc, T, sl, withNon) {
+    var nO = inst.origins.length, nS = sl.length;
+    var SRC = 0, SNK = 1, oV = 2, oN = 2 + nO, sb = 2 + 2 * nO;
+    var g = new Dinic(sb + nS);
+    inst.origins.forEach(function (o, a) {
+      var d = demand(o, sc), v = vulnerable(o, sc);
+      if (v > 0) g.add(SRC, oV + a, v);
+      if (withNon && d - v > 0) g.add(SRC, oN + a, d - v);
+    });
+    sl.forEach(function (slot, k) {
+      g.add(sb + k, SNK, slot.cap);
+      inst.origins.forEach(function (o, a) {
+        var d = demand(o, sc), v = vulnerable(o, sc);
+        if (v > 0 && suitable(inst, T, a, slot, true)) g.add(oV + a, sb + k, Infinity);
+        if (withNon && d - v > 0 && suitable(inst, T, a, slot, false)) g.add(oN + a, sb + k, Infinity);
+      });
+    });
+    return g.run(SRC, SNK);
+  }
+
+  /* policy "lex"  : school-preserving plan, costs (classroom, open space, minutes)
+     policy "time" : time-only plan, costs (minutes, classroom, open space): travel first;
+                     among equally fast plans, non-school space before school space.
+     A last cost entry only chooses among plans that are equal on everything above (it never
+     changes a value the model fixes): school open space goes first to the origins lower in the
+     table. Any fixed rule would do; this one gives the paper's Table 13 for test network E1. */
+  function plan(inst, sc, policy, opts) {
+    opts = opts || {};
+    var T = opts.T || travelTimes(inst, sc);
+    var sl = slots(inst, sc, opts.extraCaps);
+    var fv = maxPlaced(inst, sc, T, sl, false);
+    var ftot = maxPlaced(inst, sc, T, sl, true);
+    var nO = inst.origins.length, nS = sl.length;
+    var S = 0, SV = 1, SN = 2, oV = 3, oN = 3 + nO, sb = 3 + 2 * nO, SNK = sb + nS;
+    var g = new VecMCF(SNK + 1, 4);
+    g.add(S, SV, fv, null);
+    g.add(S, SN, ftot - fv, null);
+    var hasV = [], hasN = [];
+    inst.origins.forEach(function (o, a) {
+      var d = demand(o, sc), v = vulnerable(o, sc);
+      hasV[a] = v > 0; hasN[a] = d - v > 0;
+      if (hasV[a]) g.add(SV, oV + a, v, null);
+      if (hasN[a]) g.add(SN, oN + a, d - v, null);
+    });
+    var pairs = [];
+    sl.forEach(function (slot, k) {
+      g.add(sb + k, SNK, slot.cap, null);
+      inst.origins.forEach(function (o, a) {
+        [["V", true], ["N", false]].forEach(function (c) {
+          if (c[1] ? !hasV[a] : !hasN[a]) return;
+          if (!suitable(inst, T, a, slot, c[1])) return;
+          var t = T[a][slot.s];
+          var room = slot.tier === TIER_ROOM ? 1 : 0, open = slot.tier === TIER_OPEN ? 1 : 0;
+          var tie = open ? nO - a : 0;
+          var cv = policy === "time" ? [t, room, open, tie] : [room, open, t, tie];
+          var e = g.add((c[1] ? oV : oN) + a, sb + k, Infinity, cv);
+          pairs.push({ e: e, a: a, k: k, cls: c[0] });
+        });
+      });
+    });
+    var res = ftot > 0 ? g.run(S, SNK, ftot) : { flow: 0 };
+    if (res.flow !== ftot) throw new Error("min-cost flow did not reach the maximum");
+    var x = [];
+    pairs.forEach(function (p) {
+      var f = g.flowOn(p.e);
+      if (f > 0) x.push({ a: p.a, k: p.k, cls: p.cls, f: f });
+    });
+    return summarize(inst, sc, T, sl, x, fv, ftot, policy);
+  }
+
+  function summarize(inst, sc, T, sl, x, fv, ftot, policy) {
+    var byTier = [0, 0, 0], roomPersons = {}, load = {}, slotUse = sl.map(function () { return 0; });
+    var pm = 0, maxT = 0;
+    x.forEach(function (r) {
+      var slot = sl[r.k], t = T[r.a][slot.s];
+      byTier[slot.tier] += r.f;
+      slotUse[r.k] += r.f;
+      pm += r.f * t;
+      if (t > maxT) maxT = t;
+      load[slot.s] = (load[slot.s] || 0) + r.f;
+      if (slot.tier === TIER_ROOM) roomPersons[slot.s] = (roomPersons[slot.s] || 0) + r.f;
+    });
+    var roomsClosed = {}, roomsTotal = 0, learners = 0;
+    Object.keys(roomPersons).forEach(function (s) {
+      var y = roomPersons[s];
+      if (y <= 0) return;
+      var sh = inst.shelters[+s];
+      var k = Math.ceil(y / sh.q);              // pack each classroom full before opening the next
+      roomsClosed[s] = k; roomsTotal += k; learners += k * sh.learnersPerRoom;
+    });
+    var D = 0, V = 0;
+    inst.origins.forEach(function (o) { D += demand(o, sc); V += vulnerable(o, sc); });
+    return { policy: policy, x: x, slots: sl, T: T, slotUse: slotUse,
+             demand: D, vulnerable: V, vulPlaced: fv, placed: ftot, unplaced: D - ftot,
+             personsEc: byTier[0], personsOpen: byTier[1], personsRoom: byTier[2],
+             roomPersons: roomPersons, roomsClosed: roomsClosed, roomsClosedTotal: roomsTotal,
+             learnersDisplaced: learners, personMinutes: pm,
+             meanTime: ftot ? pm / ftot : 0, maxTime: maxT, load: load };
+  }
+
+  /* Baseline: every origin goes to its nearest safe, reachable shelter site (shelters
+     sharing a road node form one site), whatever its capacity. */
+  function nearest(inst, sc, opts) {
+    opts = opts || {};
+    var T = opts.T || travelTimes(inst, sc);
+    var siteCap = {}, load = {}, pm = 0, moved = 0, choice = [];
+    inst.shelters.forEach(function (sh) {
+      if (shelterSafe(sh, sc)) siteCap[sh.node] = (siteCap[sh.node] || 0) + sh.capEc + sh.capOpen + sh.rooms * sh.q;
+    });
+    inst.origins.forEach(function (o, a) {
+      var d = demand(o, sc);
+      if (d === 0) { choice[a] = null; return; }
+      var best = null;
+      inst.shelters.forEach(function (sh, s) {
+        if (!shelterSafe(sh, sc) || !(T[a][s] <= inst.thetaMax)) return;
+        var c = [T[a][s], inst.nodes[sh.node], sh.node];
+        if (!best || c[0] < best[0] || (c[0] === best[0] && idLess(c[1], best[1]))) best = c;
+      });
+      if (!best) { choice[a] = null; return; }
+      choice[a] = { node: best[2], minutes: best[0], persons: d };
+      load[best[2]] = (load[best[2]] || 0) + d;
+      pm += d * best[0]; moved += d;
+    });
+    var over = 0, sites = [];
+    Object.keys(load).forEach(function (node) {
+      var cap = siteCap[node] || 0, ov = Math.max(0, load[node] - cap);
+      over += ov;
+      sites.push({ node: +node, id: inst.nodes[+node], load: load[node], cap: cap, overflow: ov });
+    });
+    return { load: load, overflow: over, personMinutes: pm, moved: moved,
+             meanTime: moved ? pm / moved : 0, choice: choice, sites: sites };
+  }
+
+  /* ------------------------------------------------------------------ evacuation over time */
+
+  /* supplies / sinks: {nodeIndex: persons}; sinks value null = no limit */
+  function planSupplies(inst, p) {
+    var sup = {}, caps = {};
+    p.x.forEach(function (r) {
+      var on = inst.origins[r.a].node, sn = inst.shelters[p.slots[r.k].s].node;
+      sup[on] = (sup[on] || 0) + r.f;
+      caps[sn] = (caps[sn] || 0) + r.f;
+    });
+    return { sup: sup, caps: caps };
+  }
+  function sumValues(o) { var t = 0; for (var k in o) if (o.hasOwnProperty(k)) t += o[k]; return t; }
+
+  /* F(T): most evacuees inside shelters by minute H (time-expanded network). */
+  function arrivalsBy(inst, sc, H, sup, caps) {
+    if (H < 0) return 0;
+    var N = inst.nodes.length, L = H + 1;
+    var sinks = Object.keys(caps).map(Number);
+    var SRC = N * L, SNK = SRC + 1, sh0 = SNK + 1;
+    var g = new Dinic(sh0 + sinks.length);
+    var v, t;
+    for (v = 0; v < N; v++) for (t = 0; t < H; t++) g.add(v * L + t, v * L + t + 1, Infinity);
+    openArcs(inst, sc).forEach(function (e) {
+      if (e.cap <= 0) return;
+      for (var t0 = 0; t0 + e.tau <= H; t0++) g.add(e.u * L + t0, e.v * L + t0 + e.tau, e.cap);
+    });
+    var any = false;
+    Object.keys(sup).forEach(function (k) { if (sup[k] > 0) { g.add(SRC, (+k) * L, sup[k]); any = true; } });
+    if (!any || !sinks.length) return 0;
+    sinks.forEach(function (node, j) {
+      for (var t1 = 0; t1 <= H; t1++) g.add(node * L + t1, sh0 + j, Infinity);
+      g.add(sh0 + j, SNK, caps[node] == null ? Infinity : caps[node]);
+    });
+    return g.run(SRC, SNK);
+  }
+
+  /* Most evacuees who can reach their shelters with no time limit (connectivity only). */
+  function reachableTotal(inst, sc, sup, caps) {
+    var N = inst.nodes.length, SRC = N, SNK = N + 1;
+    var g = new Dinic(N + 2);
+    openArcs(inst, sc).forEach(function (e) { g.add(e.u, e.v, Infinity); });
+    Object.keys(sup).forEach(function (k) { if (sup[k] > 0) g.add(SRC, +k, sup[k]); });
+    Object.keys(caps).forEach(function (k) { g.add(+k, SNK, caps[k] == null ? Infinity : caps[k]); });
+    return g.run(SRC, SNK);
+  }
+
+  /* Smallest H with F(H) = everyone: doubling from 8, then bisection (Algorithm 2). */
+  function clearanceTime(inst, sc, sup, caps) {
+    var total = sumValues(sup), calls = 0;
+    if (total === 0) return { T: 0, calls: 0 };
+    if (reachableTotal(inst, sc, sup, caps) < total) return { T: Infinity, calls: 0, cutOff: true };
+    var hi = 8;
+    for (;;) {
+      calls++;
+      if (arrivalsBy(inst, sc, hi, sup, caps) >= total) break;
+      hi *= 2;
+      if (hi > MAX_HORIZON) return { T: Infinity, calls: calls, tooLong: true };
+    }
+    var lo = -1;
+    while (hi - lo > 1) {
+      var mid = Math.floor((lo + hi) / 2);
+      calls++;
+      if (arrivalsBy(inst, sc, mid, sup, caps) >= total) hi = mid; else lo = mid;
+    }
+    return { T: hi, calls: calls };
+  }
+
+  /* Static maximum flow from all sending origins to all receiving shelters (arc capacities only). */
+  function staticRate(inst, sc, sources, sinks) {
+    var N = inst.nodes.length, SRC = N, SNK = N + 1;
+    var g = new Dinic(N + 2), merged = {};
+    openArcs(inst, sc).forEach(function (e) {
+      var key = e.u + ">" + e.v;
+      merged[key] = (merged[key] || 0) + e.cap;
+    });
+    Object.keys(merged).forEach(function (key) {
+      var p = key.split(">");
+      g.add(+p[0], +p[1], merged[key]);
+    });
+    sources.forEach(function (v) { g.add(SRC, v, Infinity); });
+    sinks.forEach(function (v) { g.add(v, SNK, Infinity); });
+    return g.run(SRC, SNK);
+  }
+
+  /* Proposition 8: T* >= max(tau_min - 1 + ceil(D'/c), farthest of the nearest shelters). */
+  function clearanceLowerBound(inst, sc, sup, caps) {
+    var total = sumValues(sup);
+    if (total === 0) return 0;
+    var adj = adjacency(inst, sc);
+    var srcs = Object.keys(sup).filter(function (k) { return sup[k] > 0; }).map(Number);
+    var sinks = Object.keys(caps).filter(function (k) { return caps[k] == null || caps[k] > 0; }).map(Number);
+    var tauMin = Infinity, far = 0;
+    srcs.forEach(function (v) {
+      var dist = dijkstra(adj, v).dist, near = Infinity;
+      sinks.forEach(function (w) { if (dist[w] < near) near = dist[w]; });
+      if (near < tauMin) tauMin = near;
+      if (near > far) far = near;
+    });
+    var c = staticRate(inst, sc, srcs, sinks);
+    if (c === 0) return Infinity;
+    var cut = tauMin - 1 + Math.ceil(total / c);
+    return Math.max(cut, far);
+  }
+
+  function arrivalCurve(inst, sc, sup, caps, until, step) {
+    var out = [];
+    step = step || 2;
+    for (var t = 0; t <= until; t += step) out.push([t, arrivalsBy(inst, sc, t, sup, caps)]);
+    return out;
+  }
+
+  /* Plan + clearance time + lower bound in one call. */
+  function evaluate(inst, sc, policy, opts) {
+    var p = plan(inst, sc, policy, opts);
+    var sc2 = planSupplies(inst, p);
+    var ct = clearanceTime(inst, sc, sc2.sup, sc2.caps);
+    p.clearance = ct.T; p.clearanceCalls = ct.calls;
+    p.clearanceLB = clearanceLowerBound(inst, sc, sc2.sup, sc2.caps);
+    p.supplies = sc2;
+    return p;
+  }
+
+  /* ------------------------------------------------------------------ siting */
+
+  function coverageValue(inst, sc, T, theta, newSites) {
+    var nO = inst.origins.length, nB = inst.shelters.length, nN = newSites.length;
+    var SRC = 0, SNK = 1, ob = 2, bb = 2 + nO, nb = 2 + nO + nB;
+    var g = new Dinic(nb + nN), anyO = false, anyS = false;
+    var dem = inst.origins.map(function (o) { return demand(o, sc); });
+    dem.forEach(function (d, a) { if (d > 0) { g.add(SRC, ob + a, d); anyO = true; } });
+    inst.shelters.forEach(function (sh, s) {
+      if (!shelterSafe(sh, sc)) return;
+      var cap = sh.capEc + sh.capOpen;
+      if (cap <= 0) return;
+      g.add(bb + s, SNK, cap); anyS = true;
+      for (var a = 0; a < nO; a++) if (dem[a] > 0 && T[a][s] <= theta) g.add(ob + a, bb + s, Infinity);
+    });
+    newSites.forEach(function (site, j) {
+      g.add(nb + j, SNK, site.cap); anyS = true;
+      for (var a = 0; a < nO; a++) if (dem[a] > 0 && site.distTo[a] <= theta) g.add(ob + a, nb + j, Infinity);
+    });
+    if (!anyO || !anyS) return 0;
+    return g.run(SRC, SNK);
+  }
+
+  /* candidates: [{node (id), name, area}] ; f(S) = Phi(E u S) - Phi(E) */
+  function SitingProblem(inst, sc, theta, candidates) {
+    this.inst = inst; this.sc = sc; this.theta = theta;
+    this.T = travelTimes(inst, sc);
+    var adj = adjacency(inst, sc);
+    var fromOrigin = inst.origins.map(function (o) { return dijkstra(adj, o.node).dist; });
+    this.cand = candidates.map(function (c) {
+      var node = inst.index[String(c.node)];
+      return { node: node, id: String(c.node), name: c.name || String(c.node), area: +c.area || 0,
+               cap: capFromArea(c.area),
+               distTo: fromOrigin.map(function (d) { return node === undefined ? Infinity : d[node]; }) };
+    });
+    this.cache = {};
+    this.phi0 = this.value([]);
+  }
+  SitingProblem.prototype.value = function (S) {
+    var key = S.slice().sort(function (a, b) { return a - b; }).join(",");
+    if (!(key in this.cache)) {
+      var self = this;
+      this.cache[key] = coverageValue(this.inst, this.sc, this.T, this.theta,
+        S.slice().sort(function (a, b) { return a - b; }).map(function (j) { return self.cand[j]; }));
+    }
+    return this.cache[key];
+  };
+  SitingProblem.prototype.gain = function (S) { return this.value(S) - this.phi0; };
+  SitingProblem.prototype.greedy = function (k) {
+    var chosen = [], gains = [];
+    for (var r = 0; r < k && chosen.length < this.cand.length; r++) {
+      var best = -1, bj = -1;
+      for (var j = 0; j < this.cand.length; j++) {
+        if (chosen.indexOf(j) >= 0) continue;
+        var g = this.gain(chosen.concat([j]));
+        if (g > best) { best = g; bj = j; }
+      }
+      chosen.push(bj); gains.push(best);
+    }
+    return { sites: chosen, gains: gains };
+  };
+  SitingProblem.prototype.best = function (k) {
+    var n = this.cand.length, best = -1, arg = null, idx = [], self = this, evals = 0;
+    if (k > n) return null;
+    for (var i = 0; i < k; i++) idx.push(i);
+    for (;;) {
+      var g = self.gain(idx); evals++;
+      if (g > best) { best = g; arg = idx.slice(); }
+      var p = k - 1;
+      while (p >= 0 && idx[p] === n - k + p) p--;
+      if (p < 0) break;
+      idx[p]++;
+      for (var q = p + 1; q < k; q++) idx[q] = idx[q - 1] + 1;
+    }
+    return { sites: arg, gain: best, evals: evals };
+  };
+
+  function binom(n, k) { var r = 1; for (var i = 1; i <= k; i++) r = r * (n - k + i) / i; return Math.round(r); }
+
+  /* Full siting study: greedy order, exhaustive best (when small), and the recomputed plan. */
+  function siting(data, scSpec, theta, candidates, kMax, opts) {
+    opts = opts || {};
+    var inst = makeInstance(data, opts);
+    var sc = scenario(scSpec);
+    var prob = new SitingProblem(inst, sc, theta, candidates);
+    kMax = Math.min(kMax, prob.cand.length);
+    var order = prob.greedy(kMax);
+    var rows = [];
+    for (var k = 1; k <= kMax; k++) {
+      var S = order.sites.slice(0, k);
+      var best = binom(prob.cand.length, k) <= (opts.maxExhaustive || 5000) ? prob.best(k) : null;
+      var extra = S.map(function (j) {
+        var c = prob.cand[j];
+        return { id: "LPC-" + c.id, name: c.name, node: c.id, kind: "ec", areaNonSchool: c.area,
+                 areaOpen: 0, rooms: 0, learnersPerRoom: 0, accessible: true, zones: [] };
+      });
+      var inst2 = makeInstance(data, { extraShelters: extra, thetaMax: opts.thetaMax });
+      var p2 = evaluate(inst2, sc, "lex");
+      rows.push({ k: k, sites: S.map(function (j) { return prob.cand[j].id; }), gain: prob.gain(S),
+                  bestSites: best ? best.sites.map(function (j) { return prob.cand[j].id; }) : null,
+                  bestGain: best ? best.gain : null,
+                  unplaced: p2.unplaced, personsRoom: p2.personsRoom, roomsClosed: p2.roomsClosedTotal,
+                  learners: p2.learnersDisplaced, clearance: p2.clearance, meanTime: p2.meanTime });
+    }
+    var single = {};
+    prob.cand.forEach(function (c, j) { single[c.id] = prob.gain([j]); });
+    return { theta: theta, phi0: prob.phi0, candidates: prob.cand.map(function (c) { return { id: c.id, name: c.name, cap: c.cap, area: c.area }; }),
+             rows: rows, singleGains: single, guarantee: 1 - Math.pow(1 - 1 / Math.max(1, kMax), kMax) };
+  }
+
+  /* ------------------------------------------------------------------ closures */
+
+  /* Closing groups of road tags under one scenario: the plan held fixed (Definition 12)
+     and a fresh plan for the damaged network. */
+  function closureStudy(data, scSpec, groups, opts) {
+    opts = opts || {};
+    var inst = makeInstance(data, opts);
+    var base = scenario(scSpec);
+    var p0 = plan(inst, base, "lex");
+    var s0 = planSupplies(inst, p0);
+    var t0 = clearanceTime(inst, base, s0.sup, s0.caps).T;
+    return groups.map(function (gr) {
+      var sc = scenario({ id: base.id, zones: Object.keys(base.zones), closed: Object.keys(base.closed).concat(gr.tags) });
+      var tf = clearanceTime(inst, sc, s0.sup, s0.caps).T;
+      var p = plan(inst, sc, "lex");
+      var s2 = planSupplies(inst, p);
+      var tn = clearanceTime(inst, sc, s2.sup, s2.caps).T;
+      return { name: gr.name, tags: gr.tags.slice(), clearanceOpen: t0, clearanceFixedPlan: tf,
+               delta: tf - t0, unplaced: p.unplaced, personsRoom: p.personsRoom,
+               roomsClosed: p.roomsClosedTotal, clearanceNewPlan: tn,
+               meanTime: p.meanTime, maxTime: p.maxTime };
+    });
+  }
+
+  var api = {
+    version: "1.0.1",
+    SPHERE_M2: SPHERE_M2, CLASSROOM_M2: CLASSROOM_M2, Q: Q, TIER_NAMES: TIER_NAMES,
+    capFromArea: capFromArea, makeInstance: makeInstance, scenario: scenario,
+    demand: demand, vulnerable: vulnerable, shelterSafe: shelterSafe,
+    travelTimes: travelTimes, route: route, slots: slots,
+    plan: plan, nearest: nearest, evaluate: evaluate, planSupplies: planSupplies,
+    arrivalsBy: arrivalsBy, clearanceTime: clearanceTime, clearanceLowerBound: clearanceLowerBound,
+    arrivalCurve: arrivalCurve, coverageValue: coverageValue, SitingProblem: SitingProblem,
+    siting: siting, closureStudy: closureStudy, Dinic: Dinic, VecMCF: VecMCF
+  };
+  root.LigtasEngine = api;
+  if (typeof module === "object" && module.exports) module.exports = api;
+})(typeof globalThis !== "undefined" ? globalThis : (typeof window !== "undefined" ? window : this));
+
+/* LIGTAS-ENGINE:END */
+</script>
+<script id="ligtas-map">
+/* LIGTA-S map: draws a road network, hazard zones, origins, shelters and a plan's flows as SVG.
+ * Coordinates are kilometers east (x) and north (y) of the summit. Plain ES5, no dependencies.
+ *   LigtasMap.draw(svgElement, data, options)
+ * options: scenario {zones, closed}, extraClosed [tags], flows [{path:[nodeIds], persons}],
+ *          siteNotes {nodeId: {text, tone}}, candidates [{node, label, chosen}], route [nodeIds],
+ *          selectOrigin id, bridgesClickable bool, compact bool, label string
+ */
+(function (root) {
+  "use strict";
+
+  function esc(s) {
+    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+  function f(n) { return (Math.round(n * 1000) / 1000).toString(); }
+  function fmt(n) { return Math.round(n).toLocaleString("en-US"); }
+  function setOf(list) { var s = {}; (list || []).forEach(function (k) { s[k] = true; }); return s; }
+
+  /* where the road segment p-q crosses the ray from the summit at bearing deg (math angle), or null */
+  function crossing(p, q, deg) {
+    var dx = Math.cos(deg * Math.PI / 180), dy = Math.sin(deg * Math.PI / 180);
+    var ex = q[0] - p[0], ey = q[1] - p[1];
+    var det = ex * (-dy) - ey * (-dx);
+    if (Math.abs(det) < 1e-12) return null;
+    var t = ((0 - p[0]) * (-dy) - (0 - p[1]) * (-dx)) / det;
+    if (!(t > 0 && t < 1)) return null;
+    return [p[0] + t * ex, p[1] + t * ey];
+  }
+
+  function draw(svg, data, o) {
+    o = o || {};
+    var geo = data.geo || {};
+    var sc = o.scenario || { zones: [], closed: [] };
+    var active = setOf(sc.zones);
+    var closed = setOf((sc.closed || []).concat(o.extraClosed || []));
+    var pos = {}, kind = {}, names = {};
+    (data.nodes || []).forEach(function (n) { pos[n.id] = [+n.x, -(+n.y)]; kind[n.id] = n.kind; names[n.id] = n.name || n.id; });
+    var xs = [], ys = [];
+    Object.keys(pos).forEach(function (k) { xs.push(pos[k][0]); ys.push(pos[k][1]); });
+    if (!xs.length) { xs = [-10, 10]; ys = [-10, 10]; }
+    var pad = o.compact ? 2.2 : 2.6;
+    var minX = Math.min.apply(null, xs) - pad - 0.6, maxX = Math.max.apply(null, xs) + pad + 1.4;
+    var minY = Math.min.apply(null, ys) - pad, maxY = Math.max.apply(null, ys) + pad;
+    if (geo.pdzRadius) {
+      minX = Math.min(minX, -geo.pdzRadius - 1); maxX = Math.max(maxX, geo.pdzRadius + 1);
+      minY = Math.min(minY, -geo.pdzRadius - 1); maxY = Math.max(maxY, geo.pdzRadius + 1);
+    }
+    /* label size in km: larger when the map is drawn narrow (phones), so labels stay readable */
+    var px = svg.getBoundingClientRect ? svg.getBoundingClientRect().width : 0;
+    var fs = o.compact ? 0.78 : (px > 0 && px < 460 ? 1.08 : px > 0 && px < 640 ? 0.86 : 0.66);
+    /* make room for the shelter labels and notes, which can be long (e.g. "EC3 · LPC-TSW") */
+    var groups = {};
+    (data.shelters || []).forEach(function (s) { if (pos[s.node]) (groups[s.node] = groups[s.node] || []).push(s.id); });
+    Object.keys(groups).forEach(function (node) {
+      var L = labelAt(pos[node]), p0 = pos[node];
+      var note = o.siteNotes && o.siteNotes[node];
+      var w = Math.max(groups[node].join(" · ").length * fs * 0.62, note ? note.text.length * fs * 0.57 : 0);
+      if (L.anchor === "end") minX = Math.min(minX, L.x - w - 0.3); else maxX = Math.max(maxX, L.x + w + 0.3);
+      minY = Math.min(minY, L.y - fs - 0.2); maxY = Math.max(maxY, L.y + fs * 1.3 + 0.2);
+      void p0;
+    });
+    var W = maxX - minX, H = maxY - minY;
+    var out = [];
+    svg.setAttribute("viewBox", [f(minX), f(minY), f(W), f(H)].join(" "));
+    svg.setAttribute("role", "img");
+    if (o.label) svg.setAttribute("aria-label", o.label);
+
+    /* hazard layers */
+    var chans = data.channels || [];
+    var r0 = (geo.channelRange || [1.5, 14.5])[0], r1 = (geo.channelRange || [1.5, 14.5])[1];
+    var laharOn = !!active.LAHAR;
+    chans.forEach(function (c) {
+      var a = c.bearing * Math.PI / 180;
+      var x0 = r0 * Math.cos(a), y0 = -r0 * Math.sin(a), x1 = r1 * Math.cos(a), y1 = -r1 * Math.sin(a);
+      out.push('<line class="lm-channel' + (laharOn ? " on" : "") + '" x1="' + f(x0) + '" y1="' + f(y0) + '" x2="' + f(x1) + '" y2="' + f(y1) + '"/>');
+      /* label at the outer end of the channel; on the east side it goes just past the end, below it
+         (above it for a channel to the north-east), clear of the shelter labels beside the line */
+      var east = Math.cos(a) > 0.2;
+      var lx = east ? x1 + 0.7 : (r1 - 0.6) * Math.cos(a) + 0.5;
+      var ly = east ? (y1 > 0 ? y1 + fs * 0.9 + 0.3 : y1 - 0.3) : -(r1 - 0.6) * Math.sin(a);
+      out.push('<text class="lm-chlabel" x="' + f(lx) + '" y="' + f(ly) + '" font-size="' + f(fs * 0.9) + '">Channel ' + esc(c.id) + '</text>');
+    });
+    if (geo.pdzRadius) {
+      out.push('<circle class="lm-pdz' + (active.PDZ ? " on" : "") + '" cx="0" cy="0" r="' + f(geo.pdzRadius) + '"><title>' + esc(zoneName(data, "PDZ")) + '</title></circle>');
+    }
+    if (geo.edz) {
+      var e = geo.edz;
+      var p = function (r, deg) { var t = deg * Math.PI / 180; return f(r * Math.cos(t)) + " " + f(-r * Math.sin(t)); };
+      var large = (e.to - e.from) > 180 ? 1 : 0;
+      out.push('<path class="lm-edz' + (active.EDZ ? " on" : "") + '" d="M' + p(e.r1, e.from) + " A" + f(e.r1) + " " + f(e.r1) + " 0 " + large + " 0 " + p(e.r1, e.to) +
+        " L" + p(e.r0, e.to) + " A" + f(e.r0) + " " + f(e.r0) + " 0 " + large + " 1 " + p(e.r0, e.from) + 'Z"><title>' + esc(zoneName(data, "EDZ")) + '</title></path>');
+    }
+
+    /* roads */
+    var bridgeTag = {};
+    chans.forEach(function (c) { (c.bridges || []).forEach(function (b) { bridgeTag[b] = c; }); });
+    var bridges = [];
+    (data.roads || []).forEach(function (r) {
+      var a = pos[r.u], b = pos[r.v];
+      if (!a || !b) return;
+      var isClosed = !!closed[r.tag];
+      var cls = "lm-road" + (kind[r.u] === "origin" || kind[r.v] === "origin" ? " local" : "") + (isClosed ? " closed" : "");
+      out.push('<line class="' + cls + '" x1="' + f(a[0]) + '" y1="' + f(a[1]) + '" x2="' + f(b[0]) + '" y2="' + f(b[1]) + '"><title>' +
+        esc(names[r.u] + " to " + names[r.v] + ": " + r.tau + " min, " + r.cap + " evacuees per min" + (isClosed ? ", closed" : "")) + '</title></line>');
+      if (bridgeTag[r.tag]) {
+        var c = bridgeTag[r.tag];
+        var X = crossing([+a[0], -a[1]], [+b[0], -b[1]], c.bearing);
+        var bx = X ? X[0] : (a[0] + b[0]) / 2, by = X ? -X[1] : (a[1] + b[1]) / 2;
+        bridges.push({ tag: r.tag, x: bx, y: by, closed: isClosed, locked: !!setOf(sc.closed)[r.tag] });
+      }
+    });
+
+    /* flows of the current plan */
+    var maxP = 1;
+    (o.flows || []).forEach(function (fl) { if (fl.persons > maxP) maxP = fl.persons; });
+    (o.flows || []).forEach(function (fl) {
+      if (!fl.path || fl.path.length < 2) return;
+      var pts = fl.path.map(function (id) { return pos[id] ? f(pos[id][0]) + "," + f(pos[id][1]) : null; }).filter(Boolean);
+      var w = 0.12 + 0.5 * Math.sqrt(fl.persons / maxP);
+      out.push('<polyline class="lm-flow' + (fl.tone ? " " + fl.tone : "") + '" points="' + pts.join(" ") + '" stroke-width="' + f(w) + '"><title>' + esc(fl.title || (fmt(fl.persons) + " evacuees")) + '</title></polyline>');
+    });
+    if (o.route && o.route.length > 1) {
+      var rp = o.route.map(function (id) { return pos[id] ? f(pos[id][0]) + "," + f(pos[id][1]) : null; }).filter(Boolean);
+      out.push('<polyline class="lm-route-under" points="' + rp.join(" ") + '"/>');
+      out.push('<polyline class="lm-route" points="' + rp.join(" ") + '"/>');
+    }
+
+    /* bridges */
+    bridges.forEach(function (b) {
+      var s = 0.62;
+      var attrs = o.bridgesClickable && !b.locked ? ' data-bridge="' + esc(b.tag) + '" tabindex="0" role="button" aria-pressed="' + (b.closed ? "true" : "false") + '" aria-label="Bridge ' + esc(b.tag) + (b.closed ? ", closed. Activate to reopen." : ", open. Activate to close.") + '"' : "";
+      out.push('<g class="lm-bridge' + (b.closed ? " closed" : "") + (attrs ? " click" : "") + '"' + attrs + '>' +
+        (attrs ? '<circle class="hit" cx="' + f(b.x + 0.25) + '" cy="' + f(b.y + 0.3) + '" r="0.95"/>' : "") +
+        '<rect x="' + f(b.x - s / 2) + '" y="' + f(b.y - s / 2) + '" width="' + f(s) + '" height="' + f(s) + '" rx="0.08"/>' +
+        (b.closed ? '<path d="M' + f(b.x - 0.2) + " " + f(b.y - 0.2) + "L" + f(b.x + 0.2) + " " + f(b.y + 0.2) + "M" + f(b.x + 0.2) + " " + f(b.y - 0.2) + "L" + f(b.x - 0.2) + " " + f(b.y + 0.2) + '"/>' : "") +
+        '<text x="' + f(b.x + 0.45) + '" y="' + f(b.y + 0.95) + '" font-size="' + f(fs * 0.82) + '">' + esc(b.tag) + '</text>' +
+        '<title>Bridge ' + esc(b.tag) + (b.closed ? " (closed)" : " (open)") + '</title></g>');
+    });
+
+    /* ring junctions and towns */
+    Object.keys(pos).forEach(function (id) {
+      if (kind[id] === "ring") out.push('<circle class="lm-junction" cx="' + f(pos[id][0]) + '" cy="' + f(pos[id][1]) + '" r="0.14"/>');
+    });
+    out.push('<path class="lm-summit" d="M0 -0.75 L0.7 0.5 L-0.7 0.5Z"><title>Summit</title></path>');
+
+    /* candidate sites (siting) */
+    (o.candidates || []).forEach(function (c) {
+      var p = pos[c.node];
+      if (!p) return;
+      out.push('<circle class="lm-cand' + (c.chosen ? " chosen" : "") + '" cx="' + f(p[0]) + '" cy="' + f(p[1]) + '" r="1.05"><title>' + esc(c.title || c.label || c.node) + '</title></circle>');
+      if (c.label) out.push('<text class="lm-candlabel' + (c.chosen ? " chosen" : "") + '" x="' + f(p[0] - 1.25) + '" y="' + f(p[1] - 0.75) + '" font-size="' + f(fs * 0.95) + '" text-anchor="end">' + esc(c.label) + '</text>');
+    });
+
+    /* shelter sites: shelters that share a node are drawn as one site */
+    var sites = {}, order = [];
+    (data.shelters || []).forEach(function (s) {
+      if (!pos[s.node]) return;
+      if (!sites[s.node]) { sites[s.node] = []; order.push(s.node); }
+      sites[s.node].push(s);
+    });
+    order.forEach(function (node) {
+      var list = sites[node], p = pos[node];
+      var school = list.some(function (s) { return s.kind === "school"; });
+      var ec = list.some(function (s) { return s.kind !== "school"; });
+      var unsafe = list.every(function (s) { return (s.zones || []).some(function (z) { return active[z]; }); });
+      var sz = 0.95, x = p[0] - sz / 2, y = p[1] - sz / 2;
+      var t = list.map(function (s) { return s.id + " " + (s.name || ""); }).join("; ") + " (" + names[node] + ")";
+      out.push('<g class="lm-site' + (unsafe ? " unsafe" : "") + '"><title>' + esc(t) + '</title>');
+      if (school && ec) {
+        out.push('<rect class="lm-ec" x="' + f(x) + '" y="' + f(y) + '" width="' + f(sz) + '" height="' + f(sz) + '"/>');
+        out.push('<path class="lm-school" d="M' + f(x + sz) + " " + f(y) + "L" + f(x + sz) + " " + f(y + sz) + "L" + f(x) + " " + f(y + sz) + 'Z"/>');
+        out.push('<rect class="lm-site-edge" x="' + f(x) + '" y="' + f(y) + '" width="' + f(sz) + '" height="' + f(sz) + '"/>');
+      } else {
+        out.push('<rect class="' + (school ? "lm-school" : "lm-ec") + ' lm-site-edge" x="' + f(x) + '" y="' + f(y) + '" width="' + f(sz) + '" height="' + f(sz) + '"/>');
+      }
+      var LP = labelAt(p), lx = LP.x, ly = LP.y, anchor = LP.anchor;
+      out.push('<text class="lm-sitelabel" x="' + f(lx) + '" y="' + f(ly) + '" font-size="' + f(fs) + '" text-anchor="' + anchor + '">' + esc(list.map(function (s) { return s.id; }).join(" · ")) + '</text>');
+      var note = o.siteNotes && o.siteNotes[node];
+      if (note) out.push('<text class="lm-sitenote ' + (note.tone || "") + '" x="' + f(lx) + '" y="' + f(ly + fs * 1.15) + '" font-size="' + f(fs * 0.92) + '" text-anchor="' + anchor + '">' + esc(note.text) + '</text>');
+      out.push('</g>');
+    });
+
+    /* origins */
+    (data.origins || []).forEach(function (og) {
+      var p = pos[og.node];
+      if (!p) return;
+      var on = (og.zones || []).some(function (z) { return active[z]; });
+      var r = 0.32 + 0.022 * Math.sqrt(Math.max(0, +og.pop || 0));
+      var sel = o.selectOrigin === og.id;
+      var attrs = o.originsClickable ? ' data-origin="' + esc(og.id) + '" tabindex="0" role="button" aria-label="' + esc(og.name || og.id) + '"' : "";
+      out.push('<g class="lm-origin' + (on ? " on" : "") + (sel ? " sel" : "") + (attrs ? " click" : "") + '"' + attrs + '>' +
+        '<circle cx="' + f(p[0]) + '" cy="' + f(p[1]) + '" r="' + f(r) + '"/>' +
+        '<text x="' + f(p[0] + r + 0.25) + '" y="' + f(p[1] - r - 0.05) + '" font-size="' + f(fs * 1.02) + '">' + esc(og.id) + '</text>' +
+        '<title>' + esc((og.name || og.id) + ": " + fmt(og.pop) + " residents, " + fmt(og.vul) + " vulnerable" + (on ? ", must evacuate" : "")) + '</title></g>');
+    });
+    svg.innerHTML = out.join("");
+  }
+
+  /* where a shelter site's label goes, relative to its marker */
+  function labelAt(p) {
+    var lx = p[0] + (p[0] >= 0 ? 0.8 : -0.8), anchor = p[0] >= 0 ? "start" : "end";
+    if (Math.abs(p[0]) < 3) { lx = p[0] + 0.8; anchor = "start"; }
+    var ly = p[1] + (p[1] > 0 ? 1.35 : -0.75);
+    if (Math.abs(p[1]) < 2) ly = p[1] - 0.8;
+    return { x: lx, y: ly, anchor: anchor };
+  }
+
+  function zoneName(data, id) {
+    var z = (data.zones || []).filter(function (x) { return x.id === id; })[0];
+    return z ? z.name : id;
+  }
+
+  root.LigtasMap = { draw: draw };
+})(typeof window !== "undefined" ? window : this);
+
+</script>
+<script id="ligtas-app">
+/* LIGTA-S app: the user interface around LigtasEngine (algorithms) and LigtasMap (drawing). */
+(function () {
+  "use strict";
+  var E = window.LigtasEngine, M = window.LigtasMap;
+  var DEMO = JSON.parse(document.getElementById("ligtas-demo").textContent);
+  var KEY_DATA = "ligtas.data.v1", KEY_UI = "ligtas.ui.v1";
+  var $ = function (id) { return document.getElementById(id); };
+  var qa = function (sel, el) { return Array.prototype.slice.call((el || document).querySelectorAll(sel)); };
+
+  function clone(x) { return JSON.parse(JSON.stringify(x)); }
+  function fmt(n) { return n === Infinity ? "∞" : (n == null || isNaN(n)) ? "–" : Math.round(n).toLocaleString("en-US"); }
+  function fmt2(n) { return (Math.round(n * 100) / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+  function minutes(n) { return n === Infinity || n == null ? "no finite time" : fmt(n) + " min"; }
+
+  /* ---------------------------------------------------------------- storage */
+  var storageOK = true;
+  function load(key) {
+    try { var s = localStorage.getItem(key); return s ? JSON.parse(s) : null; } catch (e) { storageOK = false; return null; }
+  }
+  function store(key, val) {
+    try { localStorage.setItem(key, JSON.stringify(val)); return true; } catch (e) { storageOK = false; return false; }
+  }
+  function drop(key) { try { localStorage.removeItem(key); } catch (e) { /* nothing to do */ } }
+
+  function validData(d) {
+    return d && typeof d === "object" && Array.isArray(d.nodes) && Array.isArray(d.roads) && Array.isArray(d.origins) && Array.isArray(d.shelters);
+  }
+  function normalize(d) {
+    d = clone(d);
+    ["scenarios", "channels", "zones", "candidates"].forEach(function (k) { if (!Array.isArray(d[k])) d[k] = clone(DEMO[k] || []); });
+    if (!d.geo && d.synthetic) d.geo = clone(DEMO.geo);
+    if (!(+d.thetaMax > 0)) d.thetaMax = DEMO.thetaMax;
+    if (!(+d.thetaSite > 0)) d.thetaSite = DEMO.thetaSite;
+    return d;
+  }
+
+  var saved = load(KEY_DATA);
+  var S = {
+    data: validData(saved) ? normalize(saved) : clone(DEMO),
+    edited: validData(saved),
+    rev: 0,
+    cache: {},
+    ui: Object.assign({ tab: "plan", scen: "AL3", theta: null, days: 15, rule: "lex", theme: "auto",
+                        resOrigin: null, resVul: false, resScen: "AL3", extra: [], siteScen: "AL4+L",
+                        siteTheta: null, siteK: 3, siteRow: null }, load(KEY_UI) || {})
+  };
+  if (!(S.ui.theta > 0)) S.ui.theta = S.data.thetaMax;
+  if (!(S.ui.siteTheta > 0)) S.ui.siteTheta = S.data.thetaSite || 30;
+  function saveUI() { store(KEY_UI, S.ui); }
+  function saveData() {
+    S.rev++; S.cache = {};
+    S.edited = true;
+    var ok = store(KEY_DATA, S.data);
+    setSaveStatus(ok ? "Saved in this browser." : "Could not save in this browser (private mode or storage blocked). Export to keep your edits.");
+    banner();
+  }
+  function setSaveStatus(t) { var el = $("save-status"); if (el) el.textContent = t; }
+
+  /* ---------------------------------------------------------------- engine helpers */
+  function scenById(id) {
+    var list = S.data.scenarios || [];
+    for (var i = 0; i < list.length; i++) if (list[i].id === id) return list[i];
+    return list[0] || { id: "none", name: "No scenario", zones: [], closed: [] };
+  }
+  function inst(opts) { return E.makeInstance(S.data, Object.assign({ thetaMax: S.ui.theta }, opts || {})); }
+  function cached(key, fn) {
+    var k = S.rev + "|" + S.ui.theta + "|" + key;
+    if (!(k in S.cache)) S.cache[k] = fn();
+    return S.cache[k];
+  }
+  function planFor(scenId, rule, extraClosed) {
+    var sp = scenById(scenId);
+    var spec = { id: sp.id, name: sp.name, zones: sp.zones, closed: (sp.closed || []).concat(extraClosed || []) };
+    return cached("plan|" + scenId + "|" + rule + "|" + (extraClosed || []).join(","), function () {
+      var I = inst(), sc = E.scenario(spec);
+      if (rule === "near") { var n = E.nearest(I, sc); n.inst = I; n.sc = sc; n.rule = rule; return n; }
+      var p = E.evaluate(I, sc, rule);
+      p.inst = I; p.sc = sc; p.rule = rule;
+      return p;
+    });
+  }
+  /* persons from each origin to each shelter, with the route on the open roads */
+  function flowsOf(p) {
+    var I = p.inst, out = [], pairs = {};
+    if (p.rule === "near") {
+      p.choice.forEach(function (c, a) {
+        if (!c) return;
+        var r = E.route(I, p.sc, I.origins[a].node, c.node);
+        out.push({ path: r.path, persons: c.persons, title: I.origins[a].id + " to " + I.nodes[c.node] + ": " + fmt(c.persons) + " evacuees, " + c.minutes + " min" });
+      });
+      return out;
+    }
+    p.x.forEach(function (r) {
+      var s = p.slots[r.k].s, key = r.a + ">" + s;
+      if (!pairs[key]) pairs[key] = { a: r.a, s: s, persons: 0, room: 0 };
+      pairs[key].persons += r.f;
+      if (p.slots[r.k].tier === 2) pairs[key].room += r.f;
+    });
+    Object.keys(pairs).forEach(function (k) {
+      var q = pairs[k], o = I.origins[q.a], sh = I.shelters[q.s];
+      var r = E.route(I, p.sc, o.node, sh.node);
+      out.push({ path: r.path, persons: q.persons, tone: q.room === q.persons ? "room" : "",
+                 title: o.id + " to " + sh.id + ": " + fmt(q.persons) + " evacuees, " + p.T[q.a][q.s] + " min" + (q.room ? " (" + fmt(q.room) + " in classrooms)" : "") });
+    });
+    return out;
+  }
+  function siteNotesOf(p) {
+    var I = p.inst, notes = {};
+    if (p.rule === "near") {
+      p.sites.forEach(function (s) {
+        notes[s.id] = s.overflow > 0 ? { text: fmt(s.load) + " sent, " + fmt(s.overflow) + " over", tone: "over" } : { text: fmt(s.load) + " sent" };
+      });
+      return notes;
+    }
+    var byNode = {};
+    I.shelters.forEach(function (sh, s) {
+      var id = I.nodes[sh.node];
+      if (!byNode[id]) byNode[id] = { load: 0, rooms: 0 };
+      byNode[id].load += p.load[s] || 0;
+      byNode[id].rooms += p.roomsClosed[s] || 0;
+    });
+    Object.keys(byNode).forEach(function (id) {
+      var b = byNode[id];
+      if (b.load > 0) notes[id] = b.rooms > 0 ? { text: fmt(b.load) + " · " + b.rooms + " rooms", tone: "room" } : { text: fmt(b.load) + "" };
+    });
+    return notes;
+  }
+  /* which data the numbers come from: the synthetic test network, or the user's own */
+  function dataNote() { return S.data.synthetic ? "Test network E1 (synthetic)." : "Your own data."; }
+  function mapLabel(prefix, sp) { return prefix + " " + sp.name + ". " + dataNote(); }
+
+  /* ---------------------------------------------------------------- shell: tabs, theme, banner */
+  var TABS = ["plan", "clear", "site", "res", "cap", "data"];
+  function showTab(t, focus) {
+    if (TABS.indexOf(t) < 0) t = "plan";
+    S.ui.tab = t; saveUI();
+    qa(".tab").forEach(function (b) {
+      var on = b.getAttribute("data-tab") === t;
+      b.setAttribute("aria-selected", on ? "true" : "false");
+      b.tabIndex = on ? 0 : -1;
+      if (on && focus) b.focus();
+    });
+    TABS.forEach(function (x) { $("view-" + x).hidden = x !== t; });
+    if (location.hash !== "#" + t) { try { history.replaceState(null, "", "#" + t); } catch (e) { /* file: or sandbox */ } }
+    render();
+  }
+  qa(".tab").forEach(function (b, i, all) {
+    b.addEventListener("click", function () { showTab(b.getAttribute("data-tab")); window.scrollTo(0, 0); });
+    b.addEventListener("keydown", function (e) {
+      var j = e.key === "ArrowRight" ? (i + 1) % all.length : e.key === "ArrowLeft" ? (i - 1 + all.length) % all.length : e.key === "Home" ? 0 : e.key === "End" ? all.length - 1 : -1;
+      if (j < 0) return;
+      e.preventDefault();
+      showTab(all[j].getAttribute("data-tab"), true);
+    });
+  });
+  window.addEventListener("hashchange", function () { var h = location.hash.slice(1); if (TABS.indexOf(h) >= 0 && h !== S.ui.tab) showTab(h); });
+
+  function applyTheme() {
+    var t = S.ui.theme;
+    if (t === "auto") document.documentElement.removeAttribute("data-theme"); else document.documentElement.setAttribute("data-theme", t);
+    var b = $("theme-btn"), name = { auto: "automatic", light: "light", dark: "dark" }[t];
+    b.setAttribute("aria-label", "Color theme: " + name + ". Change theme.");
+    b.title = "Theme: " + name;
+    b.querySelector("use").setAttribute("href", t === "auto" ? "#i-auto" : t === "dark" ? "#i-moon" : "#i-sun");
+  }
+  $("theme-btn").addEventListener("click", function () {
+    S.ui.theme = { auto: "light", light: "dark", dark: "auto" }[S.ui.theme] || "auto";
+    saveUI(); applyTheme();
+  });
+  var about = $("about");
+  $("about-btn").addEventListener("click", function () { if (about.showModal) about.showModal(); else about.setAttribute("open", ""); });
+  $("about-close").addEventListener("click", function () { if (about.close) about.close(); else about.removeAttribute("open"); });
+  about.addEventListener("click", function (e) { if (e.target === about && about.close) about.close(); });
+
+  function banner() {
+    var b = $("banner"), t = $("banner-text");
+    if (!S.edited && S.data.synthetic) {
+      b.className = "banner";
+      t.textContent = "Demo data: test network E1, a synthetic volcano. Not real Albay data; every number here comes from this test network.";
+    } else if (S.data.synthetic) {
+      b.className = "banner";
+      t.textContent = "Edited copy of test network E1 (synthetic). Not real Albay data. Reset it from the Data tab.";
+    } else {
+      b.className = "banner user";
+      t.textContent = "Your own data. LIGTA-S is a planning aid; results are only as good as the data entered.";
+    }
+  }
+  var toastT = null;
+  function toast(msg) {
+    var el = $("toast");
+    el.textContent = msg; el.hidden = false;
+    clearTimeout(toastT);
+    toastT = setTimeout(function () { el.hidden = true; }, 3200);
+  }
+
+  /* scenario switches */
+  function shortName(sp) {
+    var narrow = window.matchMedia && window.matchMedia("(max-width: 420px)").matches;
+    if (!narrow) return sp.name;
+    return sp.name.replace("Alert Level", "AL").replace(" + lahar", " + lahar");
+  }
+  function drawSeg(el, cur, onPick) {
+    el.innerHTML = (S.data.scenarios || []).map(function (sp) {
+      return '<button type="button" data-id="' + esc(sp.id) + '" aria-pressed="' + (sp.id === cur ? "true" : "false") + '" title="' + esc(sp.name + ": zones " + sp.zones.join(", ") + (sp.closed && sp.closed.length ? "; closed " + sp.closed.join(", ") : "")) + '">' + esc(shortName(sp)) + '</button>';
+    }).join("");
+    qa("button", el).forEach(function (b) { b.onclick = function () { onPick(b.getAttribute("data-id")); }; });
+  }
+
+  /* ---------------------------------------------------------------- PLANNER */
+  var busy = false;
+  function later(fn) { setTimeout(function () { try { fn(); } catch (e) { console.error(e); toast("Something went wrong: " + e.message); } }, 16); }
+
+  function renderPlan() {
+    qa(".scen-seg").forEach(function (el) {
+      drawSeg(el, S.ui.scen, function (id) { S.ui.scen = id; S.ui.extra = []; saveUI(); render(); });
+    });
+    $("theta").value = S.ui.theta;
+    $("days").value = S.ui.days;
+    qa("[data-rule]").forEach(function (b) {
+      var on = b.getAttribute("data-rule") === S.ui.rule;
+      b.setAttribute("aria-pressed", on ? "true" : "false");
+      b.className = "btn" + (on ? " teal" : "");
+    });
+    var box = $("plan-result");
+    box.classList.add("computing");
+    later(function () {
+      var sp = scenById(S.ui.scen);
+      var p;
+      try { p = planFor(S.ui.scen, S.ui.rule); } catch (e) { box.classList.remove("computing"); box.innerHTML = '<p class="err">Could not compute: ' + esc(e.message) + '</p>'; return; }
+      box.classList.remove("computing");
+      box.innerHTML = S.ui.rule === "near" ? nearHTML(p, sp) : planHTML(p, sp);
+      M.draw($("map-plan"), S.data, { scenario: sp, flows: flowsOf(p), siteNotes: siteNotesOf(p), label: mapLabel(ruleName(S.ui.rule) + ",", sp) });
+      $("plan-detail").innerHTML = S.ui.rule === "near" ? nearDetail(p) : planDetail(p);
+      $("plan-detail-pill").textContent = ruleName(S.ui.rule);
+      ["lex", "time", "near"].forEach(function (r) { planFor(S.ui.scen, r); });
+      renderCompare();
+    });
+  }
+  function ruleName(r) { return r === "lex" ? "School-preserving plan" : r === "time" ? "Time-only plan" : "Nearest-site rule"; }
+
+  function tierBar(p) {
+    var D = p.demand || 1;
+    var parts = [["t-ec", p.personsEc, "Non-school space"], ["t-open", p.personsOpen, "School open space"], ["t-room", p.personsRoom, "Classrooms"], ["t-none", p.unplaced, "Not placed"]];
+    return '<div class="tierbar" role="img" aria-label="' + parts.map(function (x) { return x[2] + " " + fmt(x[1]); }).join(", ") + '">' +
+      parts.map(function (x) { return x[1] > 0 ? '<i class="' + x[0] + '" style="width:' + (100 * x[1] / D).toFixed(3) + '%"></i>' : ""; }).join("") + '</div>' +
+      '<div class="tierlegend">' + parts.map(function (x) { return '<div><i class="sw ' + x[0] + '"></i><span>' + x[2] + '<b>' + fmt(x[1]) + '</b></span></div>'; }).join("") + '</div>';
+  }
+  function planHTML(p, sp) {
+    var I = p.inst, days = Math.max(0, +S.ui.days || 0);
+    var schools = Object.keys(p.roomsClosed).map(function (s) {
+      var sh = I.shelters[+s];
+      return { id: sh.id, name: sh.name, rooms: p.roomsClosed[s], persons: p.roomPersons[s], learners: p.roomsClosed[s] * sh.learnersPerRoom, of: sh.rooms };
+    });
+    var h = '<div class="res-title"><h2>' + ruleName(p.rule) + '</h2><span class="pill ' + (p.rule === "lex" ? "teal" : "") + '">' + esc(sp.name) + '</span>' +
+      (p.rule === "lex" ? '<span class="pill gold">exact optimum</span>' : "") + '</div>';
+    h += '<div class="kpis">' +
+      '<div class="kpi ' + (p.roomsClosedTotal ? "bad" : "good") + '"><b>' + fmt(p.roomsClosedTotal) + '</b><span>classrooms closed</span></div>' +
+      '<div class="kpi ' + (p.learnersDisplaced ? "bad" : "good") + '"><b>' + fmt(p.learnersDisplaced) + '</b><span>learners displaced</span></div>' +
+      '<div class="kpi"><b>' + fmt(p.roomsClosedTotal * days) + '</b><span>classroom-days (' + fmt(days) + ' days)</span></div>' +
+      '<div class="kpi ' + (p.unplaced ? "bad" : "good") + '"><b>' + fmt(p.unplaced) + '</b><span>evacuees not placed</span></div></div>';
+    h += tierBar(p);
+    h += '<dl class="stats">' +
+      '<div><dt>Evacuees</dt><dd>' + fmt(p.demand) + '</dd></div>' +
+      '<div><dt>Vulnerable placed</dt><dd>' + fmt(p.vulPlaced) + ' of ' + fmt(p.vulnerable) + '</dd></div>' +
+      '<div><dt>Mean trip</dt><dd>' + fmt2(p.meanTime) + ' min</dd></div>' +
+      '<div><dt>Longest trip</dt><dd>' + fmt(p.maxTime) + ' min</dd></div>' +
+      '<div><dt>Person-minutes</dt><dd>' + fmt(p.personMinutes) + '</dd></div>' +
+      '<div><dt>Clearance time</dt><dd>' + minutes(p.clearance) + '</dd></div></dl>';
+    if (schools.length) {
+      h += '<h3>Classrooms closed, packed 18 per room</h3><ul class="small" style="margin:0;padding-left:1.1rem">' + schools.map(function (s) {
+        return '<li><b>' + esc(s.id) + '</b> ' + esc(s.name) + ': ' + fmt(s.persons) + ' evacuees in ' + s.rooms + ' of ' + s.of + ' rooms, ' + fmt(s.learners) + ' learners out of class</li>';
+      }).join("") + '</ul>';
+    } else if (p.placed > 0) {
+      h += '<p class="note ok">No classroom is used: every evacuee fits in non-school space or school open space.</p>';
+    }
+    if (p.unplaced > 0) h += '<p class="note warn">' + fmt(p.unplaced) + ' evacuees cannot be placed within ' + fmt(S.ui.theta) + ' minutes in any shelter that is open and safe in this scenario.</p>';
+    if (p.rule === "time") {
+      var lx = planFor(S.ui.scen, "lex");
+      var dm = p.meanTime ? (lx.meanTime - p.meanTime) : 0;
+      if (lx.roomsClosedTotal < p.roomsClosedTotal)
+        h += '<p class="note">The school-preserving plan closes ' + fmt(lx.roomsClosedTotal) + ' classrooms instead of ' + fmt(p.roomsClosedTotal) + ' (' + fmt(lx.learnersDisplaced) + ' learners displaced instead of ' + fmt(p.learnersDisplaced) + '), with a mean trip ' + fmt2(Math.abs(dm)) + ' min ' + (dm >= 0 ? "longer" : "shorter") + '.</p>';
+      else
+        h += '<p class="note">Here the school-preserving plan closes the same ' + fmt(lx.roomsClosedTotal) + ' classrooms' + (lx.personsRoom < p.personsRoom ? ', with ' + fmt(p.personsRoom - lx.personsRoom) + ' fewer persons in classrooms' : '') + '.</p>';
+    }
+    return h;
+  }
+  function nearHTML(p, sp) {
+    var over = p.sites.filter(function (s) { return s.overflow > 0; });
+    var h = '<div class="res-title"><h2>Nearest-site rule</h2><span class="pill">' + esc(sp.name) + '</span><span class="pill">baseline</span></div>';
+    h += '<div class="kpis">' +
+      '<div class="kpi ' + (p.overflow ? "bad" : "good") + '"><b>' + fmt(p.overflow) + '</b><span>arrive at full shelters</span></div>' +
+      '<div class="kpi"><b>' + fmt(over.length) + '</b><span>sites over capacity</span></div>' +
+      '<div class="kpi"><b>' + fmt2(p.meanTime) + '</b><span>mean trip (min)</span></div>' +
+      '<div class="kpi"><b>' + fmt(p.moved) + '</b><span>evacuees sent</span></div></div>';
+    h += '<p class="small muted">Everyone goes to the closest open shelter site, whatever its capacity, accessibility or classrooms. Capacity here counts every space at the site, classrooms included.</p>';
+    if (p.overflow > 0) h += '<p class="note warn">' + fmt(p.overflow) + ' evacuees arrive at shelters that are already full, and must be moved again.</p>';
+    return h;
+  }
+  function planDetail(p) {
+    var I = p.inst, rows = {};
+    p.x.forEach(function (r) {
+      var sl = p.slots[r.k], k = r.a + "|" + sl.s + "|" + sl.tier + "|" + r.cls;
+      if (!rows[k]) rows[k] = { a: r.a, s: sl.s, tier: sl.tier, cls: r.cls, f: 0 };
+      rows[k].f += r.f;
+    });
+    var list = Object.keys(rows).map(function (k) { return rows[k]; }).sort(function (x, y) { return x.a - y.a || x.s - y.s || x.tier - y.tier || (x.cls < y.cls ? 1 : -1); });
+    if (!list.length) return '<p class="muted small">Nobody needs to move in this scenario.</p>';
+    var tierName = ["Non-school space", "School open space", "Classroom"];
+    var unpl = unplacedByOrigin(p);
+    return '<table><thead><tr><th>Origin</th><th>Group</th><th>Shelter</th><th>Space</th><th class="n">Persons</th><th class="n">Minutes</th></tr></thead><tbody>' +
+      list.map(function (r) {
+        var o = I.origins[r.a], sh = I.shelters[r.s];
+        return '<tr><td><b>' + esc(o.id) + '</b></td><td>' + (r.cls === "V" ? "Vulnerable" : "Others") + '</td><td>' + esc(sh.id) + ' <span class="muted">' + esc(sh.name) + '</span></td><td><i class="sw ' + ["t-ec", "t-open", "t-room"][r.tier] + '"></i> ' + tierName[r.tier] + '</td><td class="n">' + fmt(r.f) + '</td><td class="n">' + fmt(p.T[r.a][r.s]) + '</td></tr>';
+      }).join("") +
+      unpl.map(function (u) { return '<tr><td><b>' + esc(u.id) + '</b></td><td>All</td><td colspan="2" class="err">Not placed: no open shelter within the trip limit</td><td class="n">' + fmt(u.n) + '</td><td class="n">–</td></tr>'; }).join("") +
+      '</tbody></table>';
+  }
+  function unplacedByOrigin(p) {
+    var I = p.inst, got = I.origins.map(function () { return 0; });
+    p.x.forEach(function (r) { got[r.a] += r.f; });
+    return I.origins.map(function (o, a) { return { id: o.id, name: o.name, n: E.demand(o, p.sc) - got[a] }; }).filter(function (u) { return u.n > 0; });
+  }
+  function nearDetail(p) {
+    var I = p.inst;
+    var h = '<table><thead><tr><th>Site</th><th>Shelters there</th><th class="n">Sent</th><th class="n">Capacity</th><th class="n">Over</th></tr></thead><tbody>';
+    p.sites.slice().sort(function (a, b) { return b.load - a.load; }).forEach(function (s) {
+      var names = I.shelters.filter(function (sh) { return sh.node === s.node; }).map(function (sh) { return sh.id; }).join(", ");
+      h += '<tr><td><b>' + esc(s.id) + '</b></td><td>' + esc(names) + '</td><td class="n">' + fmt(s.load) + '</td><td class="n">' + fmt(s.cap) + '</td><td class="n' + (s.overflow ? ' err' : '') + '">' + fmt(s.overflow) + '</td></tr>';
+    });
+    h += '</tbody></table><h3>Each origin</h3><table><thead><tr><th>Origin</th><th>Goes to</th><th class="n">Persons</th><th class="n">Minutes</th></tr></thead><tbody>';
+    p.choice.forEach(function (c, a) {
+      if (!c) return;
+      h += '<tr><td><b>' + esc(I.origins[a].id) + '</b></td><td>' + esc(I.nodes[c.node]) + '</td><td class="n">' + fmt(c.persons) + '</td><td class="n">' + fmt(c.minutes) + '</td></tr>';
+    });
+    return h + '</tbody></table>';
+  }
+  function ruleShort(r) { return r === "lex" ? "School-preserving" : r === "time" ? "Time-only" : "Nearest site"; }
+  function compareKey() { return S.rev + "|" + S.ui.theta + "|plan|" + S.ui.scen + "|"; }
+  function renderCompare() {
+    var rules = ["lex", "time", "near"], have = {};
+    rules.forEach(function (r) { var k = compareKey() + r + "|"; if (k in S.cache) have[r] = S.cache[k]; });
+    var sp = scenById(S.ui.scen);
+    var h = '<table><thead><tr><th>Rule</th><th class="n">Rooms closed</th><th class="n">Learners</th><th class="n">In rooms</th><th class="n">Unplaced or over</th><th class="n">Mean min</th></tr></thead><tbody>';
+    rules.forEach(function (r) {
+      var p = have[r];
+      if (!p) { h += '<tr><td>' + ruleShort(r) + '</td><td colspan="5" class="muted">not computed yet</td></tr>'; return; }
+      if (r === "near") h += '<tr><td>' + ruleShort(r) + '</td><td class="n muted" title="The nearest-site rule does not plan classrooms">–</td><td class="n muted">–</td><td class="n muted">–</td><td class="n">' + fmt(p.overflow) + ' over</td><td class="n">' + fmt2(p.meanTime) + '</td></tr>';
+      else h += '<tr' + (r === "lex" ? ' class="sel"' : '') + '><td>' + ruleShort(r) + '</td><td class="n"><b>' + fmt(p.roomsClosedTotal) + '</b></td><td class="n">' + fmt(p.learnersDisplaced) + '</td><td class="n">' + fmt(p.personsRoom) + '</td><td class="n">' + fmt(p.unplaced) + '</td><td class="n">' + fmt2(p.meanTime) + '</td></tr>';
+    });
+    $("compare").innerHTML = h.replace("<table>", '<table class="compact">') + '</tbody></table><p class="fine" style="margin-top:.4rem">' + esc(sp.name) + ', trip limit ' + fmt(S.ui.theta) + ' min. ' + dataNote() + '</p>';
+  }
+  qa("[data-rule]").forEach(function (b) {
+    b.addEventListener("click", function () { S.ui.rule = b.getAttribute("data-rule"); saveUI(); renderPlan(); });
+  });
+  function numInput(el, key, min) {
+    el.addEventListener("change", function () {
+      var v = Math.round(+el.value);
+      if (!(v >= min)) { el.value = S.ui[key]; return; }
+      S.ui[key] = v; saveUI(); render();
+    });
+  }
+  numInput($("theta"), "theta", 1);
+  numInput($("days"), "days", 0);
+
+  /* ---------------------------------------------------------------- editable tables */
+  var TABLES = {
+    origins: { cols: [["id", "ID", "text"], ["name", "Name", "wide"], ["node", "Map point", "node"], ["zones", "Zones", "zones"], ["pop", "Population", "int"], ["vul", "Vulnerable", "int"]],
+      blank: function () { return { id: nextId("O", S.data.origins), name: "New origin", node: firstNode("origin"), zones: ["PDZ"], pop: 100, vul: 20 }; } },
+    shelters: { cols: [["id", "ID", "text"], ["name", "Name", "wide"], ["node", "Map point", "node"], ["kind", "Kind", "kind"], ["areaNonSchool", "Non-school m²", "num"], ["areaOpen", "School open m²", "num"], ["rooms", "Classrooms", "int"], ["learnersPerRoom", "Learners per room", "int"], ["accessible", "Accessible", "bool"], ["zones", "Zones", "zones"], ["cap", "Capacity", "cap"]],
+      blank: function () { return { id: nextId("SH", S.data.shelters), name: "New shelter", node: firstNode("town"), kind: "ec", areaNonSchool: 700, areaOpen: 0, rooms: 0, learnersPerRoom: 0, accessible: true, zones: [] }; } },
+    roads: { cols: [["u", "From", "node"], ["v", "To", "node"], ["tau", "Minutes τ", "int"], ["cap", "Capacity u", "int"], ["tag", "Tag", "text"]],
+      blank: function () { return { u: S.data.nodes[0] ? S.data.nodes[0].id : "", v: S.data.nodes[1] ? S.data.nodes[1].id : "", tau: 10, cap: 20, tag: "new" + (S.data.roads.length + 1) }; } },
+    nodes: { cols: [["id", "ID", "text"], ["name", "Name", "wide"], ["x", "x (km)", "num"], ["y", "y (km)", "num"], ["kind", "Kind", "nodekind"]],
+      blank: function () { return { id: nextId("N", S.data.nodes), name: "New point", x: 0, y: -10, kind: "town" }; } },
+    candidates: { cols: [["name", "Name", "wide"], ["node", "Map point", "node"], ["area", "Floor area m²", "num"], ["cap", "Capacity", "ccap"]],
+      blank: function () { return { node: firstNode("town"), name: "Ligtas Pinoy Center", area: 1050 }; } }
+  };
+  function nextId(prefix, list) {
+    var n = list.length + 1, ids = {};
+    list.forEach(function (x) { ids[x.id] = 1; });
+    while (ids[prefix + n]) n++;
+    return prefix + n;
+  }
+  function firstNode(kind) {
+    var n = S.data.nodes.filter(function (x) { return x.kind === kind; })[0] || S.data.nodes[0];
+    return n ? n.id : "";
+  }
+  function cell(tbl, i, row, col) {
+    var f = col[0], t = col[2], v = row[f], a = ' data-t="' + tbl + '" data-i="' + i + '" data-f="' + f + '" aria-label="' + esc(col[1] + " of row " + (i + 1)) + '"';
+    if (t === "node") return '<select' + a + '>' + S.data.nodes.map(function (n) { return '<option value="' + esc(n.id) + '"' + (n.id === v ? " selected" : "") + '>' + esc(n.id + (n.name && n.name !== n.id ? " · " + n.name : "")) + '</option>'; }).join("") + '</select>';
+    if (t === "kind") return '<select' + a + '><option value="ec"' + (v !== "school" ? " selected" : "") + '>Non-school</option><option value="school"' + (v === "school" ? " selected" : "") + '>School</option></select>';
+    if (t === "nodekind") return '<select' + a + '>' + ["origin", "town", "ring"].map(function (k) { return '<option' + (k === v ? " selected" : "") + '>' + k + '</option>'; }).join("") + '</select>';
+    if (t === "bool") return '<input type="checkbox"' + a + (v !== false ? " checked" : "") + '>';
+    if (t === "zones") return '<input type="text"' + a + ' value="' + esc((v || []).join(" ")) + '" style="min-width:7rem">';
+    if (t === "int" || t === "num") {
+      var bad = tbl === "origins" && f === "vul" && +row.vul > +row.pop;
+      return '<input type="number" inputmode="decimal" min="0" step="' + (t === "int" ? 1 : "any") + '"' + a + ' value="' + esc(v) + '"' + (bad ? ' class="bad" title="More vulnerable residents than residents"' : "") + '>';
+    }
+    if (t === "cap") {
+      var c = E.capFromArea(row.areaNonSchool) + (row.kind === "school" ? E.capFromArea(row.areaOpen) + 18 * (+row.rooms || 0) : 0);
+      return '<span title="non-school + open space + 18 per classroom">' + fmt(c) + '</span>';
+    }
+    if (t === "ccap") return fmt(E.capFromArea(row.area));
+    return '<input type="text"' + a + ' value="' + esc(v) + '"' + (t === "wide" ? ' class="wide"' : "") + '>';
+  }
+  function renderTable(tbl) {
+    var el = $("tbl-" + tbl);
+    if (!el) return;
+    var def = TABLES[tbl], list = tbl === "candidates" ? S.data.candidates : S.data[tbl];
+    var h = '<table><thead><tr>' + def.cols.map(function (c) { return '<th' + (c[2] === "int" || c[2] === "num" || c[2] === "cap" || c[2] === "ccap" ? ' class="n"' : '') + '>' + esc(c[1]) + '</th>'; }).join("") + '<th><span class="sr-only">Delete</span></th></tr></thead><tbody>';
+    list.forEach(function (row, i) {
+      h += '<tr>' + def.cols.map(function (c) { return '<td' + (c[2] === "cap" || c[2] === "ccap" ? ' class="n"' : '') + '>' + cell(tbl, i, row, c) + '</td>'; }).join("") +
+        '<td><button type="button" class="del" data-del="' + tbl + '" data-i="' + i + '" aria-label="Delete row ' + (i + 1) + '"><svg aria-hidden="true"><use href="#i-x"/></svg></button></td></tr>';
+    });
+    /* keep the keyboard focus on the same cell: the table is redrawn after every edit */
+    var act = document.activeElement, key = act && act.getAttribute && act.getAttribute("data-t") === tbl ?
+      '[data-t="' + tbl + '"][data-i="' + act.getAttribute("data-i") + '"][data-f="' + act.getAttribute("data-f") + '"]' : null;
+    tableBusy = true;
+    try { el.innerHTML = h + '</tbody></table>' + (list.length ? "" : '<p class="muted small">No rows.</p>'); }
+    finally { tableBusy = false; }
+    if (key) { var again = el.querySelector(key); if (again) { try { again.focus({ preventScroll: true }); } catch (e) { again.focus(); } } }
+  }
+  /* removing a focused input that holds an uncommitted value fires a second "change" while the
+     table is being redrawn; that value has already been taken, so the handler ignores it */
+  var tableBusy = false;
+  function renderTables() { Object.keys(TABLES).forEach(renderTable); }
+  document.addEventListener("change", function (e) {
+    var el = e.target, tbl = el.getAttribute && el.getAttribute("data-t");
+    if (!tbl || tableBusy) return;
+    var list = tbl === "candidates" ? S.data.candidates : S.data[tbl], i = +el.getAttribute("data-i"), f = el.getAttribute("data-f");
+    var row = list[i], col = TABLES[tbl].cols.filter(function (c) { return c[0] === f; })[0];
+    if (!row || !col) return;
+    var t = col[2];
+    if (t === "int" || t === "num") {
+      var v = +el.value;
+      if (!isFinite(v) || (v < 0 && !(tbl === "nodes"))) { toast("Enter a number of zero or more."); el.value = row[f]; return; }
+      if (f === "tau") v = Math.max(1, Math.round(v));
+      else if (t === "int") v = Math.round(v);
+      row[f] = v;
+    } else if (t === "bool") row[f] = !!el.checked;
+    else if (t === "zones") row[f] = el.value.split(/[\s,;]+/).filter(Boolean);
+    else if (f === "id") {
+      var nv = el.value.trim();
+      if (!nv || list.some(function (r, j) { return j !== i && r.id === nv; })) { toast("IDs must be unique and not empty."); el.value = row[f]; return; }
+      if (tbl === "nodes") renameNode(row.id, nv);
+      row[f] = nv;
+    } else row[f] = el.value;
+    if (tbl === "shelters" && f === "kind" && row.kind !== "school") { row.areaOpen = 0; row.rooms = 0; row.learnersPerRoom = 0; }
+    saveData();
+    renderTable(tbl);
+    if (tbl === "nodes") { renderTables(); fillOrigins(); }
+    if (tbl === "origins") fillOrigins();
+    render();
+  });
+  function renameNode(from, to) {
+    S.data.roads.forEach(function (r) { if (r.u === from) r.u = to; if (r.v === from) r.v = to; });
+    S.data.origins.forEach(function (o) { if (o.node === from) o.node = to; });
+    S.data.shelters.forEach(function (s) { if (s.node === from) s.node = to; });
+    S.data.candidates.forEach(function (c) { if (c.node === from) c.node = to; });
+  }
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest ? e.target.closest("[data-add],[data-del]") : null;
+    if (!t) return;
+    var add = t.getAttribute("data-add"), del = t.getAttribute("data-del");
+    if (add) {
+      var list = add === "candidates" ? S.data.candidates : S.data[add];
+      list.push(TABLES[add].blank());
+      saveData(); renderTable(add); if (add === "origins") fillOrigins(); render();
+      toast("Row added. Edit it in the table.");
+    } else if (del) {
+      var l2 = del === "candidates" ? S.data.candidates : S.data[del], i = +t.getAttribute("data-i"), row = l2[i];
+      if (del === "nodes" && row) {
+        var used = S.data.roads.some(function (r) { return r.u === row.id || r.v === row.id; }) || S.data.origins.some(function (o) { return o.node === row.id; }) || S.data.shelters.some(function (s) { return s.node === row.id; });
+        if (used) { toast("This map point is used by a road, origin or shelter. Remove those first."); return; }
+      }
+      l2.splice(i, 1);
+      saveData(); renderTable(del); if (del === "origins") fillOrigins(); render();
+    }
+  });
+
+  /* ---------------------------------------------------------------- CLEARANCE */
+  function bridgesAll() {
+    var out = [];
+    (S.data.channels || []).forEach(function (c) { (c.bridges || []).forEach(function (b) { out.push({ tag: b, ch: c.id }); }); });
+    return out;
+  }
+  function renderClear() {
+    qa(".scen-seg").forEach(function (el) { drawSeg(el, S.ui.scen, function (id) { S.ui.scen = id; S.ui.extra = []; saveUI(); render(); }); });
+    var sp = scenById(S.ui.scen), locked = {};
+    (sp.closed || []).forEach(function (t) { locked[t] = true; });
+    S.ui.extra = (S.ui.extra || []).filter(function (t) { return !locked[t]; });
+    var extraSet = {};
+    S.ui.extra.forEach(function (t) { extraSet[t] = true; });
+    $("bridge-chips").innerHTML = bridgesAll().map(function (b) {
+      var closed = locked[b.tag] || extraSet[b.tag];
+      return '<button type="button" class="chip" data-bridge-chip="' + esc(b.tag) + '" aria-pressed="' + (closed ? "true" : "false") + '"' + (locked[b.tag] ? ' disabled title="Closed by the scenario"' : "") + '><i class="bx"></i>' + esc(b.tag) + (locked[b.tag] ? " (scenario)" : "") + '</button>';
+    }).join("") || '<p class="muted small">This network has no bridges on lahar channels.</p>';
+    qa("[data-bridge-chip]").forEach(function (b) { b.onclick = function () { toggleBridge(b.getAttribute("data-bridge-chip")); }; });
+    var out = $("clear-result"), cr = $("closure-result");
+    out.classList.add("computing");
+    later(function () {
+      var p = planFor(S.ui.scen, "lex");
+      out.classList.remove("computing");
+      var sup = p.supplies, curve0 = clearanceCurve(p, p.sc, p.clearance);
+      var h = '<div class="kpis" style="grid-template-columns:repeat(3,minmax(0,1fr))">' +
+        '<div class="kpi good"><b>' + (p.clearance === Infinity ? "∞" : fmt(p.clearance)) + '</b><span>clearance time T* (min)</span></div>' +
+        '<div class="kpi"><b>' + fmt(p.clearanceLB) + '</b><span>lower bound (min)</span></div>' +
+        '<div class="kpi"><b>' + fmt(p.clearanceCalls) + '</b><span>maximum flows solved (doubling, bisection)</span></div></div>';
+      h += '<p class="small muted">' + fmt(p.placed) + ' evacuees of the school-preserving plan, ' + esc(sp.name) + '. Exact: the smallest T with F(T) = ' + fmt(p.placed) + ' on the time-expanded network.</p>';
+      var res = null;
+      if (S.ui.extra.length) res = closureResult(p, sp);
+      h += chartSVG(curve0, res && res.curve, p.placed, p.clearance, p.clearanceLB, res ? res.fixed : null);
+      out.innerHTML = h;
+      cr.innerHTML = res ? res.html : '<p class="note">All bridges ' + ((sp.closed || []).length ? "outside the scenario's closures " : "") + 'are open. Close one to see its effect.</p>';
+      M.draw($("map-clear"), S.data, { scenario: sp, extraClosed: S.ui.extra, flows: flowsOf(res ? res.fresh : p), bridgesClickable: true, label: mapLabel("Clearance,", sp) });
+      void sup;
+      renderStudy(sp);
+    });
+  }
+  function clearanceCurve(p, sc, T) {
+    if (!p.supplies || !p.placed) return [];
+    var until = (T === Infinity || T == null ? 120 : T) + 10;
+    return E.arrivalCurve(p.inst, sc, p.supplies.sup, p.supplies.caps, until, 2);
+  }
+  function closureResult(p, sp) {
+    var spec = { id: sp.id, zones: sp.zones, closed: (sp.closed || []).concat(S.ui.extra) };
+    var sc2 = E.scenario(spec);
+    var fixed = cached("fixed|" + sp.id + "|" + S.ui.extra.slice().sort().join(","), function () { return E.clearanceTime(p.inst, sc2, p.supplies.sup, p.supplies.caps).T; });
+    var fresh = planFor(S.ui.scen, "lex", S.ui.extra);
+    var curve = fixed === Infinity ? null : E.arrivalCurve(p.inst, sc2, p.supplies.sup, p.supplies.caps, fixed + 10, 2);
+    var delta = fixed === Infinity ? Infinity : fixed - p.clearance;
+    var trapped = unplacedByOrigin(fresh);
+    var h = '<div class="kpis" style="grid-template-columns:repeat(3,minmax(0,1fr))">' +
+      '<div class="kpi bad"><b>' + (fixed === Infinity ? "∞" : fmt(fixed)) + '</b><span>clearance, same plan (min)</span></div>' +
+      '<div class="kpi bad"><b>' + (delta === Infinity ? "∞" : (delta > 0 ? "+" : "") + fmt(delta)) + '</b><span>change Δ (min)</span></div>' +
+      '<div class="kpi ' + (fresh.unplaced ? "bad" : "good") + '"><b>' + fmt(fresh.unplaced) + '</b><span>not placed: no reachable shelter with room</span></div></div>';
+    if (fixed === Infinity) h += '<p class="note warn">With the plan held fixed, some evacuees can no longer reach the shelter the plan gave them at all.</p>';
+    h += '<p class="small">A fresh plan for the damaged network places ' + fmt(fresh.placed) + ' of ' + fmt(fresh.demand) + ' evacuees, closes ' + fmt(fresh.roomsClosedTotal) + ' classrooms, and clears in ' + minutes(fresh.clearance) + '.</p>';
+    if (trapped.length) h += '<p class="note warn"><b>Cut off:</b> ' + trapped.map(function (u) { return esc(u.id) + " (" + fmt(u.n) + " residents)"; }).join(", ") + '. No open road leads to a shelter with room within the trip limit.</p>';
+    return { html: h, fixed: fixed, curve: curve, fresh: fresh };
+  }
+  function toggleBridge(tag) {
+    var i = S.ui.extra.indexOf(tag);
+    if (i >= 0) S.ui.extra.splice(i, 1); else S.ui.extra.push(tag);
+    saveUI(); renderClear();
+  }
+  $("map-clear").addEventListener("click", function (e) {
+    var g = e.target.closest ? e.target.closest("[data-bridge]") : null;
+    if (g) toggleBridge(g.getAttribute("data-bridge"));
+  });
+  $("map-clear").addEventListener("keydown", function (e) {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    var g = e.target.closest ? e.target.closest("[data-bridge]") : null;
+    if (g) { e.preventDefault(); var tag = g.getAttribute("data-bridge"); toggleBridge(tag); var again = $("map-clear").querySelector('[data-bridge="' + tag + '"]'); if (again) again.focus(); }
+  });
+  qa("[data-close]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var w = b.getAttribute("data-close"), sp = scenById(S.ui.scen), locked = {};
+      (sp.closed || []).forEach(function (t) { locked[t] = true; });
+      var pick = bridgesAll().filter(function (x) { return (w === "AB" || x.ch === w) && !locked[x.tag]; }).map(function (x) { return x.tag; });
+      S.ui.extra = w === "none" ? [] : pick;
+      saveUI(); renderClear();
+    });
+  });
+  function renderStudy(sp) {
+    var el = $("study");
+    var groups = [{ name: "No bridge closed", tags: [] }];
+    (S.data.channels || []).forEach(function (c) { groups.push({ name: "Channel " + c.id + " cut (" + c.bridges.join(", ") + ")", tags: c.bridges.slice() }); });
+    if ((S.data.channels || []).length > 1) groups.push({ name: "Every channel cut", tags: bridgesAll().map(function (b) { return b.tag; }) });
+    $("study-pill").textContent = "zones " + sp.zones.join(", ");
+    var rows = cached("study|" + sp.zones.join(","), function () {
+      return E.closureStudy(Object.assign({}, S.data, { thetaMax: S.ui.theta }), { id: sp.id, zones: sp.zones, closed: [] }, groups, { thetaMax: S.ui.theta });
+    });
+    el.innerHTML = '<table><thead><tr><th>Closure</th><th class="n">Clearance, same plan</th><th class="n">Change Δ</th><th class="n">Trapped</th><th class="n">In classrooms</th><th class="n">Classrooms closed</th><th class="n">Clearance, new plan</th><th class="n">Mean trip</th></tr></thead><tbody>' +
+      rows.map(function (r) {
+        return '<tr><td>' + esc(r.name) + '</td><td class="n">' + minutes(r.clearanceFixedPlan) + '</td><td class="n">' + (r.delta === Infinity || r.delta == null || isNaN(r.delta) ? "∞" : (r.delta > 0 ? "+" : "") + fmt(r.delta)) + '</td><td class="n' + (r.unplaced ? " err" : "") + '">' + fmt(r.unplaced) + '</td><td class="n">' + fmt(r.personsRoom) + '</td><td class="n">' + fmt(r.roomsClosed) + '</td><td class="n">' + minutes(r.clearanceNewPlan) + '</td><td class="n">' + fmt2(r.meanTime) + '</td></tr>';
+      }).join("") + '</tbody></table>';
+  }
+  function chartSVG(c1, c2, goal, T, LB, T2) {
+    if (!c1 || !c1.length) return "";
+    var box = $("clear-result"), bw = box && box.clientWidth ? box.clientWidth : 560;
+    var W = Math.max(300, Math.min(560, Math.round(bw))), H = W < 420 ? 210 : 230, L = 46, R = 14, Tp = 14, B = 34;
+    var xmax = Math.max(c1[c1.length - 1][0], c2 && c2.length ? c2[c2.length - 1][0] : 0, 10);
+    var ymax = Math.max(goal, 1);
+    var X = function (t) { return L + (W - L - R) * t / xmax; }, Y = function (v) { return H - B - (H - B - Tp) * v / ymax; };
+    var path = function (c) { return c.map(function (q, i) { return (i ? "L" : "M") + X(q[0]).toFixed(1) + " " + Y(q[1]).toFixed(1); }).join(""); };
+    var h = '<svg class="chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Evacuees inside shelters by minute. Everyone in by minute ' + (T === Infinity ? "never" : T) + (T2 != null ? (T2 === Infinity ? "; with the closure, never" : "; with the closure, minute " + T2) : "") + '.">';
+    var step = xmax > 150 ? 50 : xmax > 60 ? 20 : 10;
+    for (var t = 0; t <= xmax; t += step) h += '<line class="grid" x1="' + X(t) + '" x2="' + X(t) + '" y1="' + Tp + '" y2="' + (H - B) + '"/><text x="' + X(t) + '" y="' + (H - B + 16) + '" text-anchor="middle">' + t + '</text>';
+    [0, 0.5, 1].forEach(function (f) { var v = Math.round(ymax * f); h += '<text x="' + (L - 6) + '" y="' + (Y(v) + 4) + '" text-anchor="end">' + fmt(v) + '</text>'; });
+    h += '<line class="ax" x1="' + L + '" x2="' + (W - R) + '" y1="' + (H - B) + '" y2="' + (H - B) + '"/>';
+    h += '<line class="goal" x1="' + L + '" x2="' + (W - R) + '" y1="' + Y(goal) + '" y2="' + Y(goal) + '"/>';
+    h += '<text x="' + (W / 2) + '" y="' + (H - 3) + '" text-anchor="middle">minutes after the order</text>';
+    if (LB != null && isFinite(LB)) h += '<line class="lb" x1="' + X(LB) + '" x2="' + X(LB) + '" y1="' + Tp + '" y2="' + (H - B) + '"/><text class="lab g" x="' + (X(LB) - 4) + '" y="' + (Tp + 30) + '" text-anchor="end">bound ' + LB + '</text>';
+    h += '<path class="s1" d="' + path(c1) + '"/>';
+    if (isFinite(T)) h += '<line class="mk" x1="' + X(T) + '" x2="' + X(T) + '" y1="' + Tp + '" y2="' + (H - B) + '"/><text class="lab t" x="' + (X(T) + 4) + '" y="' + (Tp + 12) + '">T* ' + T + '</text>';
+    if (c2 && c2.length) {
+      h += '<path class="s2" d="' + path(c2) + '"/>';
+      if (T2 != null && isFinite(T2)) h += '<line class="mk2" x1="' + X(T2) + '" x2="' + X(T2) + '" y1="' + Tp + '" y2="' + (H - B) + '"/><text class="lab r" x="' + (X(T2) + 4) + '" y="' + (Tp + 26) + '">closed ' + T2 + '</text>';
+    }
+    return h + '</svg>';
+  }
+
+  /* ---------------------------------------------------------------- SITING */
+  function renderSite() {
+    drawSeg($("site-scen"), S.ui.siteScen, function (id) { S.ui.siteScen = id; S.ui.siteRow = null; saveUI(); renderSite(); });
+    $("site-theta").value = S.ui.siteTheta;
+    $("site-k").value = S.ui.siteK;
+    renderTable("candidates");
+    var key = siteKey(), res = S.cache[key];
+    var sp = scenById(S.ui.siteScen);
+    if (!res) {
+      $("site-result").innerHTML = '<h2>Results</h2><p class="muted small">Press Choose sites to run the greedy choice, check it against every possible set, and recompute the plan with the new centers.</p>';
+      M.draw($("map-site"), S.data, { scenario: sp, candidates: S.data.candidates.map(function (c) { return { node: c.node, title: c.name + ", " + fmt(E.capFromArea(c.area)) + " persons" }; }), label: mapLabel("Candidate sites,", sp) });
+      return;
+    }
+    var rows = res.rows, sel = S.ui.siteRow != null && rows[S.ui.siteRow] ? S.ui.siteRow : rows.length - 1;
+    var h = '<div class="res-title"><h2>Greedy choice</h2><span class="pill">' + esc(sp.name) + '</span><span class="pill gold">θ = ' + fmt(res.theta) + ' min</span></div>';
+    h += '<p class="small muted" style="margin:.3rem 0 .5rem">Coverage now: ' + fmt(res.phi0) + ' evacuees can be sheltered outside classrooms within ' + fmt(res.theta) + ' minutes.</p>';
+    h += '<div class="tbl-wrap"><table><thead><tr><th>k</th><th>Greedy sites</th><th class="n">Gain f(S)</th><th class="n">Best</th><th class="n">Ratio</th><th class="n">Guarantee</th></tr></thead><tbody>';
+    rows.forEach(function (r, i) {
+      var ratio = r.bestGain ? r.gain / r.bestGain : 1, g = 1 - Math.pow(1 - 1 / r.k, r.k);
+      h += '<tr' + (i === sel ? ' class="sel"' : '') + ' data-site-row="' + i + '" style="cursor:pointer"><td>' + r.k + '</td><td><b>' + esc(r.sites.join(", ")) + '</b></td><td class="n">' + fmt(r.gain) + '</td><td class="n">' + (r.bestGain == null ? "–" : fmt(r.bestGain)) + '</td><td class="n">' + (r.bestGain == null ? "–" : (100 * ratio).toFixed(1) + "%") + '</td><td class="n">≥ ' + (100 * g).toFixed(1) + '%</td></tr>';
+    });
+    h += '</tbody></table></div>';
+    h += '<h3>Plan with the new centers</h3><div class="tbl-wrap"><table><thead><tr><th>k</th><th class="n">Unplaced</th><th class="n">In rooms</th><th class="n">Rooms closed</th><th class="n">Learners</th><th class="n">Clearance</th></tr></thead><tbody>';
+    h += '<tr><td>0</td><td class="n">' + fmt(res.base.unplaced) + '</td><td class="n">' + fmt(res.base.personsRoom) + '</td><td class="n">' + fmt(res.base.roomsClosedTotal) + '</td><td class="n">' + fmt(res.base.learnersDisplaced) + '</td><td class="n">' + minutes(res.base.clearance) + '</td></tr>';
+    rows.forEach(function (r, i) {
+      h += '<tr' + (i === sel ? ' class="sel"' : '') + ' data-site-row="' + i + '" style="cursor:pointer"><td>' + r.k + '</td><td class="n">' + fmt(r.unplaced) + '</td><td class="n">' + fmt(r.personsRoom) + '</td><td class="n">' + fmt(r.roomsClosed) + '</td><td class="n">' + fmt(r.learners) + '</td><td class="n">' + minutes(r.clearance) + '</td></tr>';
+    });
+    h += '</tbody></table></div>';
+    var gains = res.singleGains, ids = Object.keys(gains), gmax = Math.max.apply(null, ids.map(function (k) { return gains[k]; }).concat([1]));
+    h += '<h3>Gain of each site alone</h3><div class="bars">' + ids.map(function (k) {
+      var top = rows[0] && rows[0].sites[0] === k;
+      return '<div><span>' + esc(k) + '</span><i class="' + (top ? "top" : "") + '" style="width:' + (100 * gains[k] / gmax).toFixed(1) + '%"></i><em>' + fmt(gains[k]) + '</em></div>';
+    }).join("") + '</div>';
+    h += '<p class="note">The gain is monotone and submodular (Proposition 10), so greedy reaches at least 1 − (1 − 1/k)<sup>k</sup> ≥ 63.2% of the best set (Nemhauser et al., 1978). Here it is checked against every set of k sites.</p>';
+    $("site-result").innerHTML = h;
+    qa("[data-site-row]").forEach(function (tr) { tr.onclick = function () { S.ui.siteRow = +tr.getAttribute("data-site-row"); saveUI(); renderSite(); }; });
+    var row = rows[sel], chosen = {};
+    row.sites.forEach(function (s, i) { chosen[s] = i + 1; });
+    var extra = row.sites.map(function (id) {
+      var c = S.data.candidates.filter(function (x) { return x.node === id; })[0];
+      return { id: "LPC-" + id, name: c ? c.name : "Ligtas Pinoy Center", node: id, kind: "ec", areaNonSchool: c ? c.area : 0, areaOpen: 0, rooms: 0, learnersPerRoom: 0, accessible: true, zones: [] };
+    });
+    var I2 = E.makeInstance(S.data, { extraShelters: extra, thetaMax: S.ui.theta }), sc = E.scenario(sp);
+    var p2 = cached("siteplan|" + key + "|" + sel, function () { var p = E.plan(I2, sc, "lex"); p.inst = I2; p.sc = sc; p.rule = "lex"; return p; });
+    var data2 = Object.assign({}, S.data, { shelters: S.data.shelters.concat(extra) });
+    M.draw($("map-site"), data2, {
+      scenario: sp, flows: flowsOf(p2), siteNotes: siteNotesOf(p2),
+      candidates: S.data.candidates.map(function (c) { var r = chosen[c.node]; return { node: c.node, chosen: !!r, label: r ? "#" + r : "", title: c.name + ", " + fmt(E.capFromArea(c.area)) + " persons" + (r ? ", chosen #" + r : "") }; }),
+      label: mapLabel("Sites chosen,", sp)
+    });
+  }
+  function siteKey() { return S.rev + "|" + S.ui.theta + "|site|" + S.ui.siteScen + "|" + S.ui.siteTheta + "|" + S.ui.siteK; }
+  $("site-run").addEventListener("click", function () {
+    var b = $("site-run");
+    b.disabled = true; $("site-result").classList.add("computing");
+    later(function () {
+      var t0 = Date.now(), sp = scenById(S.ui.siteScen);
+      var cands = S.data.candidates.filter(function (c) { return S.data.nodes.some(function (n) { return n.id === c.node; }); });
+      var k = Math.max(1, Math.min(S.ui.siteK, cands.length));
+      if (!cands.length) { toast("Add at least one candidate site."); b.disabled = false; $("site-result").classList.remove("computing"); return; }
+      var res = E.siting(S.data, sp, S.ui.siteTheta, cands, k, { thetaMax: S.ui.theta });
+      res.base = E.evaluate(inst(), E.scenario(sp), "lex");
+      S.cache[siteKey()] = res;
+      S.ui.siteRow = null;
+      $("site-time").textContent = "Computed in " + (Date.now() - t0) + " ms.";
+      b.disabled = false; $("site-result").classList.remove("computing");
+      renderSite();
+    });
+  });
+  numInputSite($("site-theta"), "siteTheta", 1);
+  numInputSite($("site-k"), "siteK", 1);
+  function numInputSite(el, key, min) {
+    el.addEventListener("change", function () {
+      var v = Math.round(+el.value);
+      if (!(v >= min)) { el.value = S.ui[key]; return; }
+      if (key === "siteK") v = Math.min(v, 8);
+      S.ui[key] = v; S.ui.siteRow = null; saveUI(); renderSite();
+    });
+  }
+
+  /* ---------------------------------------------------------------- RESIDENT */
+  function fillOrigins() {
+    var sel = $("res-origin");
+    if (!S.data.origins.some(function (o) { return o.id === S.ui.resOrigin; })) S.ui.resOrigin = S.data.origins[0] ? S.data.origins[0].id : null;
+    sel.innerHTML = S.data.origins.map(function (o) { return '<option value="' + esc(o.id) + '"' + (o.id === S.ui.resOrigin ? " selected" : "") + '>' + esc(o.name || o.id) + '</option>'; }).join("");
+  }
+  $("res-origin").addEventListener("change", function () { S.ui.resOrigin = this.value; saveUI(); renderRes(); });
+  $("res-vul").addEventListener("change", function () { S.ui.resVul = this.checked; saveUI(); renderRes(); });
+  $("map-res").addEventListener("click", function (e) {
+    var g = e.target.closest ? e.target.closest("[data-origin]") : null;
+    if (g) { S.ui.resOrigin = g.getAttribute("data-origin"); saveUI(); fillOrigins(); renderRes(); }
+  });
+  $("map-res").addEventListener("keydown", function (e) {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    var g = e.target.closest ? e.target.closest("[data-origin]") : null;
+    if (g) { e.preventDefault(); S.ui.resOrigin = g.getAttribute("data-origin"); saveUI(); fillOrigins(); renderRes(); }
+  });
+  function renderRes() {
+    $("res-vul").checked = !!S.ui.resVul;
+    var box = $("res-cards");
+    var oi = -1;
+    S.data.origins.forEach(function (o, i) { if (o.id === S.ui.resOrigin) oi = i; });
+    if (oi < 0) { box.innerHTML = '<p class="muted">Add an origin in the Planner first.</p>'; M.draw($("map-res"), S.data, { scenario: scenById(S.ui.resScen), originsClickable: true }); return; }
+    box.classList.add("computing");
+    later(function () {
+      box.classList.remove("computing");
+      var html = "", route = null, focusScen = scenById(S.ui.resScen);
+      (S.data.scenarios || []).forEach(function (sp) {
+        var p = planFor(sp.id, "lex"), I = p.inst;
+        var a = -1;
+        I.origins.forEach(function (o, i) { if (o.id === S.ui.resOrigin) a = i; });
+        var o = I.origins[a];
+        var sel = sp.id === S.ui.resScen;
+        var h = '<div class="rc' + (sel ? " sel" : "") + '" data-res-scen="' + esc(sp.id) + '"><h3>' + esc(sp.name) + ' ';
+        if (!o || E.demand(o, p.sc) === 0) {
+          html += h + '<span class="pill teal">No evacuation for your area</span></h3><p class="small muted">Your area is outside the active hazard zones in this scenario. Stay alert for announcements.</p></div>';
+          return;
+        }
+        /* the household's group; when the barangay has nobody in that group, show the other one */
+        var nV = E.vulnerable(o, p.sc), nN = E.demand(o, p.sc) - nV;
+        var want = S.ui.resVul ? (nV > 0 ? "V" : "N") : (nN > 0 ? "N" : "V");
+        var rows = {}, total = 0;
+        p.x.forEach(function (r) {
+          if (r.a !== a) return;
+          if (r.cls !== want) return;
+          var sl = p.slots[r.k], k = String(sl.s);
+          if (!rows[k]) rows[k] = { s: sl.s, tiers: [], f: 0 };
+          if (rows[k].tiers.indexOf(sl.tier) < 0) rows[k].tiers.push(sl.tier);
+          rows[k].f += r.f; total += r.f;
+        });
+        var groupSize = want === "V" ? nV : nN;
+        var list = Object.keys(rows).map(function (k) { return rows[k]; }).sort(function (x, y) { return y.f - x.f; });
+        h += '<span class="pill red">Evacuate</span></h3>';
+        if (!list.length) {
+          html += h + '<p class="note warn">No shelter place is planned for this group within the trip limit. Ask your barangay officials.</p></div>';
+          return;
+        }
+        if (sel) { var r0 = E.route(I, p.sc, o.node, I.shelters[list[0].s].node); route = r0.path; }
+        var tierName = ["non-school space", "school open space", "classroom"];
+        h += '<div class="dest">' + list.map(function (r) {
+          var sh = I.shelters[r.s], town = nodeName(I.nodes[sh.node]);
+          return '<div><span class="big">' + fmt(p.T[a][r.s]) + '<small>min</small></span><b>' + esc(sh.name) + ' (' + esc(sh.id) + ')</b><p>' + esc(town) + ' · ' + r.tiers.sort().map(function (t) { return tierName[t]; }).join(" and ") + ' · ' + (sh.accessible ? "accessible" : "not accessible (stairs)") + ' · ' + fmt(r.f) + ' of ' + fmt(groupSize) + ' ' + (want === "V" ? "vulnerable residents" : "residents") + '</p></div>';
+        }).join("") + '</div>';
+        if (S.ui.resVul && nV === 0) h += '<p class="small muted" style="margin-top:.4rem">The data lists no vulnerable residents for this barangay, so this is the shelter for everyone.</p>';
+        if (list.length > 1) h += '<p class="small muted" style="margin-top:.4rem">Your barangay is split between ' + list.length + ' places. Officials say which group you are in.</p>';
+        if (total < groupSize) h += '<p class="note warn">' + fmt(groupSize - total) + ' in this group have no planned place within the trip limit.</p>';
+        html += h + '</div>';
+      });
+      box.innerHTML = html;
+      qa("[data-res-scen]").forEach(function (c) { c.onclick = function () { S.ui.resScen = c.getAttribute("data-res-scen"); saveUI(); renderRes(); }; });
+      M.draw($("map-res"), S.data, { scenario: focusScen, route: route, selectOrigin: S.ui.resOrigin, originsClickable: true, label: mapLabel("Your route,", focusScen) });
+    });
+  }
+  function nodeName(id) { var n = S.data.nodes.filter(function (x) { return x.id === id; })[0]; return n ? (n.name || n.id) : id; }
+
+  /* ---------------------------------------------------------------- CAPACITY */
+  function renderCap() {
+    var A = Math.max(0, +$("cap-area").value || 0);
+    $("cap-area-out").textContent = fmt(E.capFromArea(A));
+    $("cap-area-f").textContent = "⌊" + A + " ÷ 3.5⌋ = " + fmt(E.capFromArea(A));
+    var n = Math.max(0, Math.round(+$("cap-rooms").value || 0)), len = Math.max(0, +$("cap-len").value || 0), wid = Math.max(0, +$("cap-wid").value || 0);
+    var per = E.capFromArea(len * wid);
+    $("cap-rooms-out").textContent = fmt(n * per);
+    $("cap-rooms-sub").textContent = "evacuees, " + per + " per classroom of " + (Math.round(len * wid * 10) / 10) + " m²";
+    $("cap-rooms-f").textContent = n + " × ⌊" + (Math.round(len * wid * 10) / 10) + " ÷ 3.5⌋ = " + n + " × " + per + " = " + fmt(n * per);
+    var ev = Math.max(0, Math.round(+$("cap-ev").value || 0)), lpr = Math.max(0, Math.round(+$("cap-lpr").value || 0)), d = Math.max(0, Math.round(+$("cap-days").value || 0));
+    var K = Math.ceil(ev / 18);
+    $("cap-ev-out").textContent = fmt(K);
+    $("cap-ev-sub").textContent = "classrooms closed, " + fmt(K * lpr) + " learners displaced, " + fmt(K * d) + " classroom-days";
+    $("cap-ev-f").textContent = "K = ⌈" + ev + " ÷ 18⌉ = " + K + "; L = " + K + " × " + lpr + " = " + fmt(K * lpr) + "; " + K + " × " + d + " days = " + fmt(K * d);
+  }
+  ["cap-area", "cap-rooms", "cap-len", "cap-wid", "cap-ev", "cap-lpr", "cap-days"].forEach(function (id) { $(id).addEventListener("input", renderCap); });
+
+  /* ---------------------------------------------------------------- DATA: export / import */
+  function download(name, text, type) {
+    var blob = new Blob([text], { type: type });
+    var url = URL.createObjectURL(blob), a = document.createElement("a");
+    a.href = url; a.download = name; document.body.appendChild(a); a.click();
+    setTimeout(function () { URL.revokeObjectURL(url); a.remove(); }, 1000);
+  }
+  var CSV = {
+    origins: ["id", "name", "node", "zones", "pop", "vul"],
+    shelters: ["id", "name", "node", "kind", "areaNonSchool", "areaOpen", "rooms", "learnersPerRoom", "accessible", "zones"],
+    roads: ["u", "v", "tau", "cap", "tag"],
+    nodes: ["id", "name", "x", "y", "kind"]
+  };
+  function csvCell(v) {
+    var s = Array.isArray(v) ? v.join(" ") : v === true ? "yes" : v === false ? "no" : String(v == null ? "" : v);
+    return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  }
+  function toCSV(tbl) {
+    var cols = CSV[tbl];
+    return [cols.join(",")].concat(S.data[tbl].map(function (r) { return cols.map(function (c) { return csvCell(r[c]); }).join(","); })).join("\r\n") + "\r\n";
+  }
+  function parseCSV(text) {
+    var rows = [], row = [], cur = "", q = false, i = 0;
+    text = text.replace(/^﻿/, "");
+    for (; i < text.length; i++) {
+      var ch = text[i];
+      if (q) {
+        if (ch === '"') { if (text[i + 1] === '"') { cur += '"'; i++; } else q = false; }
+        else cur += ch;
+      } else if (ch === '"') q = true;
+      else if (ch === ",") { row.push(cur); cur = ""; }
+      else if (ch === "\n" || ch === "\r") { if (ch === "\r" && text[i + 1] === "\n") i++; row.push(cur); cur = ""; if (row.some(function (c) { return c !== ""; })) rows.push(row); row = []; }
+      else cur += ch;
+    }
+    row.push(cur);
+    if (row.some(function (c) { return c !== ""; })) rows.push(row);
+    return rows;
+  }
+  function fromCSV(text) {
+    var rows = parseCSV(text);
+    if (rows.length < 1) throw new Error("The file is empty.");
+    var head = rows[0].map(function (h) { return h.trim(); });
+    var tbl = null;
+    Object.keys(CSV).forEach(function (k) { if (!tbl && CSV[k].every(function (c) { return head.indexOf(c) >= 0 || c === "name" || c === "zones" || c === "kind" || c === "accessible" || c === "tag"; })) tbl = k; });
+    if (head.indexOf("pop") >= 0) tbl = "origins";
+    else if (head.indexOf("rooms") >= 0 || head.indexOf("areaNonSchool") >= 0) tbl = "shelters";
+    else if (head.indexOf("tau") >= 0) tbl = "roads";
+    else if (head.indexOf("x") >= 0 && head.indexOf("y") >= 0) tbl = "nodes";
+    if (!tbl) throw new Error("Unknown table. The header must match one of the tables listed below the buttons.");
+    var NUM = { pop: 1, vul: 1, areaNonSchool: 1, areaOpen: 1, rooms: 1, learnersPerRoom: 1, tau: 1, cap: 1, x: 1, y: 1 };
+    var list = rows.slice(1).map(function (r, ri) {
+      var o = {};
+      head.forEach(function (h, j) {
+        var v = (r[j] == null ? "" : r[j]).trim();
+        if (NUM[h]) { var n = +v; if (!isFinite(n) || v === "") throw new Error("Row " + (ri + 2) + ": " + h + " must be a number."); o[h] = n; }
+        else if (h === "zones") o[h] = v.split(/[\s;]+/).filter(Boolean);
+        else if (h === "accessible") o[h] = !/^(no|false|0|n)$/i.test(v);
+        else o[h] = v;
+      });
+      if (tbl === "shelters" && !o.kind) o.kind = (o.rooms > 0 || o.areaOpen > 0) ? "school" : "ec";
+      if (tbl === "shelters" && !o.zones) o.zones = [];
+      if (tbl === "roads" && !o.tag) o.tag = "r" + (ri + 1);
+      return o;
+    });
+    return { tbl: tbl, list: list };
+  }
+  $("exp-json").addEventListener("click", function () { download("ligta-s-data.json", JSON.stringify(S.data, null, 1), "application/json"); });
+  qa("[data-csv]").forEach(function (b) { b.addEventListener("click", function () { var t = b.getAttribute("data-csv"); download("ligta-s-" + t + ".csv", toCSV(t), "text/csv"); }); });
+  $("imp-file").addEventListener("change", function () {
+    var file = this.files && this.files[0], input = this;
+    if (!file) return;
+    var rd = new FileReader();
+    rd.onload = function () {
+      try {
+        var text = String(rd.result);
+        if (/\.json$/i.test(file.name) || /^\s*\{/.test(text)) {
+          var d = JSON.parse(text);
+          if (!validData(d)) throw new Error("This JSON has no nodes, roads, origins and shelters.");
+          S.data = normalize(d);
+          toast("Imported " + file.name + ".");
+        } else {
+          var r = fromCSV(text);
+          S.data[r.tbl] = r.list;
+          toast("Imported " + r.list.length + " " + r.tbl + " from " + file.name + ".");
+        }
+        S.ui.extra = []; saveUI();
+        saveData(); renderTables(); fillOrigins(); render();
+      } catch (e) { toast("Could not import: " + e.message); }
+      input.value = "";
+    };
+    rd.readAsText(file);
+  });
+  $("reset-data").addEventListener("click", function () {
+    if (!confirm("Replace your data with the demo test network E1? Your edits in this browser will be lost.")) return;
+    S.data = clone(DEMO); S.edited = false; S.rev++; S.cache = {};
+    S.ui.theta = S.data.thetaMax; S.ui.extra = [];
+    drop(KEY_DATA); saveUI();
+    setSaveStatus("Demo data restored.");
+    banner(); renderTables(); fillOrigins(); render();
+  });
+
+  /* ---------------------------------------------------------------- render */
+  function render() {
+    var t = S.ui.tab;
+    if (t === "plan") renderPlan();
+    else if (t === "clear") renderClear();
+    else if (t === "site") renderSite();
+    else if (t === "res") renderRes();
+    else if (t === "cap") renderCap();
+    else if (t === "data") renderTables();
+  }
+  var resizeT = null;
+  window.addEventListener("resize", function () { clearTimeout(resizeT); resizeT = setTimeout(function () { qa(".seg").forEach(function () {}); render(); }, 250); });
+
+  applyTheme();
+  banner();
+  renderTables();
+  fillOrigins();
+  renderCap();
+  setSaveStatus(storageOK ? (S.edited ? "Your edited data is loaded from this browser." : "Showing the demo network. Edits are saved in this browser.") : "Saving is unavailable in this browser. Export to keep your edits.");
+  var h0 = location.hash.slice(1);
+  showTab(TABS.indexOf(h0) >= 0 ? h0 : S.ui.tab);
+  void busy;
+
+  /* offline copy when installed from the website */
+  if ("serviceWorker" in navigator && window.isSecureContext && location.protocol !== "file:" && document.querySelector('link[rel="manifest"]')) {
+    window.addEventListener("load", function () { navigator.serviceWorker.register("../sw.js", { scope: "../" }).catch(function () {}); });
+  }
+})();
+
+</script>
+</body>
+</html>

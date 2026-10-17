@@ -344,7 +344,10 @@
 
   /* policy "lex"  : school-preserving plan, costs (classroom, open space, minutes)
      policy "time" : time-only plan, costs (minutes, classroom, open space): travel first;
-                     among equally fast plans, non-school space before school space. */
+                     among equally fast plans, non-school space before school space.
+     A last cost entry only chooses among plans that are equal on everything above (it never
+     changes a value the model fixes): school open space goes first to the origins lower in the
+     table. Any fixed rule would do; this one gives the paper's Table 13 for test network E1. */
   function plan(inst, sc, policy, opts) {
     opts = opts || {};
     var T = opts.T || travelTimes(inst, sc);
@@ -353,7 +356,7 @@
     var ftot = maxPlaced(inst, sc, T, sl, true);
     var nO = inst.origins.length, nS = sl.length;
     var S = 0, SV = 1, SN = 2, oV = 3, oN = 3 + nO, sb = 3 + 2 * nO, SNK = sb + nS;
-    var g = new VecMCF(SNK + 1, 3);
+    var g = new VecMCF(SNK + 1, 4);
     g.add(S, SV, fv, null);
     g.add(S, SN, ftot - fv, null);
     var hasV = [], hasN = [];
@@ -372,7 +375,8 @@
           if (!suitable(inst, T, a, slot, c[1])) return;
           var t = T[a][slot.s];
           var room = slot.tier === TIER_ROOM ? 1 : 0, open = slot.tier === TIER_OPEN ? 1 : 0;
-          var cv = policy === "time" ? [t, room, open] : [room, open, t];
+          var tie = open ? nO - a : 0;
+          var cv = policy === "time" ? [t, room, open, tie] : [room, open, t, tie];
           var e = g.add((c[1] ? oV : oN) + a, sb + k, Infinity, cv);
           pairs.push({ e: e, a: a, k: k, cls: c[0] });
         });
@@ -709,7 +713,7 @@
   }
 
   var api = {
-    version: "1.0.0",
+    version: "1.0.1",
     SPHERE_M2: SPHERE_M2, CLASSROOM_M2: CLASSROOM_M2, Q: Q, TIER_NAMES: TIER_NAMES,
     capFromArea: capFromArea, makeInstance: makeInstance, scenario: scenario,
     demand: demand, vulnerable: vulnerable, shelterSafe: shelterSafe,

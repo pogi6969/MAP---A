@@ -4,9 +4,11 @@
 //   /*@model*/            the model (src/model.js), so each page is one self-contained file
 //   <!--@logo:ID-->       the logo (assets/banta-y-logo.svg) inline, its ids prefixed with ID
 //   <!--@eq:NAME-->       a pre-rendered equation from src/equations.json (tools/render-equations.cjs)
-//   {{path|format}}       a number from the research results (results.json of the dengue study)
+//   {{@favicon32}}        icons/favicon-32.png as a data: URI (the app's favicon, so the downloaded file is self-contained)
+//   {{path|format}}       a number from the research results (results.json of the dengue study);
+//                         {{app_kb}} is the size of the built app in KB, rounded to 10
 // Formats: f0..f6 fixed decimals, pct0..pct2 (share as percent), int (thousands separators), e (scientific).
-import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -53,11 +55,15 @@ export function build() {
   const model = readFileSync(join(HERE, "src", "model.js"), "utf8").trim();
   const eqs = JSON.parse(readFileSync(join(HERE, "src", "equations.json"), "utf8"));
   const res = loadResults();
-  const jobs = [["src/site.html", "index.html"], ["src/app.html", "app/index.html"]];
+  // the app first, so the website can state its download size ({{app_kb}}, rounded to 10 KB)
+  const jobs = [["src/app.html", "app/index.html"], ["src/site.html", "index.html"]];
   for (const [src, out] of jobs) {
+    if (!existsSync(join(HERE, src))) { console.warn("skipped", src, "(not found)"); continue; }
     let html = readFileSync(join(HERE, src), "utf8");
     if (html.indexOf("/*@model*/") >= 0) html = html.replace("/*@model*/", () => model);
     html = html.replace(/<!--@logo:([\w-]+)-->/g, (_, id) => logo(id));
+    // the favicon inline, so the app downloaded as one file still has its icon and asks for no other file
+    html = html.replace(/\{\{@favicon32\}\}/g, () => "data:image/png;base64," + readFileSync(join(HERE, "icons", "favicon-32.png")).toString("base64"));
     html = html.replace(/<!--@eq:(\w+)-->/g, (_, name) => {
       if (!eqs[name]) throw new Error("unknown equation " + name);
       return '<div class="eq">' + eqs[name].map((p) => '<span class="eqp">' + p.svg + "</span>").join("") + "</div>";
@@ -67,8 +73,11 @@ export function build() {
       if (v === undefined) throw new Error("unknown result " + path + " in " + src);
       return fmt(v, f);
     });
+    mkdirSync(dirname(join(HERE, out)), { recursive: true });
     writeFileSync(join(HERE, out), html);
-    console.log("wrote", out, (html.length / 1024).toFixed(0), "KB");
+    const bytes = Buffer.byteLength(html);
+    if (out === "app/index.html") res.app_kb = Math.round(bytes / 10240) * 10;
+    console.log("wrote", out, (bytes / 1024).toFixed(0), "KB");
   }
 }
 

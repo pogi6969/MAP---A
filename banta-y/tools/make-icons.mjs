@@ -1,6 +1,7 @@
 // Renders assets/banta-y-logo.svg to the app icons with headless Chromium.
 // Run: node tools/make-icons.mjs   (needs the playwright module and Chromium at /opt/pw-browsers)
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync, copyFileSync, rmSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
@@ -35,3 +36,10 @@ for (const [out, src, size] of jobs) {
   console.log("wrote", out);
 }
 await browser.close();
+// favicon.ico with 16, 32 and 48 px images (PIL), in icons/ and at the folder root
+const ico = join(HERE, "icons/favicon.ico");
+execFileSync("python3", ["-c", "import sys\nfrom PIL import Image\nims=[Image.open(p).convert('RGBA') for p in sys.argv[2:]]\nims[-1].save(sys.argv[1], sizes=[im.size for im in ims], append_images=ims[:-1])",
+  ico, join(HERE, "icons/favicon-16.png"), join(HERE, "icons/favicon-32.png"), join(HERE, "icons/favicon-48.png")]);
+copyFileSync(ico, join(HERE, "favicon.ico"));
+for (const f of ["icons/favicon-16.png", "icons/favicon-48.png"]) rmSync(join(HERE, f));
+console.log("wrote icons/favicon.ico and favicon.ico");

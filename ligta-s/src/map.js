@@ -44,8 +44,21 @@
       minX = Math.min(minX, -geo.pdzRadius - 1); maxX = Math.max(maxX, geo.pdzRadius + 1);
       minY = Math.min(minY, -geo.pdzRadius - 1); maxY = Math.max(maxY, geo.pdzRadius + 1);
     }
+    /* label size in km: larger when the map is drawn narrow (phones), so labels stay readable */
+    var px = svg.getBoundingClientRect ? svg.getBoundingClientRect().width : 0;
+    var fs = o.compact ? 0.78 : (px > 0 && px < 460 ? 1.08 : px > 0 && px < 640 ? 0.86 : 0.66);
+    /* make room for the shelter labels and notes, which can be long (e.g. "EC3 · LPC-TSW") */
+    var groups = {};
+    (data.shelters || []).forEach(function (s) { if (pos[s.node]) (groups[s.node] = groups[s.node] || []).push(s.id); });
+    Object.keys(groups).forEach(function (node) {
+      var L = labelAt(pos[node]), p0 = pos[node];
+      var note = o.siteNotes && o.siteNotes[node];
+      var w = Math.max(groups[node].join(" · ").length * fs * 0.62, note ? note.text.length * fs * 0.57 : 0);
+      if (L.anchor === "end") minX = Math.min(minX, L.x - w - 0.3); else maxX = Math.max(maxX, L.x + w + 0.3);
+      minY = Math.min(minY, L.y - fs - 0.2); maxY = Math.max(maxY, L.y + fs * 1.3 + 0.2);
+      void p0;
+    });
     var W = maxX - minX, H = maxY - minY;
-    var fs = o.compact ? 0.78 : 0.66;            // label size in km
     var out = [];
     svg.setAttribute("viewBox", [f(minX), f(minY), f(W), f(H)].join(" "));
     svg.setAttribute("role", "img");
@@ -59,8 +72,12 @@
       var a = c.bearing * Math.PI / 180;
       var x0 = r0 * Math.cos(a), y0 = -r0 * Math.sin(a), x1 = r1 * Math.cos(a), y1 = -r1 * Math.sin(a);
       out.push('<line class="lm-channel' + (laharOn ? " on" : "") + '" x1="' + f(x0) + '" y1="' + f(y0) + '" x2="' + f(x1) + '" y2="' + f(y1) + '"/>');
-      var lx = (r1 - 0.6) * Math.cos(a), ly = -(r1 - 0.6) * Math.sin(a);
-      out.push('<text class="lm-chlabel" x="' + f(lx + 0.5) + '" y="' + f(ly) + '" font-size="' + f(fs * 0.9) + '">Channel ' + esc(c.id) + '</text>');
+      /* label at the outer end of the channel; on the east side it goes just past the end, below it
+         (above it for a channel to the north-east), clear of the shelter labels beside the line */
+      var east = Math.cos(a) > 0.2;
+      var lx = east ? x1 + 0.7 : (r1 - 0.6) * Math.cos(a) + 0.5;
+      var ly = east ? (y1 > 0 ? y1 + fs * 0.9 + 0.3 : y1 - 0.3) : -(r1 - 0.6) * Math.sin(a);
+      out.push('<text class="lm-chlabel" x="' + f(lx) + '" y="' + f(ly) + '" font-size="' + f(fs * 0.9) + '">Channel ' + esc(c.id) + '</text>');
     });
     if (geo.pdzRadius) {
       out.push('<circle class="lm-pdz' + (active.PDZ ? " on" : "") + '" cx="0" cy="0" r="' + f(geo.pdzRadius) + '"><title>' + esc(zoneName(data, "PDZ")) + '</title></circle>');
@@ -112,6 +129,7 @@
       var s = 0.62;
       var attrs = o.bridgesClickable && !b.locked ? ' data-bridge="' + esc(b.tag) + '" tabindex="0" role="button" aria-pressed="' + (b.closed ? "true" : "false") + '" aria-label="Bridge ' + esc(b.tag) + (b.closed ? ", closed. Activate to reopen." : ", open. Activate to close.") + '"' : "";
       out.push('<g class="lm-bridge' + (b.closed ? " closed" : "") + (attrs ? " click" : "") + '"' + attrs + '>' +
+        (attrs ? '<circle class="hit" cx="' + f(b.x + 0.25) + '" cy="' + f(b.y + 0.3) + '" r="0.95"/>' : "") +
         '<rect x="' + f(b.x - s / 2) + '" y="' + f(b.y - s / 2) + '" width="' + f(s) + '" height="' + f(s) + '" rx="0.08"/>' +
         (b.closed ? '<path d="M' + f(b.x - 0.2) + " " + f(b.y - 0.2) + "L" + f(b.x + 0.2) + " " + f(b.y + 0.2) + "M" + f(b.x + 0.2) + " " + f(b.y - 0.2) + "L" + f(b.x - 0.2) + " " + f(b.y + 0.2) + '"/>' : "") +
         '<text x="' + f(b.x + 0.45) + '" y="' + f(b.y + 0.95) + '" font-size="' + f(fs * 0.82) + '">' + esc(b.tag) + '</text>' +
@@ -154,16 +172,11 @@
       } else {
         out.push('<rect class="' + (school ? "lm-school" : "lm-ec") + ' lm-site-edge" x="' + f(x) + '" y="' + f(y) + '" width="' + f(sz) + '" height="' + f(sz) + '"/>');
       }
-      var right = p[0] > 0 || p[0] < -8.5 ? false : true;
-      var lx = p[0] + (p[0] >= 0 ? 0.8 : -0.8), anchor = p[0] >= 0 ? "start" : "end";
-      if (Math.abs(p[0]) < 3) { lx = p[0] + 0.8; anchor = "start"; }
-      var ly = p[1] + (p[1] > 0 ? 1.35 : -0.75);
-      if (Math.abs(p[1]) < 2) ly = p[1] - 0.8;
+      var LP = labelAt(p), lx = LP.x, ly = LP.y, anchor = LP.anchor;
       out.push('<text class="lm-sitelabel" x="' + f(lx) + '" y="' + f(ly) + '" font-size="' + f(fs) + '" text-anchor="' + anchor + '">' + esc(list.map(function (s) { return s.id; }).join(" · ")) + '</text>');
       var note = o.siteNotes && o.siteNotes[node];
       if (note) out.push('<text class="lm-sitenote ' + (note.tone || "") + '" x="' + f(lx) + '" y="' + f(ly + fs * 1.15) + '" font-size="' + f(fs * 0.92) + '" text-anchor="' + anchor + '">' + esc(note.text) + '</text>');
       out.push('</g>');
-      void right;
     });
 
     /* origins */
@@ -180,6 +193,15 @@
         '<title>' + esc((og.name || og.id) + ": " + fmt(og.pop) + " residents, " + fmt(og.vul) + " vulnerable" + (on ? ", must evacuate" : "")) + '</title></g>');
     });
     svg.innerHTML = out.join("");
+  }
+
+  /* where a shelter site's label goes, relative to its marker */
+  function labelAt(p) {
+    var lx = p[0] + (p[0] >= 0 ? 0.8 : -0.8), anchor = p[0] >= 0 ? "start" : "end";
+    if (Math.abs(p[0]) < 3) { lx = p[0] + 0.8; anchor = "start"; }
+    var ly = p[1] + (p[1] > 0 ? 1.35 : -0.75);
+    if (Math.abs(p[1]) < 2) ly = p[1] - 0.8;
+    return { x: lx, y: ly, anchor: anchor };
   }
 
   function zoneName(data, id) {

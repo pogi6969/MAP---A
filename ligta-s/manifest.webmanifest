@@ -1,0 +1,26 @@
+{
+  "id": "app/",
+  "name": "LIGTA-S: Safe Shelter, Open Schools",
+  "short_name": "LIGTA-S",
+  "description": "Evacuation planning by hazard zone, shelter capacity and vulnerability that keeps classrooms open: exact shelter plans, clearance times with lahar bridge closures, Ligtas Pinoy Center siting and a resident mode. Works offline.",
+  "lang": "en",
+  "dir": "ltr",
+  "start_url": "app/",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#1F0407",
+  "theme_color": "#6E0C13",
+  "categories": ["education", "utilities", "navigation"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Shelter planner", "url": "app/#plan", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" }] },
+    { "name": "Where do I go?", "url": "app/#res", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" }] },
+    { "name": "LIGTA-S website", "url": "./", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" }] }
+  ]
+}

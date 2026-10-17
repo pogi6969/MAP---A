@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BANTA-Y: dengue watch for barangays</title>
+<meta name="description" content="BANTA-Y ranks dengue hotspots by where people spend the day, finds the least-cost vector-control plan with a certified gap, traces cases from home addresses to places of infection, and raises an early CUSUM alarm. A free offline app from a Legazpi City Science High School MCS-T research project.">
+<meta name="theme-color" content="#8E1219">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">
+<link rel="icon" href="icons/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta property="og:title" content="BANTA-Y: where people go, dengue goes">
+<meta property="og:description" content="Rank dengue hotspots by where people spend the day and plan vector control at least cost. Free, works offline.">
+<meta property="og:image" content="https://pogi6969.github.io/MAP---A/banta-y/icons/icon-512.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Overpass:wght@400;600;700;800&family=Overpass+Mono:wght@500;600;700&display=swap">
+<style>
+:root{
+  --paper:#FFFFFF;--paper-2:#FFF7E8;--paper-3:#FDEFD2;--ink:#2A1613;--ink-2:#6B5048;--ink-3:#765B50;--rule:#EFDDC2;
+  --red:#A3161F;--red-deep:#5E0A10;--red-ink:#A3161F;--gold:#E0A92A;--gold-lt:#F6D06B;--gold-ink:#8A5B00;--on-gold:#3A1A06;--on-red:#FFF5DE;--on-red-2:#F1D6AC;
+  --teal:#0B6E65;--teal-ink:#0A6A61;--teal-bg:#E1F2EF;--teal-lt:#22C3B0;--on-teal:#FFFFFF;
+  --c-case:#C9740C;--c-place:#A3161F;--c-exact:#0B6E65;--c-cert:#79C2B8;--c-other:#C9B8A6;--track:#F4E9DA;
+  --shadow:0 1px 2px rgba(60,20,10,.06),0 14px 34px -22px rgba(60,20,10,.45);
+  --f-display:"Barlow Condensed","Roboto Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Overpass",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  --f-mono:"Overpass Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --head-h:68px;--radius:16px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#160C0C;--paper-2:#1F1210;--paper-3:#2A1814;--ink:#FBEFD9;--ink-2:#D2BBA7;--ink-3:#A88F80;--rule:#3B2621;
+    --red-ink:#FF9399;--gold-ink:#F6D06B;
+    --teal:#46CDBB;--teal-ink:#6ADBCB;--teal-bg:#0F2C29;--on-teal:#0B1F1D;
+    --c-case:#EBA640;--c-place:#FF6B73;--c-exact:#46CDBB;--c-cert:#1E7C71;--c-other:#5C4A43;--track:#2C1B17;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 14px 34px -22px rgba(0,0,0,.9);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#160C0C;--paper-2:#1F1210;--paper-3:#2A1814;--ink:#FBEFD9;--ink-2:#D2BBA7;--ink-3:#A88F80;--rule:#3B2621;
+  --red-ink:#FF9399;--gold-ink:#F6D06B;
+  --teal:#46CDBB;--teal-ink:#6ADBCB;--teal-bg:#0F2C29;--on-teal:#0B1F1D;
+  --c-case:#EBA640;--c-place:#FF6B73;--c-exact:#46CDBB;--c-cert:#1E7C71;--c-other:#5C4A43;--track:#2C1B17;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 14px 34px -22px rgba(0,0,0,.9);
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%;scroll-behavior:smooth;scroll-padding-top:calc(var(--head-h) + 8px)}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 17px/1.6 var(--f-body);overflow-x:hidden}
+img{max-width:100%;height:auto;display:block}
+a{color:var(--teal-ink);text-underline-offset:.18em}
+h1,h2,h3{font-family:var(--f-display);line-height:1.05;margin:0;letter-spacing:.005em}
+h2{font-size:clamp(2rem,4.6vw,3.1rem);font-weight:800}
+h3{font-size:1.45rem;font-weight:700}
+p{margin:0}
+:focus-visible{outline:3px solid var(--teal);outline-offset:3px}
+.skip{position:absolute;left:-999px;top:0;z-index:100;background:var(--paper);color:var(--ink);padding:.6rem 1rem}
+.skip:focus{left:8px;top:8px}
+.vh{position:absolute!important;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.wrap{width:min(1180px,100% - 32px);margin:0 auto}
+.eyebrow{font-family:var(--f-mono);font-size:.8rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--red-ink);margin-bottom:.7rem}
+.lede{font-size:1.12rem;color:var(--ink-2);max-width:64ch;margin-top:.9rem}
+.fine{font-size:.82rem;color:var(--ink-3)}
+.section{padding:clamp(3.5rem,8vw,6rem) 0}
+.section.alt{background:var(--paper-2)}
+.sec-head{max-width:820px;margin-bottom:2.4rem}
+.ico{width:20px;height:20px;flex:none}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.55rem;min-height:48px;padding:.65rem 1.25rem;border-radius:10px;border:2px solid transparent;font:700 1rem/1.1 var(--f-body);text-decoration:none;cursor:pointer;white-space:nowrap}
+.btn-lg{min-height:56px;padding:.8rem 1.55rem;font-size:1.08rem}
+.btn-gold{background:var(--gold-lt);color:var(--on-gold)}
+.btn-gold:hover{background:#FFDD86}
+.btn-red{background:var(--red);color:var(--on-red)}
+.btn-red:hover{background:#B81E28}
+.btn-line{border-color:rgba(255,245,222,.75);color:var(--on-red);background:transparent}
+.btn-line:hover{background:rgba(255,245,222,.1)}
+.btn-ghost{border-color:var(--rule);color:var(--ink);background:var(--paper)}
+.btn-ghost:hover{border-color:var(--ink-3)}
+.btn-teal{background:var(--teal);color:var(--on-teal)}
+
+/* header */
+.site-head{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:saturate(1.4) blur(10px);-webkit-backdrop-filter:saturate(1.4) blur(10px);border-bottom:1px solid var(--rule)}
+.head-in{display:flex;align-items:center;gap:1rem;height:var(--head-h)}
+.brand{display:flex;align-items:center;gap:.6rem;color:var(--ink);text-decoration:none;flex:none}
+.brand .logo-svg{width:44px;height:44px}
+.brand b{font-family:var(--f-display);font-size:1.75rem;font-weight:800;letter-spacing:.03em}
+.nav{display:flex;gap:.2rem;margin-left:auto;align-items:center}
+.nav a{color:var(--ink-2);text-decoration:none;font-weight:600;font-size:.95rem;padding:.5rem .7rem;border-radius:8px}
+.nav a:hover{color:var(--ink);background:var(--paper-2)}
+.head-actions{display:flex;gap:.5rem;align-items:center}
+.icon-btn{width:44px;height:44px;border-radius:10px;border:1px solid var(--rule);background:var(--paper);color:var(--ink);display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+.icon-btn svg{width:20px;height:20px}
+#menu-btn{display:none}
+.head-install{min-height:44px;padding:.5rem 1rem}
+@media (max-width:1060px){
+  .nav{position:absolute;left:0;right:0;top:var(--head-h);flex-direction:column;align-items:stretch;gap:0;background:var(--paper);border-bottom:1px solid var(--rule);padding:.4rem 16px .8rem;display:none;box-shadow:var(--shadow)}
+  .nav.open{display:flex}
+  .nav a{padding:.8rem .4rem;border-bottom:1px solid var(--rule);border-radius:0;font-size:1.05rem}
+  #menu-btn{display:inline-flex}
+  .head-actions{margin-left:auto}
+}
+@media (max-width:420px){.head-install span{display:none}.head-install{padding:.5rem .8rem}.brand b{font-size:1.5rem}.brand .logo-svg{width:38px;height:38px}}
+
+/* hero */
+.hero{position:relative;overflow:hidden;color:var(--on-red);
+  background:repeating-conic-gradient(from -8deg at 82% 112%,rgba(246,208,107,.08) 0deg 3.5deg,transparent 3.5deg 11deg),linear-gradient(150deg,#A3161F 0%,#7A0F17 52%,#4E0810 100%)}
+.hero-in{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);gap:2.5rem;align-items:center;padding:clamp(2.6rem,6vw,4.8rem) 0 2.2rem}
+.hero .eyebrow{color:var(--gold-lt)}
+.wordmark{font-family:var(--f-display);font-weight:800;font-size:clamp(4.6rem,13vw,9rem);line-height:.86;letter-spacing:.015em;margin:0}
+.wordmark .y{color:var(--gold-lt)}
+.say{font-family:var(--f-mono);font-size:.86rem;color:var(--on-red-2);margin-top:.7rem;letter-spacing:.04em}
+.tagline{font-family:var(--f-display);font-weight:700;font-size:clamp(1.65rem,3.4vw,2.5rem);line-height:1.08;margin-top:1.1rem;max-width:22ch}
+.hero .lede{color:#FBE6CB;margin-top:1rem;max-width:58ch}
+.hero-cta{display:flex;flex-wrap:wrap;gap:.8rem;margin-top:1.6rem}
+.hero .fine{color:var(--on-red-2);margin-top:1rem;font-family:var(--f-mono);font-size:.8rem}
+.phone-wrap{position:relative;justify-self:center;width:min(300px,100%)}
+.phone{border-radius:44px;background:#1C0F0E;padding:12px;box-shadow:0 40px 80px -30px rgba(0,0,0,.65),0 0 0 2px rgba(246,208,107,.25);transform:rotate(2.5deg)}
+.phone img{border-radius:32px;width:100%;aspect-ratio:560/1212;object-fit:cover;background:#FAF5EC}
+.float-card{position:absolute;left:-2.6rem;bottom:2.2rem;width:min(230px,80%);background:var(--paper);color:var(--ink);border-radius:14px;padding:.8rem .95rem;box-shadow:0 18px 40px -18px rgba(0,0,0,.6);font-size:.85rem;line-height:1.35;transform:rotate(-2deg)}
+.float-card b{display:block;font-family:var(--f-display);font-size:2.1rem;line-height:1;color:var(--red-ink)}
+.float-card small{display:block;color:var(--ink-3);font-size:.72rem;margin-top:.3rem}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid rgba(255,245,222,.25);margin-top:1rem}
+.stat{padding:1.3rem 1.2rem 1.4rem 0}
+.stat+.stat{padding-left:1.2rem;border-left:1px solid rgba(255,245,222,.18)}
+.stat b{display:block;font-family:var(--f-display);font-weight:800;font-size:clamp(2rem,3.6vw,2.8rem);line-height:1;color:var(--gold-lt)}
+.stat span{display:block;font-size:.9rem;color:#FBE6CB;margin-top:.4rem;line-height:1.4}
+.stats-note{font-size:.8rem;color:var(--on-red-2);padding-bottom:1.6rem}
+@media (max-width:900px){
+  .hero-in{grid-template-columns:minmax(0,1fr)}
+  .phone-wrap{width:min(250px,72%);margin-top:.5rem}
+  .float-card{left:-28%;bottom:1.4rem}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stat:nth-child(3){padding-left:0;border-left:0}
+  .stat:nth-child(n+3){border-top:1px solid rgba(255,245,222,.18)}
+}
+@media (max-width:420px){.float-card{left:-18%;width:78%}.stat{padding-right:.6rem}.stat+.stat{padding-left:.8rem}.stat:nth-child(3){padding-left:0}}
+
+/* why */
+.why-grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:1.4rem;align-items:start}
+.facts{display:grid;gap:1rem}
+.fact{background:var(--paper);border:1px solid var(--rule);border-radius:var(--radius);padding:1.2rem 1.3rem;box-shadow:var(--shadow)}
+.fact h3{margin-bottom:.45rem}
+.fact p{color:var(--ink-2)}
+.src{display:block;font-size:.8rem;color:var(--ink-3);margin-top:.55rem;font-style:normal}
+.card{background:var(--paper);border:1px solid var(--rule);border-radius:var(--radius);padding:1.3rem 1.4rem;box-shadow:var(--shadow);min-width:0}
+.hbars{display:grid;gap:.6rem;margin-top:1rem}
+.hbar{display:grid;grid-template-columns:7.2rem minmax(0,1fr) 3.2rem;gap:.7rem;align-items:center;font-size:.95rem}
+.hbar .t,.hbar .f,.bline .t,.bline .f,.plan .t,.plan .f{display:block}
+.hbar .t{height:22px;background:var(--track);border-radius:6px;overflow:hidden}
+.hbar .f{height:100%;background:var(--red);border-radius:6px}
+.hbar .v{font-family:var(--f-mono);font-weight:700;text-align:right}
+.callout{border-left:4px solid var(--teal);background:var(--teal-bg);padding:.9rem 1.1rem;border-radius:0 12px 12px 0;margin-top:1.2rem}
+@media (max-width:900px){.why-grid{grid-template-columns:minmax(0,1fr)}}
+
+/* install */
+.install-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:2.5rem;align-items:start}
+.app-id{display:flex;align-items:center;gap:1rem;margin-bottom:1rem}
+.app-id img{width:76px;height:76px;border-radius:18px;box-shadow:var(--shadow)}
+.app-id h2{font-size:clamp(1.9rem,4vw,2.6rem)}
+.app-id .eyebrow{margin-bottom:.3rem}
+.get-lede{color:var(--ink-2);font-size:1.05rem}
+.get-actions{display:flex;flex-wrap:wrap;gap:.7rem;margin-top:1.3rem}
+.install-status{min-height:1.5em;margin-top:.8rem;font-weight:600;color:var(--teal-ink)}
+.app-facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.6rem;margin:1rem 0 0;padding:0}
+.app-facts div{background:var(--paper);border:1px solid var(--rule);border-radius:12px;padding:.6rem .75rem}
+.app-facts dt{font-size:.75rem;color:var(--ink-3);font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.app-facts dd{margin:0;font-weight:700;font-size:.95rem;line-height:1.3}
+.get-file{margin-top:1rem}
+.how-install{background:var(--paper);border:1px solid var(--rule);border-radius:var(--radius);padding:1.4rem;box-shadow:var(--shadow)}
+.plat-tabs{display:flex;flex-wrap:wrap;gap:.4rem;margin:.9rem 0 .4rem}
+.plat-tabs button{border:1px solid var(--rule);background:var(--paper-2);color:var(--ink-2);border-radius:999px;padding:.5rem .95rem;font:700 .92rem var(--f-body);cursor:pointer;min-height:44px}
+.plat-tabs button[aria-selected="true"]{background:var(--red);border-color:var(--red);color:var(--on-red)}
+.inst-steps{margin:.8rem 0 0;padding-left:1.4rem;display:grid;gap:.6rem}
+.inst-steps li::marker{font-family:var(--f-display);font-weight:800;color:var(--red-ink)}
+@media (max-width:900px){.install-grid{grid-template-columns:minmax(0,1fr)}.app-facts{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* features */
+.feats{display:grid;gap:clamp(2.5rem,6vw,4.5rem)}
+.feat{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:clamp(1.5rem,4vw,3.5rem);align-items:center}
+.feat:nth-child(even) .feat-text{order:2}
+.feat-n{font-family:var(--f-mono);font-weight:700;color:var(--red-ink);font-size:.85rem;letter-spacing:.14em;text-transform:uppercase}
+.feat h3{font-size:clamp(1.7rem,3.2vw,2.3rem);margin:.4rem 0 .7rem}
+.feat p{color:var(--ink-2)}
+.io{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:.8rem;margin-top:1rem}
+.io div{background:var(--paper-2);border:1px solid var(--rule);border-radius:12px;padding:.7rem .85rem;font-size:.9rem;line-height:1.45}
+.io b{display:block;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin-bottom:.2rem}
+.shot{border-radius:14px;border:1px solid var(--rule);box-shadow:var(--shadow);background:#FAF5EC;width:100%}
+.feat figure{margin:0}
+.feat figcaption{font-size:.8rem;color:var(--ink-3);margin-top:.5rem}
+@media (max-width:860px){.feat{grid-template-columns:minmax(0,1fr)}.feat:nth-child(even) .feat-text{order:0}}
+@media (max-width:420px){.io{grid-template-columns:minmax(0,1fr)}}
+
+/* demo */
+.demo{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:1.2rem;align-items:start}
+.ctrl{display:grid;gap:1.2rem}
+.ctrl label{display:grid;gap:.35rem}
+.ctrl .lab{display:flex;justify-content:space-between;gap:.6rem;font-weight:700;font-size:.95rem}
+.ctrl output{font-family:var(--f-mono);font-weight:700;color:var(--teal-ink);white-space:nowrap}
+.ctrl input[type=range]{width:100%;accent-color:var(--teal);height:32px;margin:0}
+.ctrl small{color:var(--ink-3);font-size:.8rem;line-height:1.4}
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.7rem}
+.tile{background:var(--paper);border:1px solid var(--rule);border-radius:14px;padding:.75rem .9rem;min-width:0}
+.tile .k{font-size:.78rem;font-weight:700;color:var(--ink-2);line-height:1.25}
+.tile .v{font-family:var(--f-display);font-weight:800;font-size:2.1rem;line-height:1.05;margin-top:.2rem;font-variant-numeric:tabular-nums}
+.tile .s{font-size:.78rem;color:var(--ink-3);line-height:1.3}
+.tile.hot{background:linear-gradient(135deg,var(--red),var(--red-deep));border-color:transparent;color:var(--on-red)}
+.tile.hot .k,.tile.hot .s{color:var(--on-red-2)}
+.panel{margin-top:1rem}
+.panel h3{font-size:1.25rem;margin-bottom:.2rem}
+.panel>p{font-size:.88rem;color:var(--ink-2)}
+.legend{display:flex;flex-wrap:wrap;gap:.3rem 1rem;font-size:.82rem;color:var(--ink-2);margin:.5rem 0 .6rem}
+.legend>span{display:inline-flex;align-items:center;gap:.4rem}
+.legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
+.pair{display:grid;grid-template-columns:8.6rem minmax(0,1fr);gap:.2rem .8rem;align-items:center;padding:.35rem 0;border-bottom:1px solid var(--rule)}
+.pair:last-child{border-bottom:0}
+.pair .nm{font-weight:700;font-size:.9rem;line-height:1.2;grid-row:span 2}
+.pair .nm small{display:block;font-weight:400;color:var(--ink-3);font-size:.76rem}
+.bline{display:grid;grid-template-columns:minmax(0,1fr) 3.4rem;gap:.5rem;align-items:center}
+.bline .t{height:12px;background:var(--track);border-radius:4px;overflow:hidden}
+.bline .f{height:100%;border-radius:4px;transition:width .25s}
+.bline .v{font-family:var(--f-mono);font-size:.8rem;font-weight:700;text-align:right}
+.plans{display:grid;gap:.45rem;margin-top:.7rem}
+.plan{display:grid;grid-template-columns:9.5rem minmax(0,1fr) 4.2rem;gap:.7rem;align-items:center;font-size:.9rem}
+.plan .t{height:18px;background:var(--track);border-radius:5px;overflow:hidden}
+.plan .f{height:100%;background:var(--c-other);border-radius:5px;transition:width .25s}
+.plan.best{color:var(--teal-ink);font-weight:700}
+.plan.best .f{background:var(--c-exact)}
+.plan.cert .f{background:var(--c-cert)}
+.plan .v{font-family:var(--f-mono);font-weight:700;text-align:right}
+.plan .v .na{display:block;font-family:var(--f-body,inherit);font-size:.72rem;font-weight:600;line-height:1.15;color:var(--ink-3)}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.7rem}
+.chip{display:inline-flex;gap:.35rem;align-items:baseline;border:1px solid var(--rule);border-radius:999px;padding:.25rem .7rem;font-size:.84rem;background:var(--paper)}
+.chip b{font-family:var(--f-mono)}
+.chip.on{background:var(--teal-bg);border-color:transparent;color:var(--teal-ink)}
+.demo-msg{margin-top:.8rem;font-size:.92rem}
+.synth{display:inline-flex;align-items:center;gap:.45rem;background:#FFF1CC;color:#6E4700;border-radius:999px;padding:.3rem .8rem;font-size:.8rem;font-weight:700;margin-bottom:1rem}
+:root[data-theme="dark"] .synth{background:#3A2A0C;color:#F6D06B}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .synth{background:#3A2A0C;color:#F6D06B}}
+@media (max-width:980px){.demo{grid-template-columns:minmax(0,1fr)}.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:420px){.pair{grid-template-columns:minmax(0,1fr)}.pair .nm{grid-row:auto}.plan{grid-template-columns:minmax(0,1fr) 4rem}.plan .t{grid-column:1 / -1;grid-row:2}}
+
+/* MCS */
+.mcs{display:grid;gap:1.4rem}
+.pillar{display:grid;grid-template-columns:8.6rem minmax(0,1fr);gap:1.6rem;background:var(--paper);border:1px solid var(--rule);border-radius:20px;padding:clamp(1.2rem,3vw,2rem);box-shadow:var(--shadow)}
+.letter{font-family:var(--f-display);font-weight:800;font-size:6.5rem;line-height:.8;color:var(--red-ink)}
+.letter small{display:block;font-size:.84rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);margin-top:.6rem;font-family:var(--f-mono);font-weight:700}
+.pillar>div>p{color:var(--ink-2);max-width:72ch}
+.blocks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem 1.6rem;margin-top:1.2rem}
+.block{border-top:2px solid var(--rule);padding-top:.9rem;min-width:0}
+.block h3{font-size:1.25rem;margin-bottom:.35rem}
+.block p{font-size:.95rem;color:var(--ink-2)}
+.eq{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem 1.8rem;margin:.75rem 0 .2rem;padding:.75rem .9rem;background:var(--paper-2);border-radius:12px;overflow-x:auto;color:var(--ink);font-size:1.02rem}
+.eqp{flex:none;max-width:100%}
+.eqp svg{max-width:100%;height:auto;overflow:visible}
+.vtable{width:100%;border-collapse:collapse;font-size:.9rem;margin-top:.6rem}
+.vtable th,.vtable td{text-align:left;padding:.5rem .55rem;border-bottom:1px solid var(--rule);vertical-align:top}
+.vtable th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.vtable td:first-child{font-family:var(--f-mono);font-weight:700;color:var(--red-ink);white-space:nowrap}
+.vtable td:last-child{font-weight:700;color:var(--teal-ink)}
+.tbl-wrap{position:relative;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.params{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.6rem;margin-top:.8rem}
+.params div{background:var(--paper-2);border-radius:10px;padding:.55rem .7rem;font-size:.86rem;line-height:1.3}
+.params b{display:block;font-family:var(--f-mono);font-size:1.05rem;color:var(--ink)}
+@media (max-width:860px){.pillar{grid-template-columns:minmax(0,1fr);gap:.6rem}.letter{font-size:4.5rem;display:flex;align-items:baseline;gap:.8rem}.letter small{margin:0}.blocks{grid-template-columns:minmax(0,1fr)}.params{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* research */
+.paper{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.75fr);gap:1.6rem;align-items:start}
+.paper-card{background:var(--paper);border:1px solid var(--rule);border-radius:20px;padding:clamp(1.3rem,3vw,2.1rem);box-shadow:var(--shadow);position:relative;overflow:hidden}
+.paper-card::before{content:"";position:absolute;inset:0 0 auto 0;height:6px;background:linear-gradient(90deg,var(--red),var(--gold),var(--teal-lt))}
+.paper-title{font-family:var(--f-display);font-weight:700;font-size:clamp(1.5rem,2.8vw,2.05rem);line-height:1.12}
+.meta{display:flex;flex-wrap:wrap;gap:.4rem .9rem;margin:.8rem 0 1rem;font-size:.88rem;color:var(--ink-2)}
+.meta span{display:inline-flex;gap:.35rem}
+.abstract{color:var(--ink-2)}
+.paper-actions{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.3rem}
+.props{list-style:none;margin:0;padding:0;display:grid;gap:.5rem;counter-reset:p}
+.props li{counter-increment:p;display:grid;grid-template-columns:2.1rem minmax(0,1fr);gap:.5rem;font-size:.92rem;line-height:1.35;align-items:baseline}
+.props li::before{content:counter(p);font-family:var(--f-display);font-weight:800;font-size:1.3rem;color:var(--red-ink);text-align:right}
+.findings{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.8rem;margin-top:1.4rem}
+.finding{background:var(--paper-2);border-radius:14px;padding:1rem}
+.finding b{display:block;font-family:var(--f-display);font-weight:800;font-size:2.1rem;line-height:1;color:var(--red-ink)}
+.finding span{font-size:.88rem;color:var(--ink-2);display:block;margin-top:.35rem;line-height:1.4}
+@media (max-width:900px){.paper{grid-template-columns:minmax(0,1fr)}.findings{grid-template-columns:minmax(0,1fr)}}
+
+/* credits */
+.credits{position:relative;color:#FFF5DE;background:#2A0A0C}
+.credits::before{content:"";position:absolute;inset:0;background:url("assets/school-building.webp") center 40%/cover no-repeat;opacity:.35}
+.credits::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(42,10,12,.55),rgba(42,10,12,.92))}
+.credits .wrap{position:relative;z-index:1}
+.credits .eyebrow{color:var(--gold-lt)}
+.credit-card{display:grid;grid-template-columns:auto minmax(0,1fr);gap:clamp(1.2rem,4vw,2.6rem);align-items:center;background:rgba(20,6,7,.55);border:1px solid rgba(246,208,107,.25);border-radius:22px;padding:clamp(1.3rem,4vw,2.4rem);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.seal{width:clamp(110px,16vw,170px);filter:drop-shadow(0 10px 24px rgba(0,0,0,.5))}
+.credit-card h2{color:#FFF5DE}
+.team{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.2rem 2rem;margin-top:1.3rem}
+.team h3{font-family:var(--f-mono);font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-lt);margin-bottom:.5rem;font-weight:700}
+.team ul{list-style:none;margin:0;padding:0;display:grid;gap:.35rem}
+.team li{font-size:1.05rem}
+.lead{display:inline-flex;flex-wrap:wrap;align-items:center;gap:.5rem;font-weight:800}
+.lead em{font-style:normal;font-size:.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;background:var(--gold-lt);color:var(--on-gold);border-radius:999px;padding:.15rem .6rem}
+.school{margin-top:1.4rem;color:#F1D6AC;font-size:.95rem;display:flex;flex-wrap:wrap;gap:.2rem 1.4rem}
+.school span+span::before{content:"";display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--gold-lt);margin:0 .8rem 0 -.9rem;vertical-align:middle}
+@media (max-width:760px){.credit-card{grid-template-columns:minmax(0,1fr)}.team{grid-template-columns:minmax(0,1fr)}}
+
+/* privacy + footer */
+.note-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
+.note-grid .card h3{margin-bottom:.45rem}
+.note-grid .card p{color:var(--ink-2);font-size:.96rem}
+.note-grid .card p+p{margin-top:.5rem}
+@media (max-width:760px){.note-grid{grid-template-columns:minmax(0,1fr)}}
+.site-foot{background:#1C0F0E;color:#E8D2BE;padding:2.4rem 0 calc(2rem + env(safe-area-inset-bottom));font-size:.92rem}
+.foot-in{display:flex;flex-wrap:wrap;gap:1.2rem 2rem;align-items:center;justify-content:space-between}
+.site-foot .brand{color:#FFF5DE}
+.site-foot a{color:#F6D06B}
+.foot-links{display:flex;flex-wrap:wrap;gap:.4rem 1.2rem}
+.site-foot .fine{color:#B9A08F;margin-top:1.2rem;width:100%}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}.phone,.float-card{transform:none}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site-head">
+  <div class="wrap head-in">
+    <a class="brand" href="#top" aria-label="BANTA-Y, back to the top"><!--@logo:head--><b>BANTA-Y</b></a>
+    <nav class="nav" id="nav" aria-label="Sections">
+      <a href="#features">Features</a>
+      <a href="#demo">Try it</a>
+      <a href="#mcs">How MCS works</a>
+      <a href="#research">Research</a>
+      <a href="#credits">Team</a>
+      <a href="#privacy">Privacy</a>
+    </nav>
+    <div class="head-actions">
+      <button type="button" class="icon-btn" id="theme-btn" aria-label="Use dark theme"><svg viewBox="0 0 24 24" aria-hidden="true"><path id="theme-ico" d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></button>
+      <button type="button" class="icon-btn" id="menu-btn" aria-controls="nav" aria-expanded="false" aria-label="Open the section menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
+      <button type="button" class="btn btn-red head-install" data-install><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5v11.5m0 0-4.6-4.6M12 15l4.6-4.6M4.5 15.5v4h15v-4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Install app</span></button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+<section class="hero" id="top" aria-labelledby="hero-h">
+  <div class="wrap">
+    <div class="hero-in">
+      <div>
+        <p class="eyebrow">Bantay dengue sa bawat barangay</p>
+        <h1 class="wordmark" id="hero-h">BANTA-<span class="y">Y</span></h1>
+        <p class="say">Say BAN-tai, from <i>bantay</i>: to watch, to guard.</p>
+        <p class="tagline">Where people go, dengue goes. Find the places that spread it, and stop it for the fewest team-days.</p>
+        <p class="lede">A free app for barangay health workers and municipal health offices. Enter where residents spend the day and how many mosquitoes each barangay holds. BANTA-Y ranks hotspots by where transmission happens, plans vector control at least cost with a certified gap, traces cases from home addresses to places, and sounds an early alarm. It works without a signal.</p>
+        <div class="hero-cta">
+          <button type="button" class="btn btn-gold btn-lg" data-install><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5v11.5m0 0-4.6-4.6M12 15l4.6-4.6M4.5 15.5v4h15v-4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Install BANTA-Y</span></button>
+          <a class="btn btn-line btn-lg" href="#demo">Try the demo</a>
+        </div>
+        <p class="fine">Free for Android, iPhone, iPad and computers. Installs from your browser, with no app store.</p>
+      </div>
+      <div class="phone-wrap">
+        <div class="phone"><img src="assets/app-phone.webp" width="560" height="1212" alt="The BANTA-Y app on a phone, Spread screen: network R0 1.214 for the synthetic test network D1, province-average R0 1.204, and 1.759 if nobody left home." fetchpriority="high"></div>
+        <div class="float-card" aria-hidden="true"><b>{{d1.shares.0|pct1}}%</b>of transmission happens at the barangay with the school and market, while cases by home address point elsewhere.<small>Synthetic test network D1</small></div>
+      </div>
+    </div>
+    <div class="stats" role="list">
+      <div class="stat" role="listitem"><b>{{d1.shares.0|pct1}}%</b><span>of transmission at the school-and-market barangay; cases by home address point to another one ({{d1.case_share.1|pct1}}%)</span></div>
+      <div class="stat" role="listitem"><b>{{d1.strategies.exact.cost|f2}}</b><span>team-days for the least-cost plan, 40% fewer than the same control everywhere ({{d1.strategies.uniform.cost|f2}})</span></div>
+      <div class="stat" role="listitem"><b>1.7 weeks</b><span>earlier alarm than a single-week threshold at the same false-alarm rate, over {{d1.cusum.outbreak_years|int}} simulated seasons</span></div>
+      <div class="stat" role="listitem"><b>12</b><span>propositions, each proven and checked against independently written code</span></div>
+    </div>
+    <p class="stats-note">Numbers from the test network D1: six synthetic barangays made up to check the method. They are not real Albay data.</p>
+  </div>
+</section>
+
+<section class="section" id="why" aria-labelledby="why-h">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Why place matters</p>
+      <h2 id="why-h">Dengue is counted at home. It spreads where people spend the day.</h2>
+      <p class="lede">Brigades and fogging follow the case map, and the case map follows home addresses. The mosquito does not.</p>
+    </div>
+    <div class="why-grid">
+      <div class="facts">
+        <article class="fact">
+          <h3>A state of calamity in Albay</h3>
+          <p>On September 10, 2026, the Albay provincial board declared a state of calamity over dengue: 2,179 cases and 14 deaths from January 1 to September 12, 84% more than the 1,183 cases of the same period in 2025. By September 21 the count had reached 2,888. Public schools closed from September 14 to 18 for cleanup and fogging, and hospitals in Naga City were full.</p>
+          <cite class="src">Daily Tribune, September 2026</cite>
+        </article>
+        <article class="fact">
+          <h3>Albay rose while the country fell</h3>
+          <p>Across the Philippines, 192,112 dengue cases were recorded as of October 7, 2026, 24% fewer than the 254,137 of the same period in 2025.</p>
+          <cite class="src">Department of Health, via Daily Tribune, October 13, 2026</cite>
+        </article>
+        <article class="fact">
+          <h3>Bitten by day, close to the breeding site</h3>
+          <p><i>Aedes aegypti</i> bites by day and stays close to where it breeds, so the movement of people between houses drives dengue transmission. Cases are recorded by the patient's home address, but infection often happens where people spend the day: at school, at the market, at work.</p>
+          <cite class="src">Stoddard et al., 2013, <i>PNAS</i></cite>
+        </article>
+      </div>
+      <div class="card">
+        <h3>Most cases by city or municipality</h3>
+        <p class="fine" style="margin-top:.3rem">Reported dengue cases in Albay, the five highest, as of September 2026. Real reported counts.</p>
+        <div class="hbars" role="list">
+          <div class="hbar" role="listitem"><span>Legazpi City</span><span class="t"><span class="f" style="width:100%" aria-hidden="true"></span></span><span class="v">486</span></div>
+          <div class="hbar" role="listitem"><span>Bacacay</span><span class="t"><span class="f" style="width:60.9%" aria-hidden="true"></span></span><span class="v">296</span></div>
+          <div class="hbar" role="listitem"><span>Daraga</span><span class="t"><span class="f" style="width:45.3%" aria-hidden="true"></span></span><span class="v">220</span></div>
+          <div class="hbar" role="listitem"><span>Tabaco City</span><span class="t"><span class="f" style="width:37.2%" aria-hidden="true"></span></span><span class="v">181</span></div>
+          <div class="hbar" role="listitem"><span>Malilipot</span><span class="t"><span class="f" style="width:35.2%" aria-hidden="true"></span></span><span class="v">171</span></div>
+        </div>
+        <cite class="src">Daily Tribune, September 2026</cite>
+        <p class="callout">These counts are by home address. BANTA-Y asks a different question: <b>where</b> did the infections happen, and where does one team-day of cleanup lower transmission the most?</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section alt" id="install" aria-labelledby="install-h">
+  <div class="wrap install-grid">
+    <div class="get">
+      <div class="app-id">
+        <img src="icons/icon-192.png" width="76" height="76" alt="BANTA-Y app icon">
+        <div>
+          <p class="eyebrow">Download the app</p>
+          <h2 id="install-h">Get BANTA-Y on your phone</h2>
+        </div>
+      </div>
+      <p class="get-lede">Install BANTA-Y straight from this page. It gets its own icon on your home screen, opens in its own window, and keeps computing when the signal drops. Your barangay data stay on your device.</p>
+      <div class="get-actions">
+        <button type="button" class="btn btn-red btn-lg" id="install-btn" data-install><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5v11.5m0 0-4.6-4.6M12 15l4.6-4.6M4.5 15.5v4h15v-4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Install BANTA-Y</span></button>
+        <a class="btn btn-ghost btn-lg" href="app/" id="open-app">Open in browser</a>
+      </div>
+      <p class="install-status" id="install-status" role="status" aria-live="polite"></p>
+      <dl class="app-facts">
+        <div><dt>Price</dt><dd>Free</dd></div>
+        <div><dt>Version</dt><dd>1</dd></div>
+        <div><dt>Size</dt><dd>About {{app_kb}} KB</dd></div>
+        <div><dt>Works on</dt><dd>Android, iPhone, iPad, computers</dd></div>
+      </dl>
+      <p class="fine get-file"><a href="app/index.html" download="BANTA-Y.html">Download the app as one file</a> (BANTA-Y.html, about {{app_kb}} KB). It opens in any browser without installing, and every screen works offline.</p>
+    </div>
+    <div class="how-install">
+      <h3 id="steps-h">How to install</h3>
+      <div class="plat-tabs" role="tablist" aria-labelledby="steps-h">
+        <button type="button" role="tab" id="tab-android" aria-controls="steps-android" aria-selected="true" data-plat="android">Android</button>
+        <button type="button" role="tab" id="tab-ios" aria-controls="steps-ios" aria-selected="false" tabindex="-1" data-plat="ios">iPhone and iPad</button>
+        <button type="button" role="tab" id="tab-desktop" aria-controls="steps-desktop" aria-selected="false" tabindex="-1" data-plat="desktop">Computer</button>
+      </div>
+      <ol class="inst-steps" id="steps-android" role="tabpanel" aria-labelledby="tab-android" tabindex="0">
+        <li>Open this page in Chrome.</li>
+        <li>Tap Install BANTA-Y. If no install window opens, tap the ⋮ menu, then Add to Home screen or Install app.</li>
+        <li>Tap Install. BANTA-Y appears on your home screen and in your app list.</li>
+      </ol>
+      <ol class="inst-steps" id="steps-ios" role="tabpanel" aria-labelledby="tab-ios" tabindex="0" hidden>
+        <li>Open this page in Safari, then tap Open in browser to open the app.</li>
+        <li>Tap the Share button, the square with an arrow pointing up. If you do not see it, tap ⋯ first.</li>
+        <li>Tap Add to Home Screen, then Add. BANTA-Y appears on your home screen.</li>
+      </ol>
+      <ol class="inst-steps" id="steps-desktop" role="tabpanel" aria-labelledby="tab-desktop" tabindex="0" hidden>
+        <li>Open this page in Chrome or Microsoft Edge. On a Mac you can also use Safari.</li>
+        <li>Click Install BANTA-Y, or the install icon at the right end of the address bar. In Safari, choose File, then Add to Dock.</li>
+        <li>Click Install. BANTA-Y opens in its own window, and you can pin it to the taskbar or Dock.</li>
+      </ol>
+      <p class="fine" style="margin-top:1rem">Installing needs this page to be opened from the web (https). The one-file download works anywhere.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="features" aria-labelledby="feat-h">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">What the app does</p>
+      <h2 id="feat-h">Six screens, one job: send the brigades where transmission happens</h2>
+      <p class="lede">Every screen runs on your phone. The pictures show the app with the synthetic test network D1.</p>
+    </div>
+    <div class="feats">
+      <article class="feat">
+        <div class="feat-text">
+          <p class="feat-n">1 · Network</p>
+          <h3>Where people spend the day</h3>
+          <p>List the barangays with their residents, mosquitoes per resident, share of the day spent away from home, and how strongly each place pulls visitors: schools, markets, jobs. Add positions or a table of travel minutes. BANTA-Y builds the residence-time matrix <i>P</i>: the share of the biting hours each barangay's residents spend in every place.</p>
+          <div class="io"><div><b>You enter</b>Residents, mosquitoes per resident or a larval survey index, time away, attraction, travel times</div><div><b>You get</b>The matrix <i>P</i> as a heat map, the people present by day, and a flow map</div></div>
+        </div>
+        <figure><img class="shot" src="assets/shot-network.webp" width="960" height="422" loading="lazy" alt="Network screen: the residence-time matrix as a heat map and a map of the largest daily flows between the six test barangays."></figure>
+      </article>
+      <article class="feat">
+        <div class="feat-text">
+          <p class="feat-n">2 · Transmission</p>
+          <h3>One number for the network, and each place's share</h3>
+          <p>BANTA-Y computes the reproduction number R<sub>0</sub> of the whole network as the largest eigenvalue of a symmetric matrix, each barangay's local exposure number, the province-average R<sub>0</sub> that hides the risk, and the share of transmission carried by each place. It ranks hotspots by how much one team-day of work there lowers R<sub>0</sub>.</p>
+          <div class="io"><div><b>You enter</b>Transmission parameters (study values preset) and the season</div><div><b>You get</b>R<sub>0</sub>, checked bounds, place shares, a hotspot ranking per team-day</div></div>
+        </div>
+        <figure><img class="shot" src="assets/shot-spread.webp" width="960" height="330" loading="lazy" alt="Spread screen: shares of residents, of cases by home address and of transmission by place for each test barangay. B1 carries 42.6 percent of transmission."></figure>
+      </article>
+      <article class="feat">
+        <div class="feat-text">
+          <p class="feat-n">3 · Vector control</p>
+          <h3>The least-cost plan, with a certificate</h3>
+          <p>Set a target such as R<sub>0</sub> = 0.95, the team-days each barangay needs for full cleanup and larviciding, and the most mosquitoes that can be removed. BANTA-Y compares five plans and solves for the cheapest one exactly, with an interval that proves no plan can do better. A season slider shows how the bill grows in the rains.</p>
+          <div class="io"><div><b>You enter</b>Target R<sub>0</sub>, team-days per barangay, maximum reduction, season</div><div><b>You get</b>Team-days per barangay for five plans and a certified least cost</div></div>
+        </div>
+        <figure><img class="shot" src="assets/shot-control.webp" width="960" height="372" loading="lazy" alt="Control screen: team-days for five plans on the test network. Same everywhere 37.47, where cases live 38.88, by place share 29.54, quick safe plan 26.49, least cost 22.60."></figure>
+      </article>
+      <article class="feat">
+        <div class="feat-text">
+          <p class="feat-n">4 · Where people get infected</p>
+          <h3>From home addresses back to places</h3>
+          <p>Paste the cases by barangay of residence for a period. BANTA-Y works back to the infections by place with nonnegative least squares and reports an error bound that holds whenever residents spend more than half of the biting hours at home.</p>
+          <div class="io"><div><b>You enter</b>Cases by barangay of residence</div><div><b>You get</b>Infections by place, the pressure per person present, and a ± bound</div></div>
+        </div>
+        <figure><img class="shot" src="assets/shot-places.webp" width="960" height="625" loading="lazy" alt="Places screen: cases by home address and inferred infections by place for the test network, with the model truth shown for comparison."></figure>
+      </article>
+      <article class="feat">
+        <div class="feat-text">
+          <p class="feat-n">5 · Early warning</p>
+          <h3>An alarm that adds up small rises</h3>
+          <p>Paste weekly counts with the expected count of a normal year. The Poisson CUSUM adds up the excess week by week and sounds when it reaches a threshold. It comes with a guaranteed delay and an exact false-alarm rate.</p>
+          <div class="io"><div><b>You enter</b>Weekly cases and the expected cases of a normal year</div><div><b>You get</b>The alarm week, a chart, the delay guarantee and the average run length</div></div>
+        </div>
+        <figure><img class="shot" src="assets/shot-alarm.webp" width="960" height="424" loading="lazy" alt="Alarm screen: one synthetic year of weekly cases with the expected count, the single-week threshold and the CUSUM statistic; the CUSUM alarm sounds in week 34."></figure>
+      </article>
+      <article class="feat">
+        <div class="feat-text">
+          <p class="feat-n">6 · DOH 4S</p>
+          <h3>The 4S checklist</h3>
+          <p>The Department of Health's 4S strategy: Search and destroy breeding sites, Self-protection, Seek early consultation, and Support fogging or spraying only in hotspots. BANTA-Y names the current hotspots next to the fourth S.</p>
+          <div class="io"><div><b>You enter</b>Ticks as your barangay acts</div><div><b>You get</b>A checklist that stays on your device</div></div>
+        </div>
+        <figure><img class="shot" src="assets/shot-fours.webp" width="960" height="331" loading="lazy" alt="4S screen: the four S of the Department of Health with check boxes, two of them ticked."></figure>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section alt" id="demo" aria-labelledby="demo-h">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Try it</p>
+      <h2 id="demo-h">Move the sliders, watch the plan change</h2>
+      <p class="lede">This is the real BANTA-Y model running in your browser on the test network D1. Change the season, how much people move, or the target, and the least-cost plan is solved again.</p>
+    </div>
+    <p class="synth"><svg class="ico" style="width:16px;height:16px" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 20h20L12 3zm0 6v5m0 3v.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Synthetic test network: six made-up barangays, not real Albay data</p>
+    <div class="demo">
+      <div class="card ctrl">
+        <label for="d-season"><span class="lab"><span>Season</span><output id="d-season-out" for="d-season"></output></span>
+          <input type="range" id="d-season" min="0.6" max="1.4" step="0.05" value="1">
+          <small>Multiplies every barangay's mosquitoes. 1 is the survey season; above 1, the peak of the rains.</small></label>
+        <label for="d-move"><span class="lab"><span>How much people move</span><output id="d-move-out" for="d-move"></output></span>
+          <input type="range" id="d-move" min="0" max="1.5" step="0.05" value="1">
+          <small>Share of the day spent away from home, compared with the survey. 0 means nobody leaves home.</small></label>
+        <label for="d-target"><span class="lab"><span>Target R<sub>0</sub></span><output id="d-target-out" for="d-target"></output></span>
+          <input type="range" id="d-target" min="0.8" max="1.1" step="0.01" value="0.95">
+          <small>The plan must bring the network R<sub>0</sub> down to this value.</small></label>
+        <div style="display:flex;flex-wrap:wrap;gap:.6rem"><button type="button" class="btn btn-ghost" id="d-reset">Reset</button><a class="btn btn-teal" href="app/">Open the full app</a></div>
+      </div>
+      <div>
+        <div class="tiles" aria-live="polite">
+          <div class="tile hot"><div class="k">Network R<sub>0</sub></div><div class="v" id="d-r0">–</div><div class="s" id="d-r0-s"></div></div>
+          <div class="tile"><div class="k">Province-average R<sub>0</sub></div><div class="v" id="d-avg">–</div><div class="s">Hides the hotspot</div></div>
+          <div class="tile"><div class="k">Least cost</div><div class="v" id="d-cost">–</div><div class="s">team-days, certified</div></div>
+          <div class="tile"><div class="k">Saved against the same control everywhere</div><div class="v" id="d-save">–</div><div class="s" id="d-save-s"></div></div>
+        </div>
+        <div class="card panel">
+          <h3>Where cases live, and where transmission happens</h3>
+          <div class="legend"><span><i style="background:var(--c-case)"></i>Cases by home address</span><span><i style="background:var(--c-place)"></i>Transmission by place</span></div>
+          <div id="d-pairs"></div>
+        </div>
+        <div class="card panel">
+          <h3>Team-days to reach the target</h3>
+          <div class="plans" id="d-plans"></div>
+          <p class="fine" style="margin-top:.6rem">Least-cost plan by barangay (share of mosquitoes removed):</p>
+          <div class="chips" id="d-chips"></div>
+          <p class="demo-msg" id="d-msg"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="mcs" aria-labelledby="mcs-h">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Mathematics and Computational Sciences</p>
+      <h2 id="mcs-h">How MCS comes into play</h2>
+      <p class="lede">The mathematics proves what the app computes, the computing makes it run on a phone in a fraction of a second, and the sciences supply the mosquito, the virus and the movement of people.</p>
+    </div>
+    <div class="mcs">
+      <article class="pillar" aria-labelledby="m-h">
+        <p class="letter" aria-hidden="true">M<small>Mathematics</small></p>
+        <div>
+          <h3 id="m-h" class="vh">Mathematics</h3>
+          <p>A residence-time model links the mosquitoes in each barangay to the people who spend the day there. The next-generation method of van den Driessche and Watmough (2002) turns it into one number, and twelve propositions say what that number can and cannot do.</p>
+          <div class="blocks">
+            <div class="block"><h3>Movement becomes a matrix</h3><p>Residents of barangay <i>i</i> stay home a share 1 − ω<sub>i</sub> of the day and visit place <i>j</i> in proportion to its attraction, less the farther it is.</p><!--@eq:movement--></div>
+            <div class="block"><h3>Two generations of infection</h3><p>Person to mosquito to person: <i>M</i> counts the new human cases one case causes, through mosquitoes, in each barangay.</p><!--@eq:ngm--></div>
+            <div class="block"><h3>R<sub>0</sub> is a symmetric eigenvalue</h3><p>Squaring makes the problem symmetric and positive semidefinite, so R<sub>0</sub><sup>2</sup> is the largest eigenvalue of <i>S</i>, a sum of one rank-one term per place.</p><!--@eq:r0--></div>
+            <div class="block"><h3>Bounds you can check by hand</h3><p>Each barangay's local exposure number brackets R<sub>0</sub><sup>2</sup> (Collatz–Wielandt), and the province average can only understate it.</p><!--@eq:sandwich--></div>
+            <div class="block"><h3>Shares by place</h3><p>The place shares add to 1, and each is the rate at which control at that place lowers R<sub>0</sub><sup>2</sup>: the hotspot ranking.</p><!--@eq:shares--></div>
+            <div class="block"><h3>Least cost is a convex program</h3><p>R<sub>0</sub><sup>2</sup>(<i>u</i>) is convex and never rises with control <i>u</i>, so the cheapest plan meeting a target <i>r</i> is a semidefinite program.</p><!--@eq:program--></div>
+            <div class="block"><h3>A quick plan that is always safe</h3><p>If every local exposure number meets the target, the network does too. This linear program gives a safe plan at once.</p><!--@eq:certificate--></div>
+            <div class="block"><h3>A certified interval</h3><p>Any positive semidefinite <i>Z</i> gives a lower bound on the least cost (weak duality), so the solver proves how close it is.</p><!--@eq:dual--></div>
+            <div class="block"><h3>From homes to places</h3><p>Rates by residence are a mix of pressures by place. When everyone stays home more than half of the day, <i>P</i> is invertible with a known error bound (Varah, 1975).</p><!--@eq:inversion--></div>
+            <div class="block"><h3>The alarm and its guarantees</h3><p>The Poisson CUSUM with reference value <i>k<sub>t</sub></i> for a θ-fold rise; with θ = 1.5, <i>k<sub>t</sub></i> = 0.5 μ<sub>t</sub> / ln 1.5.</p><!--@eq:cusum--></div>
+            <div class="block"><h3>Delay and false alarms</h3><p>A rise of δ a week above <i>k<sub>t</sub></i> is caught within ⌈<i>h</i>/δ⌉ weeks; the average run length is exact by a Markov chain (Brook and Evans, 1972).</p><!--@eq:arl--></div>
+            <div class="block"><h3>The season scales everything</h3><p>More mosquitoes in the rains multiply R<sub>0</sub><sup>2</sup> by the same factor, so the cost of control can be planned ahead.</p><!--@eq:season--></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="pillar" aria-labelledby="c-h">
+        <p class="letter" aria-hidden="true">C<small>Computing</small></p>
+        <div>
+          <h3 id="c-h" class="vh">Computing</h3>
+          <p>All of it runs inside the app, written from scratch in JavaScript with no outside code, and checked against the Python of the study to about 10<sup>−11</sup>.</p>
+          <div class="blocks">
+            <div class="block"><h3>Jacobi eigen-solver</h3><p>Rotations zero the off-diagonal of the symmetric matrix <i>S</i> until only its eigenvalues remain. The largest gives R<sub>0</sub><sup>2</sup>; its eigenvector gives the place shares.</p></div>
+            <div class="block"><h3>Barrier interior-point method</h3><p>Newton steps on a log-barrier, each solved with a Cholesky factorization, with a backtracking line search that keeps every point strictly feasible. On the test network it needs {{d1.exact_iterations}} Newton steps.</p><!--@eq:barrier--></div>
+            <div class="block"><h3>Simplex and least squares</h3><p>A small dense two-phase simplex solves the linear-program certificate. Lawson–Hanson nonnegative least squares traces cases to places.</p></div>
+            <div class="block"><h3>Fast enough for a province</h3><p>In the study's Python timing, a network of 720 barangays, the size of Albay, gave R<sub>0</sub> in {{timing.4.t_r0|f2}} s and the certified least-cost plan in about {{timing.4.t_exact|f0}} s. The test network D1 is solved in the app in a blink.</p></div>
+          </div>
+          <h3 style="font-size:1.25rem;margin-top:1.6rem">Verified, not assumed</h3>
+          <p style="color:var(--ink-2);font-size:.95rem">Each proposition was tested on synthetic networks against independently written code (verify_dengue.py).</p>
+          <div class="tbl-wrap" tabindex="0" role="region" aria-label="Verification results, scrolls sideways">
+            <table class="vtable">
+              <thead><tr><th scope="col">Check</th><th scope="col">What was compared</th><th scope="col">Result</th></tr></thead>
+              <tbody>
+                <tr><td>V1</td><td>R<sub>0</sub> formula against a numerical next-generation matrix, {{verification.V1.instances|int}} networks</td><td>largest error {{verification.V1.max_rel_err|e}}</td></tr>
+                <tr><td>V2</td><td>Threshold: sign of R<sub>0</sub> − 1 against the Jacobian and against simulations</td><td>{{verification.V2.jacobian_agree|int}} of {{verification.V2.jacobian_instances|int}}; {{verification.V2.simulation_agree|int}} of {{verification.V2.simulations|int}}</td></tr>
+                <tr><td>V3</td><td>Bounds min R<sub>i</sub> ≤ R<sub>0</sub><sup>2</sup> ≤ max R<sub>i</sub> and the average bound, {{verification.V3.instances|int}} networks</td><td>{{verification.V3.upper_violations|int}} violations</td></tr>
+                <tr><td>V4</td><td>Place shares add to 1; gradient against finite differences</td><td>{{verification.V4.share_sum_max_err|e}}; {{verification.V4.grad_max_rel_err|e}}</td></tr>
+                <tr><td>V5</td><td>Convexity and monotonicity of R<sub>0</sub><sup>2</sup>(<i>u</i>), {{verification.V5.checks|int}} checks</td><td>{{verification.V5.convexity_violations|int}} violations</td></tr>
+                <tr><td>V6</td><td>Least-cost solver against a fine grid ({{verification.V6.grid_cases|int}} cases) and a general solver ({{verification.V6.slsqp_cases|int}} cases)</td><td>all agree; gap ≤ {{verification.V6.max_gap|e}}</td></tr>
+                <tr><td>V7</td><td>Inversion from homes to places, {{verification.V7.exact_instances|int}} networks; Varah bound</td><td>error {{verification.V7.exact_max_rel_err|e}}; {{verification.V7.varah_violations|int}} violations</td></tr>
+                <tr><td>V8</td><td>Exact CUSUM run length against Monte Carlo; delay bound, {{verification.V8.delay_checks|int}} checks</td><td>6 of 6 within the interval; {{verification.V8.delay_violations|int}} violations</td></tr>
+                <tr><td>V9</td><td>Simulated epidemic stays nonnegative; Runge–Kutta order</td><td>order {{verification.V9.rk4_slopes.2|f2}} (expected 4)</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </article>
+
+      <article class="pillar" aria-labelledby="s-h">
+        <p class="letter" aria-hidden="true">S<small>Sciences</small></p>
+        <div>
+          <h3 id="s-h" class="vh">Sciences</h3>
+          <p>The model rests on what is known about <i>Aedes aegypti</i> and the dengue virus. Its parameters are declared design values within published ranges (Mordecai et al., 2017), and the app lets you change them.</p>
+          <div class="blocks">
+            <div class="block"><h3>The mosquito stays, people move</h3><p><i>Aedes aegypti</i> bites by day and stays close to where it breeds. Human movement between houses drives transmission (Stoddard et al., 2013). That is why BANTA-Y weighs mosquitoes by the people present by day.</p></div>
+            <div class="block"><h3>Temperature sets the season</h3><p>Dengue transmission by <i>Aedes aegypti</i> occurs between 18 and 34 °C and peaks around 26 to 29 °C (Mordecai et al., 2017). The season factor carries this into the plan.</p></div>
+            <div class="block"><h3>The parameters</h3>
+              <div class="params">
+                <div><b>0.29 / day</b>bites per mosquito</div>
+                <div><b>b = c = 0.5</b>chance a bite infects</div>
+                <div><b>10 days</b>mosquito life</div>
+                <div><b>8 days</b>virus incubation in the mosquito</div>
+                <div><b>5 days</b>a person is infectious</div>
+                <div><b>70 years</b>human life</div>
+              </div>
+              <!--@eq:threshold-->
+            </div>
+            <div class="block"><h3>The DOH 4S</h3><p>The Department of Health's 4S strategy: Search and destroy breeding sites, Self-protection, Seek early consultation, Support fogging or spraying only in hotspots. BANTA-Y adds the map of where the fourth S belongs.</p></div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section alt" id="research" aria-labelledby="res-h">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">The research</p>
+      <h2 id="res-h">Read the study behind the app</h2>
+    </div>
+    <div class="paper">
+      <article class="paper-card">
+        <p class="paper-title">Where People Go, Dengue Goes: A Verified Mobility-Coupled Network Model for Ranking Dengue Hotspots, Issuing Early Warnings, and Allocating Vector Control at Least Cost in Albay</p>
+        <div class="meta"><span>Mathematics and Computational Sciences, Team (MCS-T)</span><span>Legazpi City Science High School</span><span>2026</span></div>
+        <p class="abstract">Cases are logged at the patient's home address, but the day-biting <i>Aedes aegypti</i> mosquito infects people where they spend their daylight hours, so cleanup brigades and spraying are often sent to the wrong barangay. The study builds a model small enough for a laptop that links mosquito density in each barangay to the share of the day residents spend in every other barangay. Its reproduction number is the largest eigenvalue of a symmetric matrix, which yields bounds that flag where transmission can persist, a ranking of places by their share of transmission, a least-cost allocation of brigade team-days with a certified optimality gap, and an inversion from homes to places of infection. A Poisson CUSUM rule gives the outbreak alarm. A pilot with barangay dengue brigades, led by the Provincial Health Office, is recommended.</p>
+        <div class="findings">
+          <div class="finding"><b>{{d1.shares.0|pct1}}%</b><span>of transmission at the town center with the school and market, while homes point to a residential barangay (test network)</span></div>
+          <div class="finding"><b>{{d1.strategies.exact.cost|f2}}</b><span>team-days for the least-cost plan: 40% fewer than uniform spraying and 42% fewer than spraying where cases live (test network)</span></div>
+          <div class="finding"><b>{{d1.cusum.delay_cusum_mean|f2}} wk</b><span>average CUSUM delay after onset, against {{d1.cusum.delay_threshold_mean|f2}} weeks for a single-week rule (simulated seasons)</span></div>
+        </div>
+        <div class="paper-actions">
+          <a class="btn btn-red" href="../research/where-people-go-dengue/paper/Where-People-Go-Dengue-Goes_MCS-T.pdf"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7zM14 3v5h5M10 13h6M10 17h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>Read the paper (PDF)</a>
+          <a class="btn btn-ghost" href="../research/where-people-go-dengue/code/denguemodel.py">Model code</a>
+          <a class="btn btn-ghost" href="../research/where-people-go-dengue/code/verify_dengue.py">Verification code</a>
+          <a class="btn btn-ghost" href="../research/where-people-go-dengue/code/results.json">All numbers</a>
+        </div>
+      </article>
+      <div class="card">
+        <h3 style="margin-bottom:.8rem">Twelve propositions</h3>
+        <ol class="props">
+          <li>The reproduction number is a symmetric eigenvalue</li>
+          <li>Threshold: dengue dies out below 1, can spread above</li>
+          <li>The model stays meaningful</li>
+          <li>Local exposure numbers bound the reproduction number</li>
+          <li>Averages understate the risk</li>
+          <li>Place shares add up and measure the effect of control</li>
+          <li>Least-cost control is a convex program</li>
+          <li>The certificate plan is always safe</li>
+          <li>A certified interval for the least cost</li>
+          <li>The season scales the reproduction number</li>
+          <li>Infections can be traced to their places</li>
+          <li>Guarantees of the CUSUM alarm</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section credits" id="credits" aria-labelledby="cred-h">
+  <div class="wrap">
+    <div class="credit-card">
+      <picture><source srcset="assets/legasci-seal.webp" type="image/webp"><img class="seal" src="assets/legasci_seal.png" width="340" height="340" alt="Seal of Legazpi City Science High School"></picture>
+      <div>
+        <p class="eyebrow">The team</p>
+        <h2 id="cred-h">Made in Legazpi City</h2>
+        <div class="team">
+          <div>
+            <h3>Researchers</h3>
+            <ul>
+              <li>Brimbuela, Peter John A.</li>
+              <li><span class="lead">De Asis, Dave Justin Ll. <em>Lead researcher and founder</em></span></li>
+              <li>Shin, Yeaseong</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Research adviser</h3>
+            <ul><li>Calleja, Dick Anthony M.</li></ul>
+            <h3 style="margin-top:1.1rem">Category</h3>
+            <ul><li>Mathematics and Computational Sciences, Team (MCS-T)</li></ul>
+          </div>
+        </div>
+        <p class="school"><span>Legazpi City Science High School</span><span>Bitano, Legazpi City, Albay</span><span>Bicol Region (Region V), Philippines</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="privacy" aria-labelledby="priv-h">
+  <div class="wrap">
+    <div class="sec-head"><p class="eyebrow">Please read</p><h2 id="priv-h">A planning aid, and your data stay with you</h2></div>
+    <div class="note-grid">
+      <div class="card">
+        <h3>Not an order, not medical advice</h3>
+        <p>BANTA-Y is a planning aid for health workers and local officials. It is not an official order and not medical advice. Decisions on vector control belong to the health office and the local government.</p>
+        <p>Anyone with fever should seek early consultation at the nearest health center.</p>
+        <p>Every number from the test network D1 on this page and in the app is synthetic: six made-up barangays used to check the method, not real Albay data. Real-world facts on this page are cited to their sources.</p>
+      </div>
+      <div class="card">
+        <h3>Privacy</h3>
+        <p>The app computes everything on your device. The barangay data you enter are saved only in your browser's storage on that device, and you can export or clear them at any time. BANTA-Y has no account, no tracking and no analytics, and sends nothing anywhere.</p>
+        <p>This website loads its typefaces from Google Fonts. The app loads nothing from outside.</p>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap foot-in">
+    <a class="brand" href="#top" aria-label="BANTA-Y, back to the top"><!--@logo:foot--><b>BANTA-Y</b></a>
+    <nav class="foot-links" aria-label="More">
+      <a href="app/">Open the app</a>
+      <a href="../research/where-people-go-dengue/paper/Where-People-Go-Dengue-Goes_MCS-T.pdf">The paper (PDF)</a>
+      <a href="../">MAP-A, our transit app</a>
+      <a href="#top">Back to the top</a>
+    </nav>
+    <p class="fine">BANTA-Y version 1. A research project of Legazpi City Science High School, Mathematics and Computational Sciences, Team (MCS-T). A planning aid, not an official order or medical advice.</p>
+  </div>
+</footer>
+
+<script id="bantay-model">
+/*@model*/
+</script>
+<script>
+(function () {
+  "use strict";
+  var $ = function (s) { return document.querySelector(s); };
+  var THEME_KEY = "banta-y:theme";
+
+  /* theme */
+  function effectiveTheme() {
+    var t = document.documentElement.getAttribute("data-theme");
+    if (t) return t;
+    return window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  }
+  function paintTheme() {
+    var dark = effectiveTheme() === "dark";
+    $("#theme-btn").setAttribute("aria-label", dark ? "Use light theme" : "Use dark theme");
+    $("#theme-ico").setAttribute("d", dark ? "M12 4V2m0 20v-2m8-8h2M2 12h2m13.7-5.7 1.4-1.4M4.9 19.1l1.4-1.4m11.4 0 1.4 1.4M4.9 4.9l1.4 1.4M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z" : "M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z");
+  }
+  try { var th = localStorage.getItem(THEME_KEY); if (th === "dark" || th === "light") document.documentElement.setAttribute("data-theme", th); } catch (e) { /* storage blocked */ }
+  paintTheme();
+  $("#theme-btn").addEventListener("click", function () {
+    var next = effectiveTheme() === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", next);
+    try { localStorage.setItem(THEME_KEY, next); } catch (e) { /* ignore */ }
+    paintTheme();
+  });
+  if (window.matchMedia) { var mq = matchMedia("(prefers-color-scheme: dark)"); if (mq.addEventListener) mq.addEventListener("change", paintTheme); }
+
+  /* section menu on narrow screens */
+  var nav = $("#nav"), menuBtn = $("#menu-btn");
+  function setMenu(open) { nav.classList.toggle("open", open); menuBtn.setAttribute("aria-expanded", String(open)); menuBtn.setAttribute("aria-label", open ? "Close the section menu" : "Open the section menu"); }
+  menuBtn.addEventListener("click", function () { setMenu(!nav.classList.contains("open")); });
+  nav.addEventListener("click", function (e) { if (e.target.tagName === "A") setMenu(false); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && nav.classList.contains("open")) { setMenu(false); menuBtn.focus(); } });
+
+  /* install */
+  var hosted = /^https?:$/.test(location.protocol);
+  var embedded = false;
+  try { embedded = window.self !== window.top; } catch (e) { embedded = true; }
+  var reduceMotion = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var installPrompt = null;
+  var ua = navigator.userAgent || "";
+  var isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  var myPlat = isIOS ? "ios" : /Android/i.test(ua) ? "android" : "desktop";
+  var status = $("#install-status");
+  function sayInstall(msg) { status.textContent = msg; }
+  function runningInstalled() { return (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true; }
+  function selectPlat(p) {
+    ["android", "ios", "desktop"].forEach(function (k) {
+      var tab = $("#tab-" + k), panel = $("#steps-" + k), on = k === p;
+      tab.setAttribute("aria-selected", String(on)); tab.tabIndex = on ? 0 : -1; panel.hidden = !on;
+    });
+  }
+  function manualHint() {
+    if (!hosted) return "Installing works on the website, https://pogi6969.github.io/MAP---A/banta-y/. You can still download the app as one file below.";
+    if (myPlat === "ios") return "On iPhone and iPad, install from Safari: tap Open in browser, then Share, then Add to Home Screen.";
+    if (myPlat === "android") return "Tap the ⋮ menu of Chrome, then Add to Home screen or Install app.";
+    return "Use the install icon at the right end of the address bar, or the browser menu, to install BANTA-Y.";
+  }
+  function markInstalled(msg) { sayInstall(msg); }
+  document.addEventListener("click", function (e) {
+    var trigger = e.target.closest ? e.target.closest("[data-install]") : null;
+    if (!trigger) return;
+    if (installPrompt) {
+      var p = installPrompt; installPrompt = null;
+      p.prompt();
+      p.userChoice.then(function (choice) {
+        sayInstall(choice && choice.outcome === "accepted" ? "Installing BANTA-Y. It will appear on your home screen or in your app list." : "Install cancelled. You can install BANTA-Y from this page at any time.");
+      }, function () {});
+      return;
+    }
+    sayInstall(manualHint());
+    selectPlat(myPlat);
+    var box = document.querySelector(".how-install");
+    if (trigger.id !== "install-btn") { $("#install").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" }); }
+    else if (box && box.scrollIntoView) box.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "nearest" });
+  });
+  window.addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); installPrompt = e; });
+  window.addEventListener("appinstalled", function () { installPrompt = null; markInstalled("BANTA-Y is installed. Open it from your home screen or app list."); });
+  var tabs = ["android", "ios", "desktop"];
+  tabs.forEach(function (k, i) {
+    var tab = $("#tab-" + k);
+    tab.addEventListener("click", function () { selectPlat(k); });
+    tab.addEventListener("keydown", function (e) {
+      var d = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+      if (!d) return;
+      e.preventDefault();
+      var n = tabs[(i + d + tabs.length) % tabs.length]; selectPlat(n); $("#tab-" + n).focus();
+    });
+  });
+  selectPlat(myPlat);
+  if (runningInstalled()) markInstalled("BANTA-Y is installed on this device.");
+  else if (!hosted || embedded) sayInstall(manualHint());
+  if (!hosted) { var oa = $("#open-app"); oa.href = "app/index.html"; }
+  if (hosted && !embedded && "serviceWorker" in navigator && window.isSecureContext) {
+    var registerWorker = function () { navigator.serviceWorker.register("sw.js").catch(function () {}); };
+    if (document.readyState === "complete") registerWorker(); else window.addEventListener("load", registerWorker);
+  }
+
+  /* demo: the model on the synthetic test network D1 */
+  var M = window.BantayModel, D = M.D1;
+  var el = { season: $("#d-season"), move: $("#d-move"), target: $("#d-target") };
+  var nf = function (x, d) { return (x == null || !isFinite(x)) ? "–" : Number(x).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d }); };
+  var PLANS = [["uniform", "Same everywhere"], ["case_residence", "Where cases live"], ["place_share", "By place share"], ["certificate", "Quick safe plan"], ["exact", "Least cost"]];
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function compute() {
+    var s = Number(el.season.value), f = Number(el.move.value), target = Number(el.target.value);
+    $("#d-season-out").textContent = nf(s, 2) + (Math.abs(s - 1) < 1e-9 ? " (survey)" : s > 1 ? " (rainier)" : " (drier)");
+    $("#d-move-out").textContent = Math.round(100 * f) + "%";
+    $("#d-target-out").textContent = nf(target, 2);
+    var spec = Object.assign({}, D, { rows: D.rows.map(function (r) { return Object.assign({}, r, { away: Math.min(0.95, r.away * f) }); }) });
+    var net = M.buildNetwork(spec, M.DEFAULT_PARAMS, s), an = M.analyse(net), st = M.strategies(net, target);
+    $("#d-r0").textContent = nf(an.r0, 3);
+    $("#d-r0-s").textContent = an.r0 > 1 ? "Above 1: dengue can spread" : "Below 1: dengue dies out";
+    $("#d-avg").textContent = nf(an.hom_r0, 3);
+    var ex = st.exact, need = an.r0 > target;
+    $("#d-cost").textContent = !need ? "0" : ex.feasible ? nf(ex.cost, 2) : "–";
+    var save = need && ex.feasible && st.uniform.feasible ? 1 - ex.cost / st.uniform.cost : NaN;
+    $("#d-save").textContent = isFinite(save) ? Math.round(100 * save) + "%" : "–";
+    $("#d-save-s").textContent = isFinite(save) ? nf(st.uniform.cost - ex.cost, 2) + " team-days fewer" : need ? "" : "no control needed";
+    var mx = Math.max.apply(null, an.case_share.concat(an.shares));
+    $("#d-pairs").innerHTML = D.rows.map(function (r, i) {
+      var nm = r.name.split(" "), id = nm.shift();
+      return '<div class="pair"><span class="nm">' + esc(id) + "<small>" + esc(nm.join(" ")) + "</small></span>" +
+        '<span class="bline"><span class="t"><span class="f" style="background:var(--c-case);width:' + (100 * an.case_share[i] / mx).toFixed(1) + '%"></span></span><span class="v">' + nf(100 * an.case_share[i], 1) + "%</span></span>" +
+        '<span class="bline"><span class="t"><span class="f" style="background:var(--c-place);width:' + (100 * an.shares[i] / mx).toFixed(1) + '%"></span></span><span class="v">' + nf(100 * an.shares[i], 1) + "%</span></span></div>";
+    }).join("");
+    var feas = PLANS.filter(function (p) { return st[p[0]].feasible; }).map(function (p) { return st[p[0]].cost; });
+    var cmax = Math.max.apply(null, [1e-9].concat(feas));
+    $("#d-plans").innerHTML = PLANS.map(function (p) {
+      var x = st[p[0]], cls = p[0] === "exact" ? " best" : p[0] === "certificate" ? " cert" : "";
+      return '<div class="plan' + cls + '"><span>' + p[1] + '</span><span class="t"><span class="f" style="width:' + (x.feasible ? (100 * x.cost / cmax).toFixed(1) : 0) + '%"></span></span><span class="v">' + (x.feasible ? nf(x.cost, 2) : '<span class="na">out of reach</span>') + "</span></div>";
+    }).join("");
+    $("#d-chips").innerHTML = ex.feasible ? D.rows.map(function (r, i) {
+      return '<span class="chip' + (ex.u[i] > 0.005 ? " on" : "") + '">' + esc(r.id) + " <b>" + Math.round(100 * ex.u[i]) + "%</b></span>";
+    }).join("") : "";
+    var msg;
+    if (!need) msg = "R<sub>0</sub> is already at or below the target: no control is needed.";
+    else if (!ex.feasible) msg = "The target cannot be reached even with the most control everywhere (80% of mosquitoes).";
+    else {
+      var top = an.shares.indexOf(Math.max.apply(null, an.shares)), home = an.case_share.indexOf(Math.max.apply(null, an.case_share));
+      msg = "Certified: no plan can reach the target with fewer than " + nf(ex.lower, 2) + " team-days. " +
+        (top !== home ? "Cases by home point to " + esc(D.rows[home].id) + ", but most transmission happens at " + esc(D.rows[top].id) + "." : esc(D.rows[top].id) + " leads both by home address and by place.");
+    }
+    $("#d-msg").innerHTML = msg;
+  }
+  var pending = 0;
+  function schedule() { if (pending) return; pending = requestAnimationFrame(function () { pending = 0; compute(); }); }
+  [el.season, el.move, el.target].forEach(function (x) { x.addEventListener("input", schedule); });
+  $("#d-reset").addEventListener("click", function () { el.season.value = "1"; el.move.value = "1"; el.target.value = "0.95"; compute(); });
+  compute();
+})();
+</script>
+</body>
+</html>
