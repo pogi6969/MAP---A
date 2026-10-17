@@ -1,7 +1,7 @@
 /* MAP-A service worker: keeps a copy of the app and the website so the installed app opens without a signal.
    Pages come from the network when online, so updates show at once, and from the copy when offline.
    Bump VERSION after changing the icons or the manifest. */
-var VERSION = "map-a-v5";
+var VERSION = "map-a-v6";
 var PRECACHE = ["app/", "./", "manifest.webmanifest", "favicon.ico", "icons/favicon-32.png", "icons/app-favicon.ico", "icons/app-favicon-32.png", "icons/icon-192.png", "icons/apple-touch-icon.png"];
 
 self.addEventListener("install", function (event) {
@@ -64,6 +64,8 @@ function asset(event) {
 self.addEventListener("fetch", function (event) {
   var req = event.request;
   if (req.method !== "GET") return;
+  /* LIGTA-S and BANTA-Y have their own service workers; leave their pages alone. */
+  if (/\/(ligta-s|banta-y)\//.test(new URL(req.url).pathname)) return;
   if (req.mode === "navigate") {
     event.respondWith(page(event));
     return;
