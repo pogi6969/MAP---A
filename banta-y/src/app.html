@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BANTA-Y</title>
+<meta name="description" content="BANTA-Y ranks dengue hotspots by where people spend the day, finds the least-cost vector-control plan, traces infections to places and raises an early alarm. Works offline.">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="icon" href="../favicon.ico" sizes="48x48">
+<link rel="icon" href="../icons/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="BANTA-Y">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#8E1219">
+<!-- No web font and no outside script: the app is one file that works without a signal and sends nothing anywhere. -->
+<style>
+:root{
+  --bg:#FAF5EC;--card:#FFFFFF;--card-2:#FCF6EC;--ink:#2A1613;--ink-2:#6A4E45;--ink-3:#8C7368;--rule:#EAD9C3;--rule-2:#F3E8D8;
+  --red:#A3161F;--red-deep:#5E0A10;--red-ink:#A3161F;--gold:#E0A92A;--gold-lt:#F6D06B;--gold-bg:#FFF1CC;--gold-ink:#6E4700;--on-red:#FFF5DE;--on-red-2:#F1D3A6;
+  --teal:#0B6E65;--teal-ink:#0A6A61;--teal-bg:#E1F2EF;--on-teal:#FFFFFF;
+  --ok:#1D6B3A;--ok-bg:#E3F3E7;--bad:#A3161F;--bad-bg:#FBE5E3;
+  --c-res:#9AA3A7;--c-case:#D07F12;--c-place:#A3161F;--c-truth:#4A3A36;--c-exact:#0B6E65;--c-cert:#79C2B8;--c-other:#C2B4A4;
+  --heat-a:#FFF8EE;--heat-b:#A3161F;
+  --shadow:0 1px 2px rgba(60,20,10,.06),0 10px 28px -18px rgba(60,20,10,.35);
+  --f-display:"Barlow Condensed","Roboto Condensed","Arial Narrow","Helvetica Neue",system-ui,sans-serif;
+  --f-body:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --f-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  --nav-h:64px;--radius:14px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#130B0A;--card:#1E1311;--card-2:#251715;--ink:#FBEFD9;--ink-2:#D2BBA7;--ink-3:#A88F80;--rule:#3B2621;--rule-2:#2C1B17;
+    --red:#B81E28;--red-deep:#3E060B;--red-ink:#FF9399;--gold-bg:#3A2A0C;--gold-ink:#F6D06B;
+    --teal:#46CDBB;--teal-ink:#6ADBCB;--teal-bg:#0F2C29;--on-teal:#0B1F1D;
+    --ok:#7FD69B;--ok-bg:#12301C;--bad:#FF9399;--bad-bg:#3A1416;
+    --c-res:#7F8A8E;--c-case:#EBA640;--c-place:#FF6B73;--c-truth:#E8D9C8;--c-exact:#46CDBB;--c-cert:#1E7C71;--c-other:#5C4A43;
+    --heat-a:#221413;--heat-b:#FF6B73;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 28px -18px rgba(0,0,0,.8);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#130B0A;--card:#1E1311;--card-2:#251715;--ink:#FBEFD9;--ink-2:#D2BBA7;--ink-3:#A88F80;--rule:#3B2621;--rule-2:#2C1B17;
+  --red:#B81E28;--red-deep:#3E060B;--red-ink:#FF9399;--gold-bg:#3A2A0C;--gold-ink:#F6D06B;
+  --teal:#46CDBB;--teal-ink:#6ADBCB;--teal-bg:#0F2C29;--on-teal:#0B1F1D;
+  --ok:#7FD69B;--ok-bg:#12301C;--bad:#FF9399;--bad-bg:#3A1416;
+  --c-res:#7F8A8E;--c-case:#EBA640;--c-place:#FF6B73;--c-truth:#E8D9C8;--c-exact:#46CDBB;--c-cert:#1E7C71;--c-other:#5C4A43;
+  --heat-a:#221413;--heat-b:#FF6B73;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 28px -18px rgba(0,0,0,.8);
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 var(--f-body);min-height:100vh;overflow-x:hidden}
+h1,h2,h3{font-family:var(--f-display);font-weight:700;line-height:1.1;margin:0;letter-spacing:.005em}
+h1{font-size:clamp(1.75rem,4.5vw,2.4rem)}
+h2{font-size:1.35rem}
+h3{font-size:1.1rem}
+p{margin:0}
+a{color:var(--teal-ink)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+.skip{position:absolute;left:-999px;top:0;background:var(--card);padding:.5rem 1rem;z-index:50}
+.skip:focus{left:8px;top:8px}
+.vh{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* top bar */
+.bar{position:relative;z-index:5;display:flex;align-items:center;gap:.75rem;padding:calc(.6rem + env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) .6rem max(16px,env(safe-area-inset-left));
+  background:linear-gradient(120deg,#A3161F 0%,#7A0F17 55%,#4E0810 100%);color:var(--on-red)}
+.brand{display:flex;align-items:center;gap:.6rem;color:inherit;text-decoration:none;min-width:0;flex:1}
+.brand .logo-svg{width:40px;height:40px;flex:none;filter:drop-shadow(0 2px 4px rgba(0,0,0,.25))}
+.brand-text{display:flex;flex-direction:column;min-width:0}
+.brand-name{font-family:var(--f-display);font-weight:800;font-size:1.45rem;letter-spacing:.04em;line-height:1}
+.brand-sub{font-size:.78rem;color:var(--on-red-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-actions{display:flex;gap:.4rem;flex:none}
+.icon-btn{display:inline-flex;align-items:center;justify-content:center;gap:.35rem;min-width:44px;height:44px;padding:0 .7rem;border-radius:10px;border:1px solid rgba(255,245,222,.35);background:rgba(255,245,222,.08);color:var(--on-red);cursor:pointer;font-weight:600;font-size:.9rem}
+.icon-btn:hover{background:rgba(255,245,222,.16)}
+.icon-btn svg{width:20px;height:20px}
+.banner{display:flex;gap:.6rem;align-items:flex-start;padding:.55rem max(16px,env(safe-area-inset-right)) .55rem max(16px,env(safe-area-inset-left));background:var(--gold-bg);color:var(--gold-ink);font-size:.86rem;border-bottom:1px solid var(--rule)}
+.banner svg{flex:none;width:18px;height:18px;margin-top:.12rem}
+.banner[hidden]{display:none}
+
+/* layout */
+.shell{display:block}
+main{padding:1.1rem 16px calc(var(--nav-h) + 2rem + env(safe-area-inset-bottom));max-width:1180px;margin:0 auto}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;display:grid;grid-template-columns:repeat(6,1fr);height:calc(var(--nav-h) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);
+  background:var(--card);border-top:1px solid var(--rule);box-shadow:0 -8px 24px -18px rgba(0,0,0,.35)}
+.tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:0;background:none;cursor:pointer;color:var(--ink-2);font-size:.7rem;font-weight:600;padding:4px 0;min-width:0;position:relative}
+.tab svg{width:24px;height:24px}
+.tab[aria-current="page"]{color:var(--red-ink)}
+.tab[aria-current="page"]::before{content:"";position:absolute;top:0;left:22%;right:22%;height:3px;border-radius:0 0 3px 3px;background:var(--red-ink)}
+.tab .tab-n{display:none}
+@media (min-width:960px){
+  .shell{display:grid;grid-template-columns:236px minmax(0,1fr);align-items:start}
+  nav.tabs{position:sticky;top:0;bottom:auto;height:auto;display:flex;flex-direction:column;gap:.15rem;padding:1rem .6rem;border:0;border-right:1px solid var(--rule);box-shadow:none;background:transparent;min-height:calc(100vh - 64px)}
+  .tab{flex-direction:row;justify-content:flex-start;gap:.7rem;font-size:.95rem;padding:.65rem .8rem;border-radius:10px;text-align:left}
+  .tab:hover{background:var(--card-2)}
+  .tab[aria-current="page"]{background:var(--card);box-shadow:var(--shadow)}
+  .tab[aria-current="page"]::before{top:22%;bottom:22%;left:0;right:auto;width:3px;height:auto;border-radius:0 3px 3px 0}
+  .tab .tab-n{display:inline;font-family:var(--f-mono);font-size:.75rem;color:var(--ink-3);width:1.1rem}
+  main{padding:1.6rem 2rem 3rem;margin:0}
+}
+
+/* screens and cards */
+.screen[hidden]{display:none}
+.scr-head{margin:.2rem 0 1.1rem;max-width:72ch}
+.eyebrow{font-family:var(--f-mono);font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--red-ink);font-weight:600;margin-bottom:.35rem}
+.lede{color:var(--ink-2);margin-top:.5rem}
+.card{background:var(--card);border:1px solid var(--rule);border-radius:var(--radius);padding:1rem;box-shadow:var(--shadow);margin-bottom:1rem;min-width:0}
+@media (min-width:600px){.card{padding:1.2rem 1.35rem}}
+.card-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.5rem .75rem;margin-bottom:.75rem}
+.card-head p{color:var(--ink-2);font-size:.9rem;flex-basis:100%}
+.grid2{display:grid;gap:0 1rem;grid-template-columns:minmax(0,1fr)}
+@media (min-width:1100px){.grid2{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+.hint{font-size:.86rem;color:var(--ink-2);margin-top:.6rem}
+.note{font-size:.86rem;color:var(--ink-2)}
+.fine{font-size:.8rem;color:var(--ink-3);margin-top:.5rem}
+.err{background:var(--bad-bg);color:var(--bad);border-radius:10px;padding:.6rem .8rem;font-size:.9rem;font-weight:600}
+
+/* buttons and fields */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;min-height:44px;padding:.5rem 1rem;border-radius:10px;border:1px solid var(--rule);background:var(--card);color:var(--ink);font-weight:600;cursor:pointer;text-decoration:none;font-size:.92rem}
+.btn:hover{border-color:var(--ink-3)}
+.btn-primary{background:var(--teal);border-color:var(--teal);color:var(--on-teal)}
+.btn-primary:hover{filter:brightness(1.08);border-color:var(--teal)}
+.btn-sm{min-height:36px;padding:.3rem .7rem;font-size:.85rem}
+.btn svg{width:18px;height:18px}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.row{display:flex;flex-wrap:wrap;gap:.6rem;align-items:flex-end}
+.field{display:flex;flex-direction:column;gap:.25rem;min-width:0}
+.field>span{font-size:.8rem;font-weight:600;color:var(--ink-2)}
+.field small{font-size:.75rem;color:var(--ink-3)}
+input[type=number],input[type=text],select,textarea{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:.45rem .55rem;min-height:40px;width:100%;min-width:0}
+input[type=number]{font-variant-numeric:tabular-nums;-moz-appearance:textfield;appearance:textfield}
+input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+input[aria-invalid="true"]{border-color:var(--bad);background:var(--bad-bg)}
+textarea{font-family:var(--f-mono);font-size:.85rem;line-height:1.45;resize:vertical}
+.w-s{width:6.5rem}.w-m{width:9rem}
+.seg{display:inline-flex;border:1px solid var(--rule);border-radius:10px;overflow:hidden;flex-wrap:wrap}
+.seg button{border:0;background:var(--card);padding:.5rem .85rem;min-height:40px;cursor:pointer;font-weight:600;font-size:.88rem;color:var(--ink-2)}
+.seg button+button{border-left:1px solid var(--rule)}
+.seg button[aria-pressed="true"]{background:var(--teal-bg);color:var(--teal-ink)}
+.slider{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap}
+.slider input[type=range]{flex:1;min-width:180px;accent-color:var(--teal);height:32px}
+.slider output{font-family:var(--f-mono);font-weight:700;min-width:3.5rem}
+details.sub{border-top:1px solid var(--rule);margin-top:.9rem;padding-top:.6rem}
+details.sub>summary{cursor:pointer;font-weight:700;color:var(--teal-ink);padding:.3rem 0;list-style-position:inside}
+details.sub[open]>summary{margin-bottom:.6rem}
+
+/* tables */
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--rule-2);border-radius:10px;max-width:100%}
+table{border-collapse:collapse;width:100%;font-size:.9rem;font-variant-numeric:tabular-nums}
+th,td{padding:.45rem .6rem;text-align:right;border-bottom:1px solid var(--rule-2);white-space:nowrap}
+th{font-size:.76rem;font-weight:700;color:var(--ink-2);background:var(--card-2);vertical-align:bottom;white-space:normal;min-width:5rem;line-height:1.25}
+th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--card);z-index:1}
+th:first-child{background:var(--card-2)}
+tbody tr:last-child td{border-bottom:0}
+table.edit td{padding:.3rem .35rem}
+table.edit input{min-height:36px;padding:.3rem .45rem;text-align:right}
+table.edit input[type=text]{text-align:left;min-width:9.5rem}
+table.edit input[type=number]{width:6.2rem}
+td.del{width:44px}
+.del-btn{width:36px;height:36px;border-radius:8px;border:1px solid var(--rule);background:var(--card);cursor:pointer;color:var(--ink-2);display:inline-flex;align-items:center;justify-content:center}
+.del-btn:hover{color:var(--bad);border-color:var(--bad)}
+.del-btn svg{width:16px;height:16px}
+.no-pos .pos{display:none}
+tr.hl td{background:var(--teal-bg)}
+tr.hl td:first-child{background:var(--teal-bg)}
+.num-strong{font-weight:700}
+.heat td{text-align:center;font-size:.82rem;min-width:3.6rem}
+.heat td:first-child{text-align:left}
+.heat tfoot td{font-weight:700;border-top:2px solid var(--rule);background:var(--card-2)}
+
+/* KPI tiles */
+.kpis{display:grid;gap:.75rem;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));margin-bottom:1rem}
+.kpi{background:var(--card);border:1px solid var(--rule);border-radius:var(--radius);padding:.85rem 1rem;box-shadow:var(--shadow);min-width:0}
+.kpi-label{font-size:.8rem;font-weight:700;color:var(--ink-2)}
+.kpi-value{font-family:var(--f-display);font-size:2.3rem;font-weight:800;line-height:1.05;margin:.2rem 0;font-variant-numeric:tabular-nums}
+.kpi-sub{font-size:.82rem;color:var(--ink-2)}
+.kpi.hero{background:linear-gradient(135deg,var(--red),var(--red-deep));color:var(--on-red);border-color:transparent}
+.kpi.hero .kpi-label,.kpi.hero .kpi-sub{color:var(--on-red-2)}
+.chip{display:inline-flex;align-items:center;gap:.3rem;padding:.12rem .55rem;border-radius:999px;font-size:.76rem;font-weight:700}
+.chip.up{background:var(--gold-lt);color:#3A1A06}
+.chip.down{background:var(--ok-bg);color:var(--ok)}
+.chip.teal{background:var(--teal-bg);color:var(--teal-ink)}
+.callout{border-left:4px solid var(--teal);background:var(--teal-bg);padding:.7rem .9rem;border-radius:0 10px 10px 0;margin:.2rem 0 .9rem;font-size:.95rem}
+.callout b{color:var(--teal-ink)}
+
+/* charts */
+.legend{display:flex;flex-wrap:wrap;gap:.35rem 1rem;font-size:.82rem;color:var(--ink-2);margin:.2rem 0 .5rem}
+.legend span{display:inline-flex;align-items:center;gap:.4rem}
+.legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
+.legend i.line{height:3px;border-radius:2px;width:16px}
+.legend i.dash{height:0;border-top:2px dashed var(--ink-2);width:16px;border-radius:0}
+.chart{width:100%;min-height:120px}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.chart text{fill:var(--ink-2);font-size:11px;font-family:var(--f-body)}
+.chart .ax{stroke:var(--rule);stroke-width:1}
+.chart .grid{stroke:var(--rule-2);stroke-width:1}
+.s-res{fill:var(--c-res)}.s-case{fill:var(--c-case)}.s-place{fill:var(--c-place)}.s-truth{fill:var(--c-truth)}.s-exact{fill:var(--c-exact)}
+.l-exp{stroke:var(--ink-2);fill:none;stroke-width:1.6}
+.l-thr{stroke:var(--ink-2);fill:none;stroke-width:1.3;stroke-dasharray:5 4}
+.l-cus{stroke:var(--c-place);fill:none;stroke-width:2}
+.l-h{stroke:var(--ink);fill:none;stroke-width:1.2;stroke-dasharray:5 4}
+.l-cost{stroke:var(--c-exact);fill:none;stroke-width:2.2}
+.m-alarm{stroke:var(--c-place);stroke-width:2}
+.m-thr{stroke:var(--teal-ink);stroke-width:2;stroke-dasharray:3 3}
+.bars{display:flex;flex-direction:column;gap:.55rem}
+.bar-row{display:grid;grid-template-columns:minmax(7rem,13rem) minmax(0,1fr) auto;gap:.6rem;align-items:center;font-size:.9rem}
+.bar-row .lbl{font-weight:600;min-width:0}
+.bar-row .lbl small{display:block;font-weight:400;color:var(--ink-3);font-size:.76rem}
+.bar-track{height:20px;background:var(--rule-2);border-radius:6px;position:relative;overflow:hidden}
+.bar-fill{position:absolute;inset:0 auto 0 0;background:var(--c-other);border-radius:6px}
+.bar-fill.exact{background:var(--c-exact)}
+.bar-fill.cert{background:var(--c-cert)}
+.bar-row .val{font-family:var(--f-mono);font-weight:700;font-size:.88rem;text-align:right;min-width:4.5rem}
+.bar-row.best .lbl{color:var(--teal-ink)}
+.cap-mark{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink)}
+@media (max-width:520px){.bar-row{grid-template-columns:minmax(0,1fr) auto}.bar-row .bar-track{grid-column:1 / -1;grid-row:2}}
+.rank{list-style:none;margin:0;padding:0;display:grid;gap:.45rem;counter-reset:r}
+.rank li{display:grid;grid-template-columns:2rem minmax(0,1fr) auto;gap:.6rem;align-items:center;padding:.5rem .6rem;border:1px solid var(--rule-2);border-radius:10px;counter-increment:r}
+.rank li::before{content:counter(r);font-family:var(--f-display);font-weight:800;font-size:1.3rem;color:var(--red-ink);text-align:center}
+.rank .r-name{font-weight:700;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.rank .r-name small{display:block;font-weight:400;color:var(--ink-2);font-size:.8rem;white-space:normal}
+.rank .r-val{font-family:var(--f-mono);font-weight:700}
+.status{display:grid;gap:.75rem;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));margin-bottom:1rem}
+.mapbox svg{display:block;width:100%;height:auto}
+.mapbox .node{stroke:var(--card);stroke-width:2}
+.mapbox .lab{font-size:12px;font-weight:700;fill:var(--ink);paint-order:stroke;stroke:var(--card);stroke-width:3px}
+.mapbox .flow{fill:none;stroke:var(--ink-3);stroke-linecap:round}
+.mapbox .arrow{fill:var(--ink-3)}
+
+/* checklist */
+.checks{list-style:none;margin:0;padding:0;display:grid;gap:.75rem}
+.check{display:grid;grid-template-columns:auto minmax(0,1fr);gap:.8rem;align-items:start;background:var(--card);border:1px solid var(--rule);border-radius:var(--radius);padding:1rem;box-shadow:var(--shadow)}
+.check input{width:26px;height:26px;margin:.15rem 0 0;accent-color:var(--teal)}
+.check h3{font-size:1.25rem;margin-bottom:.2rem}
+.check .s-letter{font-family:var(--f-display);color:var(--red-ink);font-weight:800}
+.check p{color:var(--ink-2);font-size:.93rem}
+.check.done{border-color:var(--teal);background:var(--teal-bg)}
+
+/* dialog and toast */
+dialog{border:1px solid var(--rule);border-radius:16px;padding:0;background:var(--card);color:var(--ink);width:min(560px,calc(100vw - 24px));max-height:calc(100vh - 32px);box-shadow:0 30px 80px -20px rgba(0,0,0,.5)}
+dialog::backdrop{background:rgba(20,8,6,.55)}
+.dlg-head{display:flex;justify-content:space-between;align-items:center;padding:1rem 1.2rem;border-bottom:1px solid var(--rule)}
+.dlg-body{padding:1rem 1.2rem 1.3rem;display:grid;gap:1rem;overflow:auto}
+.dlg-body h3{margin-bottom:.4rem}
+.dlg-grid{display:grid;gap:.5rem;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr))}
+.close-btn{border:1px solid var(--rule);background:var(--card);border-radius:10px;width:44px;height:44px;cursor:pointer;color:var(--ink)}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--nav-h) + 16px + env(safe-area-inset-bottom));background:var(--ink);color:var(--bg);padding:.6rem 1rem;border-radius:10px;font-size:.9rem;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s;z-index:60;max-width:calc(100vw - 32px)}
+#toast.show{opacity:1}
+@media (min-width:960px){#toast{bottom:24px}}
+.foot{margin-top:2rem;padding-top:1rem;border-top:1px solid var(--rule);font-size:.82rem;color:var(--ink-3)}
+.foot p+p{margin-top:.4rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="bar">
+  <a class="brand" href="#network" aria-label="BANTA-Y home">
+    <!--@logo:hdr-->
+    <span class="brand-text"><span class="brand-name">BANTA-Y</span><span class="brand-sub" id="brand-sub">Dengue watch for barangays</span></span>
+  </a>
+  <div class="bar-actions">
+    <button type="button" class="icon-btn" id="theme-btn" aria-label="Use dark theme"><svg viewBox="0 0 24 24" aria-hidden="true"><path id="theme-ico" d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></button>
+    <button type="button" class="icon-btn" id="data-btn" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Data</span></button>
+  </div>
+</header>
+<div class="banner" id="banner" role="note"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 20h20L12 3zm0 6v5m0 3v.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><p id="banner-text"><b>Synthetic test network D1.</b> Six made-up barangays used to check the method. Its numbers are not real Albay data. Replace them with your own barangays, or import a file from the Data menu.</p></div>
+<noscript><p class="err" style="margin:16px">BANTA-Y needs JavaScript to compute. Turn it on in your browser settings.</p></noscript>
+
+<div class="shell">
+<nav class="tabs" aria-label="Screens">
+  <button type="button" class="tab" data-tab="network"><span class="tab-n">1</span><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="2.6"/><circle cx="18" cy="7" r="2.6"/><circle cx="12" cy="18" r="2.6"/><path d="M8.5 6.4l7 .4M7.3 8.3l3.4 7.4M16.8 9.4l-3.6 6.3"/></g></svg><span>Network</span></button>
+  <button type="button" class="tab" data-tab="spread"><span class="tab-n">2</span><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></g></svg><span>Spread</span></button>
+  <button type="button" class="tab" data-tab="control"><span class="tab-n">3</span><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M8 9h6v12H8z"/><path d="M9 9V6h4v3M13 6h3l1-2"/><path d="M18.5 8.5l2-1M18.5 11h2.5M18.5 13.5l2 1"/></g></svg><span>Control</span></button>
+  <button type="button" class="tab" data-tab="places"><span class="tab-n">4</span><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 21s-6.5-6.2-6.5-11A6.5 6.5 0 0 1 18.5 10c0 4.8-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></g></svg><span>Places</span></button>
+  <button type="button" class="tab" data-tab="alarm"><span class="tab-n">5</span><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15L6 16z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></g></svg><span>Alarm</span></button>
+  <button type="button" class="tab" data-tab="fours"><span class="tab-n">6</span><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3.5" width="16" height="17" rx="2.5"/><path d="M8 9l1.5 1.5L12 8M8 15l1.5 1.5L12 14M14.5 9.5H17M14.5 15.5H17"/></g></svg><span>4S</span></button>
+</nav>
+
+<main id="main" tabindex="-1">
+
+<!-- 1 NETWORK -->
+<section class="screen" id="scr-network" aria-labelledby="h-network">
+  <header class="scr-head">
+    <p class="eyebrow">1 · Network</p>
+    <h1 id="h-network">Where people spend the day</h1>
+    <p class="lede">Dengue mosquitoes bite by day, so what matters is where people are in the daytime, not only where they sleep. List the barangays, how many mosquitoes each holds, and how much of the day residents spend away. BANTA-Y turns this into the share of the biting hours each barangay's residents spend in every place.</p>
+  </header>
+  <div class="card">
+    <div class="card-head"><h2>Barangays</h2><button type="button" class="btn btn-sm" id="add-row"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>Add barangay</button></div>
+    <div class="tbl-wrap" tabindex="0" role="region" aria-label="Barangays, scrolls sideways">
+      <table class="edit" id="tbl-brgy">
+        <thead><tr><th scope="col">Barangay</th><th scope="col">Residents</th><th scope="col">Mosquitoes per resident</th><th scope="col">Time away from home (%)</th><th scope="col">Attraction (schools, markets, jobs)</th><th scope="col" class="pos">East (km)</th><th scope="col" class="pos">North (km)</th><th scope="col"><span class="vh">Remove</span></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="hint"><b>Mosquitoes per resident</b>: adult female <i>Aedes</i> mosquitoes per resident from a survey. <b>Time away</b>: share of the daytime biting hours residents spend outside their barangay. <b>Attraction</b>: how strongly a place pulls visitors, for example school seats, market stalls and jobs, on any scale.</p>
+    <details class="sub" id="conv">
+      <summary>Have a household-survey index instead of mosquito counts?</summary>
+      <p class="note">Enter an index for each barangay (for example a house index or a Breteau index from the larval survey) and one barangay where a mosquito count gave mosquitoes per resident. BANTA-Y assumes mosquitoes per resident are proportional to the index and scales the others. Check the result with your health office's entomology staff.</p>
+      <div class="row" style="margin:.7rem 0">
+        <label class="field"><span>Index used</span><input type="text" id="conv-name" class="w-m" value="Breteau index"></label>
+        <label class="field"><span>Calibrated in</span><select id="conv-anchor" class="w-m"></select></label>
+        <label class="field"><span>Mosquitoes per resident there</span><input type="number" id="conv-anchor-m" class="w-s" step="any" min="0"></label>
+      </div>
+      <div class="tbl-wrap"><table class="edit" id="tbl-conv"><thead><tr><th scope="col">Barangay</th><th scope="col">Survey index</th><th scope="col">Mosquitoes per resident (converted)</th></tr></thead><tbody></tbody></table></div>
+      <div class="row" style="margin-top:.7rem"><button type="button" class="btn btn-sm btn-primary" id="conv-apply">Use converted values</button><p class="note" id="conv-factor"></p></div>
+    </details>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h2>Travel between barangays</h2>
+      <div class="seg" role="group" aria-label="How travel times are given"><button type="button" data-tmode="positions" aria-pressed="true">From positions</button><button type="button" data-tmode="matrix" aria-pressed="false">Travel-time table</button></div>
+    </div>
+    <div id="tm-positions">
+      <p class="note">Travel time in minutes = waiting and walking time + distance ÷ speed, from the positions in the table above.</p>
+      <div class="row" style="margin-top:.6rem">
+        <label class="field"><span>Waiting and walking (min)</span><input type="number" step="any" min="0" class="w-s" id="t0"></label>
+        <label class="field"><span>Speed (km per minute)</span><input type="number" step="any" min="0.01" class="w-s" id="speed"><small id="speed-kmh"></small></label>
+      </div>
+    </div>
+    <div id="tm-matrix" hidden>
+      <p class="note">Door-to-door minutes from the row barangay to the column barangay, for example from a transit planner such as MAP-A.</p>
+      <div class="tbl-wrap" style="margin-top:.6rem"><table class="edit" id="tbl-travel"></table></div>
+      <button type="button" class="btn btn-sm" id="fill-travel" style="margin-top:.6rem">Fill from positions</button>
+    </div>
+    <div class="row" style="margin-top:.9rem">
+      <label class="field"><span>Decay β (per minute)</span><input type="number" step="any" min="0" class="w-s" id="beta"><small>Larger β: people visit nearer places.</small></label>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-head"><h2>Residence-time matrix <i>P</i></h2><p>Row: where residents live. Column: where they spend the biting hours. Each row adds up to 100%. The last row is the number of people present in each place by day.</p></div>
+      <div class="tbl-wrap" tabindex="0" role="region" aria-label="Residence-time matrix, scrolls sideways"><table class="heat" id="tbl-heat"></table></div>
+      <p class="hint" id="heat-note"></p>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>Network map</h2><p>Circle size: residents. Color: mosquitoes per person present by day. Arrows: residents spending the day elsewhere (the widest flows).</p></div>
+      <div class="mapbox" id="map"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 2 SPREAD -->
+<section class="screen" id="scr-spread" aria-labelledby="h-spread" hidden>
+  <header class="scr-head">
+    <p class="eyebrow">2 · Transmission</p>
+    <h1 id="h-spread">How far dengue can spread</h1>
+    <p class="lede">The reproduction number R<sub>0</sub> of the whole network is the number of new cases one case causes, through mosquitoes, at the start of an outbreak. Above 1, dengue can take hold. BANTA-Y also splits it into the share carried by each place.</p>
+  </header>
+  <div class="card">
+    <div class="card-head"><h2>Season</h2><p>Rain and heat change mosquito numbers. The season factor multiplies every barangay's mosquitoes: 1 is the season of the survey, above 1 the peak of the rains.</p></div>
+    <div class="slider"><input type="range" min="0.6" max="1.4" step="0.01" id="season-a" aria-label="Season factor"><output for="season-a" id="season-a-out"></output></div>
+  </div>
+  <div id="spread-err"></div>
+  <div class="kpis" id="kpis"></div>
+  <div class="callout" id="spread-insight"></div>
+  <div class="card">
+    <div class="card-head"><h2>Who has the cases, and where transmission happens</h2><p>Cases are recorded by home address, but people are often infected where they spend the day.</p></div>
+    <div class="legend"><span><i class="s-res" style="background:var(--c-res)"></i>Share of residents</span><span><i style="background:var(--c-case)"></i>Share of cases by home address</span><span><i style="background:var(--c-place)"></i>Share of transmission by place</span></div>
+    <div class="chart" id="chart-shares"></div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-head"><h2>Hotspots per team-day</h2><p>Where one team-day of brigade work lowers R<sub>0</sub><sup>2</sup> the most, at the start (the place's share divided by its cost of full control).</p></div>
+      <ol class="rank" id="rank"></ol>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>Transmission parameters</h2><p>Declared design values within published ranges for <i>Aedes aegypti</i> (Mordecai et al., 2017). Change them to test other assumptions.</p></div>
+      <div class="row" id="params"></div>
+      <p class="hint" id="kappa-note"></p>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h2>Barangay by barangay</h2></div>
+    <div class="tbl-wrap" tabindex="0" role="region" aria-label="Transmission by barangay, scrolls sideways"><table id="tbl-spread"></table></div>
+    <p class="hint">Local exposure number R<sub>i</sub>: the value of R<sub>0</sub><sup>2</sup> residents of barangay i would face from the mosquitoes they meet over their day. R<sub>0</sub><sup>2</sup> always lies between the smallest and the largest R<sub>i</sub>. Hotspot score: drop in R<sub>0</sub><sup>2</sup> per team-day, times 1,000.</p>
+  </div>
+</section>
+
+<!-- 3 CONTROL -->
+<section class="screen" id="scr-control" aria-labelledby="h-control" hidden>
+  <header class="scr-head">
+    <p class="eyebrow">3 · Vector control</p>
+    <h1 id="h-control">The least-cost plan</h1>
+    <p class="lede">How much cleanup, larviciding and spraying, and where, brings R<sub>0</sub> below the target for the fewest brigade team-days? BANTA-Y compares five plans and certifies how close the best one is to the true minimum.</p>
+  </header>
+  <div class="card">
+    <div class="card-head"><h2>Target and costs</h2></div>
+    <div class="row">
+      <label class="field"><span>Target R<sub>0</sub></span><input type="number" step="0.01" min="0.1" max="3" class="w-s" id="target"></label>
+      <label class="field"><span>Households per team-day</span><input type="number" step="any" min="1" class="w-s" id="perday"></label>
+      <button type="button" class="btn btn-sm" id="fill-cost">Set team-days from households</button>
+    </div>
+    <div class="slider" style="margin-top:.9rem"><span class="note" style="font-weight:600">Season factor</span><input type="range" min="0.6" max="1.4" step="0.01" id="season-b" aria-label="Season factor"><output for="season-b" id="season-b-out"></output></div>
+    <div class="tbl-wrap" style="margin-top:.9rem" tabindex="0" role="region" aria-label="Costs, scrolls sideways">
+      <table class="edit" id="tbl-cost"><thead><tr><th scope="col">Barangay</th><th scope="col">Households</th><th scope="col">Team-days for full control</th><th scope="col">Most mosquitoes that can be removed (%)</th></tr></thead><tbody></tbody></table>
+    </div>
+    <p class="hint">A plan removes a fraction u<sub>j</sub> of the mosquitoes of place j at a cost of u<sub>j</sub> × its team-days for full control, and never more than the maximum.</p>
+  </div>
+  <div id="ctrl-err"></div>
+  <div class="callout" id="ctrl-insight"></div>
+  <div class="card">
+    <div class="card-head"><h2>Five plans compared</h2><p>Team-days needed to reach the target. The first three are scaled up until they reach it.</p></div>
+    <div class="bars" id="strat-bars"></div>
+    <p class="hint" id="cert-note"></p>
+  </div>
+  <div class="card">
+    <div class="card-head"><h2>Plan by place</h2>
+      <div class="seg" role="group" aria-label="Plan to show" id="plan-pick"></div>
+    </div>
+    <div class="bars" id="plan-bars"></div>
+    <div class="tbl-wrap" style="margin-top:1rem" tabindex="0" role="region" aria-label="All plans, scrolls sideways"><table id="tbl-plans"></table></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h2>Season and the bill</h2><p>Least cost of reaching the target for season factors from 0.6 to 1.4. Plan brigade time before the rains.</p></div>
+    <div class="chart" id="chart-season"></div>
+    <div id="season-wait" class="note"></div>
+  </div>
+</section>
+
+<!-- 4 PLACES -->
+<section class="screen" id="scr-places" aria-labelledby="h-places" hidden>
+  <header class="scr-head">
+    <p class="eyebrow">4 · Where people get infected</p>
+    <h1 id="h-places">From home addresses to places of infection</h1>
+    <p class="lede">Reports list the barangay where a patient lives. Enter the cases by barangay of residence for a period, and BANTA-Y works back to where the infections most likely happened, using the residence-time matrix.</p>
+  </header>
+  <div class="card">
+    <div class="card-head"><h2>Cases by barangay of residence</h2></div>
+    <div class="row" style="margin-bottom:.8rem"><label class="field"><span>Period</span><input type="text" id="period" class="w-m"></label></div>
+    <div class="tbl-wrap"><table class="edit" id="tbl-cases"><thead><tr><th scope="col">Barangay</th><th scope="col">Cases</th></tr></thead><tbody></tbody></table></div>
+    <details class="sub"><summary>Paste a column of numbers</summary>
+      <label class="field"><span>One number per barangay, in the order of the table</span><textarea id="cases-paste" rows="4"></textarea></label>
+      <button type="button" class="btn btn-sm btn-primary" id="cases-apply" style="margin-top:.6rem">Use these numbers</button>
+    </details>
+  </div>
+  <div id="places-err"></div>
+  <div class="callout" id="places-insight"></div>
+  <div class="card">
+    <div class="card-head"><h2>Cases by home and infections by place</h2></div>
+    <div class="legend" id="places-legend"></div>
+    <div class="chart" id="chart-places"></div>
+    <div class="tbl-wrap" style="margin-top:1rem" tabindex="0" role="region" aria-label="Infections by place, scrolls sideways"><table id="tbl-places"></table></div>
+    <p class="hint" id="varah-note"></p>
+  </div>
+</section>
+
+<!-- 5 ALARM -->
+<section class="screen" id="scr-alarm" aria-labelledby="h-alarm" hidden>
+  <header class="scr-head">
+    <p class="eyebrow">5 · Early warning</p>
+    <h1 id="h-alarm">An alarm that adds up small rises</h1>
+    <p class="lede">A single week rarely stands out, but several weeks a little above normal add up. The Poisson CUSUM alarm sounds when the excess over the expected count has piled up to a threshold.</p>
+  </header>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-head"><h2>Weekly cases</h2><p>One line per week: week, cases, expected cases in a normal year. Paste from a spreadsheet.</p></div>
+      <label class="field"><span class="vh">Weekly cases</span><textarea id="weekly" rows="9" spellcheck="false"></textarea></label>
+      <p class="note" id="weekly-read" style="margin-top:.4rem"></p>
+      <div class="row" style="margin-top:.6rem"><button type="button" class="btn btn-sm" id="weekly-demo">Load the synthetic year</button></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>Alarm settings</h2></div>
+      <div class="row">
+        <label class="field"><span>Rise to detect θ</span><input type="number" step="0.05" min="1.05" class="w-s" id="theta"><small>1.5 = a rise of one half</small></label>
+        <label class="field"><span>CUSUM threshold h</span><input type="number" step="0.25" min="0.5" class="w-s" id="h"></label>
+        <label class="field"><span>Single-week rule z</span><input type="number" step="0.01" min="0" class="w-s" id="zval"></label>
+      </div>
+      <p class="hint">Reference value k<sub>t</sub> = (θ − 1) μ<sub>t</sub> ÷ ln θ. Defaults: h = 12.75 and z = 3.64 give the same 5% chance of a false alarm in a normal year for the synthetic municipality of the study (6 to 11 expected cases a week).</p>
+    </div>
+  </div>
+  <div id="alarm-err"></div>
+  <div class="status" id="alarm-status"></div>
+  <div class="card">
+    <div class="card-head"><h2>Weekly cases and the alarm</h2></div>
+    <div class="legend"><span><i style="background:var(--c-case)"></i>Cases</span><span><i class="line" style="background:var(--ink-2)"></i>Expected</span><span><i class="dash"></i>Single-week threshold</span><span><i class="line" style="background:var(--c-place)"></i>CUSUM S<sub>t</sub></span></div>
+    <div class="chart" id="chart-alarm"></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h2>Design check</h2><p>Guarantees of the alarm (Proposition 12 of the study).</p></div>
+    <div class="row">
+      <label class="field"><span>Excess per week δ</span><input type="number" step="0.5" min="0.1" class="w-s" id="delta"></label>
+      <label class="field"><span>Steady expected count μ</span><input type="number" step="0.5" min="0.5" class="w-s" id="mu"></label>
+    </div>
+    <div id="design-out" class="note" style="margin-top:.8rem"></div>
+  </div>
+</section>
+
+<!-- 6 4S -->
+<section class="screen" id="scr-fours" aria-labelledby="h-fours" hidden>
+  <header class="scr-head">
+    <p class="eyebrow">6 · DOH 4S</p>
+    <h1 id="h-fours">The 4S checklist</h1>
+    <p class="lede">The Department of Health's 4S strategy against dengue. Tick each one as your barangay does it; the ticks stay on this device.</p>
+  </header>
+  <ul class="checks" id="checks"></ul>
+  <div class="row" style="margin-top:1rem"><button type="button" class="btn btn-sm" id="checks-clear">Clear the ticks</button></div>
+  <p class="fine">Source: Department of Health 4S strategy: Search and destroy breeding sites, Self-protection, Seek early consultation, Support fogging or spraying only in hotspots.</p>
+</section>
+
+<footer class="foot">
+  <p><b>BANTA-Y is a planning aid.</b> It is not an official order and not medical advice. Anyone with fever should seek early consultation at a health center. Numbers from the test network D1 are synthetic.</p>
+  <p>Your data stay on this device. BANTA-Y sends nothing anywhere. Research project of Legazpi City Science High School, Mathematics and Computational Sciences, Team (MCS-T).</p>
+</footer>
+</main>
+</div>
+
+<dialog id="dlg" aria-labelledby="dlg-h">
+  <div class="dlg-head"><h2 id="dlg-h">Data and about</h2><button type="button" class="close-btn" id="dlg-close" aria-label="Close"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button></div>
+  <div class="dlg-body">
+    <section>
+      <h3>Save and share</h3>
+      <div class="dlg-grid">
+        <button type="button" class="btn" id="exp-json">Export everything (JSON)</button>
+        <button type="button" class="btn" id="exp-csv">Export barangays (CSV)</button>
+        <button type="button" class="btn" id="imp-btn">Import a JSON or CSV file</button>
+        <input type="file" id="imp-file" accept=".json,.csv,.txt,application/json,text/csv" hidden>
+      </div>
+      <p class="fine">CSV columns: name, residents, mosquitoes_per_resident, time_away_pct, attraction, east_km, north_km, households, team_days, max_reduction_pct, cases.</p>
+    </section>
+    <section>
+      <h3>Start over</h3>
+      <div class="dlg-grid">
+        <button type="button" class="btn" id="load-d1">Load the test network D1</button>
+        <button type="button" class="btn" id="clear-all">Clear saved data</button>
+      </div>
+    </section>
+    <section>
+      <h3>About BANTA-Y</h3>
+      <p class="note">BANTA-Y (say <i>BAN-tai</i>, from <i>bantay</i>, to watch or to guard) is the app of the study <i>Where People Go, Dengue Goes: A Verified Mobility-Coupled Network Model for Ranking Dengue Hotspots, Issuing Early Warnings, and Allocating Vector Control at Least Cost in Albay</i>. Every computation runs on this device.</p>
+      <p class="note" style="margin-top:.5rem">Researchers: Brimbuela, Peter John A.; <b>De Asis, Dave Justin Ll.</b> (lead researcher and founder); Shin, Yeaseong. Research adviser: Calleja, Dick Anthony M. Legazpi City Science High School, Bitano, Legazpi City, Albay.</p>
+      <p class="note" style="margin-top:.5rem"><a href="../" id="site-link">BANTA-Y website and the research paper</a> · Version 1</p>
+    </section>
+  </div>
+</dialog>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script id="bantay-model">
+/*@model*/
+</script>
+<script id="bantay-app">
+(function () {
+"use strict";
+const M = BantayModel;
+const KEY = "banta-y:v1", THEME_KEY = "banta-y:theme";
+const $ = (s, r) => (r || document).querySelector(s);
+const $$ = (s, r) => Array.prototype.slice.call((r || document).querySelectorAll(s));
+const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const nf = (x, d) => (x == null || !isFinite(x)) ? "–" : Number(x).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
+const pct = (x, d) => nf(100 * x, d == null ? 1 : d) + "%";
+const sum = (a) => a.reduce((s, x) => s + x, 0);
+const argmax = (a) => a.reduce((b, x, i) => (x > a[b] ? i : b), 0);
+const short = (name) => { const m = /^(\S{1,6})\s/.exec(name || ""); if (m) return m[1]; const s = String(name || ""); return s.length > 9 ? s.slice(0, 8) + "…" : s; };
+const TABS = ["network", "spread", "control", "places", "alarm", "fours"];
+
+/* ------------------------------------------------------------------ state */
+function d1State() {
+  const D = M.D1;
+  return {
+    v: 1, label: D.label, synthetic: true,
+    rows: D.rows.map((r) => ({ name: r.name, residents: r.residents, mhat: r.mhat, away: r.away, attract: r.attract, x: r.x, y: r.y,
+      households: r.households, cost: Math.round(r.households / D.householdsPerTeamDay * 1e6) / 1e6, ubar: D.ubar, index: null })),
+    travelMode: "positions", travel: null, t0: D.t0, speed: D.speed, beta: D.beta,
+    params: Object.assign({}, M.DEFAULT_PARAMS), season: 1, target: D.target, perDay: D.householdsPerTeamDay,
+    cases: D.cases.slice(), period: "4 weeks",
+    alarm: { text: weeklyText(D.alarm.counts, D.alarm.expected), theta: D.alarm.theta, h: D.alarm.h, z: D.alarm.z, delta: 2, mu: 8 },
+    conv: { name: "Breteau index", anchor: 0, anchorM: null },
+    checks: {}, tab: "network"
+  };
+}
+function weeklyText(counts, expected) {
+  return "week, cases, expected\n" + counts.map((c, i) => (i + 1) + ", " + c + ", " + expected[i].toFixed(2)).join("\n");
+}
+function num(x, lo, hi) { const v = Number(x); return isFinite(v) && (lo == null || v >= lo) && (hi == null || v <= hi) ? v : null; }
+function sanitize(o) {
+  if (!o || typeof o !== "object" || !Array.isArray(o.rows) || !o.rows.length || o.rows.length > 400) return null;
+  const base = d1State();
+  const s = Object.assign({}, base, o);
+  s.rows = o.rows.map((r, i) => ({
+    name: String(r.name == null ? "Barangay " + (i + 1) : r.name).slice(0, 60),
+    residents: Number(r.residents), mhat: Number(r.mhat), away: Number(r.away), attract: Number(r.attract),
+    x: Number(r.x) || 0, y: Number(r.y) || 0,
+    households: r.households == null || r.households === "" ? null : Number(r.households),
+    cost: Number(r.cost), ubar: r.ubar == null ? 0.8 : Number(r.ubar), index: r.index == null || r.index === "" ? null : Number(r.index)
+  }));
+  const n = s.rows.length;
+  s.params = Object.assign({}, M.DEFAULT_PARAMS, o.params || {});
+  Object.keys(s.params).forEach((k) => { s.params[k] = Number(s.params[k]); });
+  s.cases = Array.from({ length: n }, (_, i) => Number((o.cases || [])[i]) || 0);
+  if (s.travelMode === "matrix") {
+    const T = Array.isArray(o.travel) ? o.travel : null;
+    if (!T || T.length !== n || T.some((r) => !Array.isArray(r) || r.length !== n)) s.travelMode = "positions", s.travel = null;
+    else s.travel = T.map((r) => r.map(Number));
+  } else { s.travelMode = "positions"; s.travel = null; }
+  ["t0", "speed", "beta", "season", "target", "perDay"].forEach((k) => { if (!isFinite(Number(s[k]))) s[k] = base[k]; else s[k] = Number(s[k]); });
+  s.season = Math.min(1.4, Math.max(0.6, s.season));
+  s.alarm = Object.assign({}, base.alarm, o.alarm || {});
+  s.conv = Object.assign({}, base.conv, o.conv || {});
+  s.checks = o.checks && typeof o.checks === "object" ? o.checks : {};
+  if (TABS.indexOf(s.tab) < 0) s.tab = "network";
+  s.synthetic = !!o.synthetic;
+  s.label = String(o.label || (s.synthetic ? base.label : "My network")).slice(0, 80);
+  return s;
+}
+function load() { try { const t = localStorage.getItem(KEY); return t ? sanitize(JSON.parse(t)) : null; } catch (e) { return null; } }
+let S = load() || d1State();
+let saveTimer = 0;
+function save() { clearTimeout(saveTimer); saveTimer = setTimeout(() => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* storage may be blocked */ } }, 150); }
+
+/* ------------------------------------------------------------------ validation and computation */
+const FIELDS = {
+  residents: { lo: 1, label: "Residents must be at least 1" },
+  mhat: { lo: 0, label: "Mosquitoes per resident cannot be negative" },
+  away: { lo: 0, hi: 0.99, label: "Time away must be from 0 to 99%" },
+  attract: { lo: 1e-9, label: "Attraction must be above 0" },
+  x: {}, y: {},
+  cost: { lo: 1e-9, label: "Team-days must be above 0" },
+  ubar: { lo: 0, hi: 0.99, label: "The most that can be removed must be from 0 to 99%" }
+};
+function rowErrors() {
+  const errs = {};
+  S.rows.forEach((r, i) => {
+    Object.keys(FIELDS).forEach((f) => {
+      const v = r[f], F = FIELDS[f];
+      if (!isFinite(v) || (F.lo != null && v < F.lo) || (F.hi != null && v > F.hi)) errs[i + ":" + f] = F.label || "Enter a number";
+    });
+  });
+  if (S.travelMode === "matrix" && S.travel) S.travel.forEach((row, i) => row.forEach((v, j) => { if (!isFinite(v) || v < 0) errs["T" + i + ":" + j] = "Minutes must be 0 or more"; }));
+  const p = S.params;
+  if (!(p.a > 0 && p.b > 0 && p.b <= 1 && p.c > 0 && p.c <= 1 && p.mosquitoLife > 0 && p.eip > 0 && p.infectious > 0 && p.humanLife > 0)) errs.params = "Check the transmission parameters";
+  if (!(S.beta >= 0) || !(S.t0 >= 0) || !(S.speed > 0)) errs.travel = "Check the travel settings";
+  return errs;
+}
+function spec() {
+  return { rows: S.rows, travelMode: S.travelMode, travel: S.travel, t0: S.t0, speed: S.speed, beta: S.beta, ubar: 0.8, householdsPerTeamDay: S.perDay };
+}
+const memo = {};
+function cached(name, key, fn) { if (memo[name] && memo[name].key === key) return memo[name].val; const val = fn(); memo[name] = { key, val }; return val; }
+function netKey() { return JSON.stringify([S.rows.map((r) => [r.residents, r.mhat, r.away, r.attract, r.x, r.y, r.cost, r.ubar]), S.travelMode, S.travel, S.t0, S.speed, S.beta, S.params]); }
+function computeNet() {
+  const errs = rowErrors();
+  if (Object.keys(errs).length) return { errs };
+  return cached("net", netKey() + "|" + S.season, () => {
+    const net = M.buildNetwork(spec(), S.params, S.season);
+    const an = M.analyse(net);
+    return { net, an, errs: null };
+  });
+}
+function errBox(errs) {
+  const n = Object.keys(errs).length;
+  return '<p class="err" role="alert">Fix ' + n + (n === 1 ? " entry" : " entries") + " marked in red (" + esc(Object.values(errs)[0]) + ") to see the results.</p>";
+}
+
+/* ------------------------------------------------------------------ helpers for drawing */
+function cssVar(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+function hexToRgb(h) { h = h.replace("#", ""); if (h.length === 3) h = h.split("").map((c) => c + c).join(""); const n = parseInt(h, 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
+function mix(a, b, t) { const A = hexToRgb(a), B = hexToRgb(b); return "rgb(" + A.map((x, i) => Math.round(x + (B[i] - x) * t)).join(",") + ")"; }
+function lum(rgb) { const v = rgb.match(/\d+/g).map((x) => { x /= 255; return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4); }); return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2]; }
+function niceMax(v) { if (!(v > 0)) return 1; const p = Math.pow(10, Math.floor(Math.log10(v))); const m = v / p; return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 2.5 ? 2.5 : m <= 5 ? 5 : 10) * p; }
+function ticks(max, n) { const out = []; const step = max / n; for (let i = 0; i <= n; i++) out.push(step * i); return out; }
+function width(el) { return Math.max(280, Math.floor(el.clientWidth || el.getBoundingClientRect().width || 600)); }
+
+/* grouped bar chart: series = [{cls, values, label}], values on a common scale */
+function groupedBars(el, labels, series, opts) {
+  opts = opts || {};
+  const W = width(el), H = opts.height || 250, ml = 44, mr = 8, mt = 12, mb = 30;
+  const iw = W - ml - mr, ih = H - mt - mb, n = labels.length, k = series.length;
+  const max = niceMax(Math.max.apply(null, series.flatMap((s) => s.values)) * 1.05);
+  const band = iw / n, bw = Math.max(3, Math.min(26, (band * 0.78) / k));
+  const fmtY = opts.fmtY || ((v) => nf(v, 0));
+  let g = "";
+  ticks(max, 4).forEach((t) => { const y = mt + ih - (t / max) * ih; g += `<line class="grid" x1="${ml}" x2="${W - mr}" y1="${y}" y2="${y}"/><text x="${ml - 6}" y="${y + 4}" text-anchor="end">${fmtY(t)}</text>`; });
+  labels.forEach((lab, i) => {
+    const cx = ml + band * i + band / 2, x0 = cx - (bw * k) / 2;
+    series.forEach((s, j) => {
+      const v = s.values[i], h = Math.max(0, (v / max) * ih);
+      g += `<rect class="${s.cls}" x="${(x0 + j * bw).toFixed(1)}" y="${(mt + ih - h).toFixed(1)}" width="${(bw - 1.5).toFixed(1)}" height="${h.toFixed(1)}" rx="2"><title>${esc(lab)}: ${esc(s.label)} ${esc((opts.fmtV || fmtY)(v))}</title></rect>`;
+    });
+    g += `<text x="${cx}" y="${H - 10}" text-anchor="middle">${esc(n > 14 ? "" : short(lab))}</text>`;
+  });
+  g += `<line class="ax" x1="${ml}" x2="${W - mr}" y1="${mt + ih}" y2="${mt + ih}"/>`;
+  el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="${esc(opts.aria || "Bar chart")}">${g}</svg>`;
+}
+
+/* ------------------------------------------------------------------ NETWORK screen */
+function cellInput(i, f, val, label, type, attrs) {
+  const err = currentErrs[i + ":" + f];
+  return `<input type="${type || "number"}" ${type === "text" ? "" : 'step="any" inputmode="decimal"'} data-i="${i}" data-f="${f}" value="${esc(val)}" aria-label="${esc(label)}"${err ? ' aria-invalid="true" title="' + esc(err) + '"' : ""} ${attrs || ""}>`;
+}
+let currentErrs = {};
+const show = (v, d) => (v == null || !isFinite(v)) ? "" : String(Math.round(v * Math.pow(10, d || 6)) / Math.pow(10, d || 6));
+function renderBrgyTable() {
+  currentErrs = rowErrors();
+  const tb = $("#tbl-brgy tbody");
+  $("#tbl-brgy").classList.toggle("no-pos", S.travelMode !== "positions");
+  tb.innerHTML = S.rows.map((r, i) => `<tr>
+    <td>${cellInput(i, "name", r.name, "Name of barangay " + (i + 1), "text")}</td>
+    <td>${cellInput(i, "residents", show(r.residents), "Residents of " + r.name)}</td>
+    <td>${cellInput(i, "mhat", show(r.mhat), "Mosquitoes per resident in " + r.name)}</td>
+    <td>${cellInput(i, "away", show(r.away * 100, 4), "Time away from home in percent, " + r.name)}</td>
+    <td>${cellInput(i, "attract", show(r.attract), "Attraction of " + r.name)}</td>
+    <td class="pos">${cellInput(i, "x", show(r.x), "East position in km of " + r.name)}</td>
+    <td class="pos">${cellInput(i, "y", show(r.y), "North position in km of " + r.name)}</td>
+    <td class="del"><button type="button" class="del-btn" data-del="${i}" aria-label="Remove ${esc(r.name)}"${S.rows.length <= 1 ? " disabled" : ""}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button></td></tr>`).join("");
+  renderConvTable();
+  renderCostTable();
+  renderCasesTable();
+}
+function renderTravelInputs() {
+  $$("[data-tmode]").forEach((b) => b.setAttribute("aria-pressed", String(b.getAttribute("data-tmode") === S.travelMode)));
+  $("#tm-positions").hidden = S.travelMode !== "positions";
+  $("#tm-matrix").hidden = S.travelMode !== "matrix";
+  $("#t0").value = show(S.t0); $("#speed").value = show(S.speed); $("#beta").value = show(S.beta);
+  $("#speed-kmh").textContent = isFinite(S.speed) ? "= " + nf(S.speed * 60, 0) + " km per hour" : "";
+  if (S.travelMode === "matrix") {
+    const n = S.rows.length;
+    let h = '<thead><tr><th scope="col">From \\ to</th>' + S.rows.map((r) => `<th scope="col">${esc(short(r.name))}</th>`).join("") + "</tr></thead><tbody>";
+    for (let i = 0; i < n; i++) {
+      h += `<tr><th scope="row" style="text-align:left">${esc(S.rows[i].name)}</th>`;
+      for (let j = 0; j < n; j++) {
+        const err = currentErrs["T" + i + ":" + j];
+        h += i === j ? '<td style="text-align:center;color:var(--ink-3)">0</td>' : `<td><input type="number" step="any" min="0" inputmode="decimal" data-ti="${i}" data-tj="${j}" value="${esc(show(S.travel[i][j], 2))}" aria-label="Minutes from ${esc(S.rows[i].name)} to ${esc(S.rows[j].name)}"${err ? ' aria-invalid="true"' : ""}></td>`;
+      }
+      h += "</tr>";
+    }
+    $("#tbl-travel").innerHTML = h + "</tbody>";
+  }
+}
+function travelFromPositions() { return M.travelFromPositions(S.rows.map((r) => [r.x, r.y]), S.t0, S.speed); }
+function renderNetwork() {
+  const res = computeNet();
+  if (res.errs) { $("#tbl-heat").innerHTML = ""; $("#map").innerHTML = errBox(res.errs); $("#heat-note").textContent = ""; return; }
+  const { net, an } = res, n = net.n, P = net.P;
+  const a = cssVar("--heat-a") || "#FFF8EE", b = cssVar("--heat-b") || "#A3161F";
+  let h = '<thead><tr><th scope="col">Lives in \\ spends the day in</th>' + S.rows.map((r) => `<th scope="col">${esc(short(r.name))}</th>`).join("") + "</tr></thead><tbody>";
+  for (let i = 0; i < n; i++) {
+    h += `<tr><th scope="row" style="text-align:left;background:var(--card)">${esc(S.rows[i].name)}</th>`;
+    for (let j = 0; j < n; j++) {
+      const v = P[i][j], t = Math.min(1, Math.sqrt(v / 0.85)), bg = mix(a, b, t), ink = lum(bg) > 0.33 ? "#2A1613" : "#FFF5DE";
+      h += `<td style="background:${bg};color:${ink}${i === j ? ";font-weight:700" : ""}" title="${esc(S.rows[i].name)} → ${esc(S.rows[j].name)}: ${pct(v, 2)}">${nf(100 * v, 1)}</td>`;
+    }
+    h += "</tr>";
+  }
+  h += '</tbody><tfoot><tr><td>People present by day</td>' + an.present.map((x) => `<td>${nf(x, 0)}</td>`).join("") + "</tr></tfoot>";
+  $("#tbl-heat").innerHTML = h;
+  const vb = M.varahBound(P);
+  $("#heat-note").innerHTML = isFinite(vb)
+    ? `Every barangay's residents spend more than half of the biting hours at home, so cases by residence can be traced back to places (Varah factor ${nf(vb, 2)}).`
+    : "Some barangays spend half of the biting hours or more away from home, so tracing cases back to places is less certain.";
+  drawMap(net, an);
+}
+function drawMap(net, an) {
+  const el = $("#map"), n = net.n, W = width(el), H = Math.round(Math.min(420, Math.max(260, W * 0.72)));
+  let pos = S.rows.map((r) => [r.x, r.y]);
+  if (S.travelMode !== "positions") pos = S.rows.map((_, i) => [Math.cos((2 * Math.PI * i) / n), Math.sin((2 * Math.PI * i) / n)]);
+  const xs = pos.map((p) => p[0]), ys = pos.map((p) => p[1]);
+  const pad = 46, minx = Math.min(...xs), maxx = Math.max(...xs), miny = Math.min(...ys), maxy = Math.max(...ys);
+  const sx = (W - 2 * pad) / Math.max(1e-9, maxx - minx || 1), sy = (H - 2 * pad) / Math.max(1e-9, maxy - miny || 1), s = Math.min(sx, sy);
+  const ox = (W - s * (maxx - minx)) / 2, oy = (H - s * (maxy - miny)) / 2;
+  const X = (p) => ox + (p[0] - minx) * s, Y = (p) => H - (oy + (p[1] - miny) * s);
+  const maxN = Math.max(...net.N), rr = (i) => 8 + 18 * Math.sqrt(net.N[i] / maxN);
+  const flows = [];
+  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) if (i !== j) flows.push([net.P[i][j] * net.N[i], i, j]);
+  flows.sort((p, q) => q[0] - p[0]);
+  const top = flows.slice(0, Math.min(flows.length, Math.max(6, 2 * n))), fmax = top.length ? top[0][0] : 1;
+  const mmax = Math.max(...an.m), mmin = Math.min(...an.m);
+  const ca = cssVar("--heat-a") || "#FFF8EE", cb = cssVar("--heat-b") || "#A3161F";
+  let g = "";
+  top.forEach(([f, i, j]) => {
+    const x1 = X(pos[i]), y1 = Y(pos[i]), x2 = X(pos[j]), y2 = Y(pos[j]);
+    const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1, ux = dx / L, uy = dy / L;
+    const sx1 = x1 + ux * (rr(i) + 3), sy1 = y1 + uy * (rr(i) + 3), ex = x2 - ux * (rr(j) + 6), ey = y2 - uy * (rr(j) + 6);
+    const mx = (sx1 + ex) / 2 - uy * L * 0.08, my = (sy1 + ey) / 2 + ux * L * 0.08, w = 0.8 + 4.5 * (f / fmax);
+    g += `<path class="flow" d="M${sx1.toFixed(1)} ${sy1.toFixed(1)} Q${mx.toFixed(1)} ${my.toFixed(1)} ${ex.toFixed(1)} ${ey.toFixed(1)}" stroke-width="${w.toFixed(2)}" opacity=".7"><title>${esc(S.rows[i].name)} to ${esc(S.rows[j].name)}: ${nf(f, 0)} residents' worth of the day</title></path>`;
+    const ax = ex - (ex - mx) * 0.001, ang = Math.atan2(ey - my, ex - mx), hs = 4 + w;
+    g += `<path class="arrow" d="M${ex.toFixed(1)} ${ey.toFixed(1)} L${(ex - hs * Math.cos(ang - 0.45)).toFixed(1)} ${(ey - hs * Math.sin(ang - 0.45)).toFixed(1)} L${(ex - hs * Math.cos(ang + 0.45)).toFixed(1)} ${(ey - hs * Math.sin(ang + 0.45)).toFixed(1)}Z" opacity=".8"/>`;
+    void ax;
+  });
+  for (let i = 0; i < n; i++) {
+    const t = mmax > mmin ? (an.m[i] - mmin) / (mmax - mmin) : 0.5;
+    g += `<circle class="node" cx="${X(pos[i]).toFixed(1)}" cy="${Y(pos[i]).toFixed(1)}" r="${rr(i).toFixed(1)}" fill="${mix(ca, cb, 0.25 + 0.75 * t)}"><title>${esc(S.rows[i].name)}: ${nf(net.N[i], 0)} residents, ${nf(an.m[i], 2)} mosquitoes per person present</title></circle>`;
+    g += `<text class="lab" x="${(X(pos[i]) + rr(i) + 4).toFixed(1)}" y="${(Y(pos[i]) - rr(i) * 0.4).toFixed(1)}">${esc(short(S.rows[i].name))}</text>`;
+  }
+  el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Map of the barangays with the largest daily flows">${g}</svg>
+    <p class="fine">Mosquitoes per person present: ${nf(mmin, 2)} (lightest) to ${nf(mmax, 2)} (darkest).${S.travelMode !== "positions" ? " Places are drawn on a circle because travel times were entered as a table." : ""}</p>`;
+}
+
+/* survey-index converter */
+function renderConvTable() {
+  const sel = $("#conv-anchor");
+  sel.innerHTML = S.rows.map((r, i) => `<option value="${i}"${i === S.conv.anchor ? " selected" : ""}>${esc(r.name)}</option>`).join("");
+  if (S.conv.anchor >= S.rows.length) S.conv.anchor = 0;
+  $("#conv-name").value = S.conv.name || "";
+  const am = S.conv.anchorM == null ? S.rows[S.conv.anchor].mhat : S.conv.anchorM;
+  $("#conv-anchor-m").value = show(am);
+  $("#tbl-conv tbody").innerHTML = S.rows.map((r, i) => `<tr><td>${esc(r.name)}</td><td><input type="number" step="any" min="0" inputmode="decimal" data-ci="${i}" value="${esc(show(r.index))}" aria-label="Survey index of ${esc(r.name)}"></td><td data-cout="${i}"></td></tr>`).join("");
+  updateConv();
+}
+function convFactor() {
+  const a = S.conv.anchor, idx = S.rows[a] && S.rows[a].index, am = S.conv.anchorM == null ? (S.rows[a] && S.rows[a].mhat) : S.conv.anchorM;
+  return idx > 0 && am >= 0 ? am / idx : null;
+}
+function updateConv() {
+  const f = convFactor();
+  S.rows.forEach((r, i) => { const c = $(`[data-cout="${i}"]`); if (c) c.textContent = f != null && r.index != null && isFinite(r.index) ? nf(r.index * f, 3) : "–"; });
+  $("#conv-factor").textContent = f != null ? "1 index point = " + nf(f, 4) + " mosquitoes per resident." : "Enter the index of the calibration barangay.";
+  $("#conv-apply").disabled = f == null || S.rows.some((r) => r.index == null || !isFinite(r.index) || r.index < 0);
+}
+
+/* ------------------------------------------------------------------ SPREAD screen */
+const PARAMS = [
+  ["a", "Bites per mosquito per day", 0.01], ["b", "Chance a bite infects a person", 0.01], ["c", "Chance a bite infects the mosquito", 0.01],
+  ["mosquitoLife", "Mosquito life (days)", 0.5], ["eip", "Virus incubation in the mosquito (days)", 0.5], ["infectious", "Infectious period of a person (days)", 0.5], ["humanLife", "Human life (years)", 1]
+];
+function renderParams() {
+  $("#params").innerHTML = PARAMS.map(([k, label, step]) => `<label class="field"><span>${label}</span><input type="number" class="w-s" step="${step}" min="0" data-p="${k}" value="${esc(show(S.params[k]))}"></label>`).join("") +
+    '<button type="button" class="btn btn-sm" id="params-reset">Reset to study values</button>';
+}
+function seasonLabel(s) { return nf(s, 2) + (Math.abs(s - 1) < 1e-9 ? " (survey season)" : s > 1 ? " (more mosquitoes)" : " (fewer mosquitoes)"); }
+function renderSeason() {
+  ["a", "b"].forEach((k) => { const r = $("#season-" + k); r.value = S.season; $("#season-" + k + "-out").textContent = seasonLabel(S.season); });
+}
+function renderSpread() {
+  renderSeason();
+  const res = computeNet();
+  const kap = M.kappa(S.params);
+  $("#kappa-note").innerHTML = isFinite(kap) && kap > 0 ? `κ = ${nf(kap, 4)}: in a single place with nobody moving, R<sub>0</sub> = 1 when people meet ${nf(1 / kap, 2)} mosquitoes each.` : "";
+  if (res.errs) { $("#spread-err").innerHTML = errBox(res.errs); ["#kpis", "#spread-insight", "#chart-shares", "#rank", "#tbl-spread"].forEach((s) => { $(s).innerHTML = ""; }); $("#spread-insight").hidden = true; return; }
+  $("#spread-err").innerHTML = "";
+  const { net, an } = res, n = net.n, names = S.rows.map((r) => r.name);
+  const iso = argmax(an.iso_r0), up = an.r0 > 1;
+  $("#kpis").innerHTML = `
+    <div class="kpi hero"><div class="kpi-label">Network R<sub>0</sub></div><div class="kpi-value">${nf(an.r0, 3)}</div><div class="kpi-sub"><span class="chip ${up ? "up" : "down"}">${up ? "Above 1: dengue can spread" : "Below 1: dengue dies out"}</span></div></div>
+    <div class="kpi"><div class="kpi-label">Province-average R<sub>0</sub></div><div class="kpi-value">${nf(an.hom_r0, 3)}</div><div class="kpi-sub">Same mosquitoes spread evenly over the same people. Averaging never overstates the risk.</div></div>
+    <div class="kpi"><div class="kpi-label">If nobody left home</div><div class="kpi-value">${nf(an.r0_no_movement, 3)}</div><div class="kpi-sub">Highest barangay on its own: ${esc(names[iso])}</div></div>
+    <div class="kpi"><div class="kpi-label">Check: min R<sub>i</sub> ≤ R<sub>0</sub><sup>2</sup> ≤ max R<sub>i</sub></div><div class="kpi-value" style="font-size:1.55rem">${nf(an.minR, 3)} ≤ ${nf(an.r0_sq, 3)} ≤ ${nf(an.maxR, 3)}</div><div class="kpi-sub">${an.minR <= an.r0_sq + 1e-12 && an.r0_sq <= an.maxR + 1e-12 ? "Holds, as the theory requires." : "Does not hold: check the inputs."}</div></div>`;
+  const tc = argmax(an.case_share), tp = argmax(an.shares);
+  const ins = $("#spread-insight"); ins.hidden = false;
+  ins.innerHTML = tc !== tp
+    ? `Cases by home address point to <b>${esc(names[tc])}</b> (${pct(an.case_share[tc])} of cases), but <b>${pct(an.shares[tp])}</b> of transmission happens at <b>${esc(names[tp])}</b>. A brigade sent where the cases live would start in the wrong place.`
+    : `<b>${esc(names[tp])}</b> leads both by home address (${pct(an.case_share[tc])} of cases) and by place (${pct(an.shares[tp])} of transmission).`;
+  groupedBars($("#chart-shares"), names, [
+    { cls: "s-res", label: "residents", values: an.resident_share.map((x) => 100 * x) },
+    { cls: "s-case", label: "cases by home address", values: an.case_share.map((x) => 100 * x) },
+    { cls: "s-place", label: "transmission by place", values: an.shares.map((x) => 100 * x) }
+  ], { fmtY: (v) => nf(v, 0) + "%", fmtV: (v) => nf(v, 1) + "%", aria: "Shares of residents, cases by home address and transmission by place for each barangay" });
+  const order = an.hotspot_per_teamday.map((v, i) => i).sort((p, q) => an.hotspot_per_teamday[q] - an.hotspot_per_teamday[p]);
+  $("#rank").innerHTML = order.slice(0, Math.min(n, 8)).map((i) => `<li><span class="r-name">${esc(names[i])}<small>${pct(an.shares[i])} of transmission · ${nf(S.rows[i].cost, 2)} team-days for full control</small></span><span class="r-val">${nf(1000 * an.hotspot_per_teamday[i], 1)}</span></li>`).join("");
+  let h = '<thead><tr><th scope="col">Barangay</th><th scope="col">Residents</th><th scope="col">People present by day</th><th scope="col">Mosquitoes per person present</th><th scope="col">Local exposure R<sub>i</sub></th><th scope="col">R<sub>0</sub> if isolated</th><th scope="col">Cases by home (%)</th><th scope="col">Transmission at place (%)</th><th scope="col">Hotspot score per team-day</th></tr></thead><tbody>';
+  for (let i = 0; i < n; i++) h += `<tr${i === tp ? ' class="hl"' : ""}><td>${esc(names[i])}</td><td>${nf(net.N[i], 0)}</td><td>${nf(an.present[i], 0)}</td><td>${nf(an.m[i], 3)}</td><td>${nf(an.R_local[i], 3)}</td><td>${nf(an.iso_r0[i], 3)}</td><td>${nf(100 * an.case_share[i], 1)}</td><td class="num-strong">${nf(100 * an.shares[i], 1)}</td><td>${nf(1000 * an.hotspot_per_teamday[i], 2)}</td></tr>`;
+  $("#tbl-spread").innerHTML = h + "</tbody>";
+}
+
+/* ------------------------------------------------------------------ CONTROL screen */
+const STRATS = [
+  ["uniform", "Same everywhere", "the same reduction in every place"],
+  ["case_residence", "Where cases live", "in proportion to cases by home address"],
+  ["place_share", "By place share", "in proportion to transmission by place"],
+  ["certificate", "Quick safe plan", "linear-program certificate"],
+  ["exact", "Least cost", "convex program, certified"]
+];
+let planPick = "exact";
+function renderCostTable() {
+  $("#tbl-cost tbody").innerHTML = S.rows.map((r, i) => `<tr><td>${esc(r.name)}</td>
+    <td>${cellInput(i, "households", show(r.households), "Households in " + r.name)}</td>
+    <td>${cellInput(i, "cost", show(r.cost), "Team-days for full control in " + r.name)}</td>
+    <td>${cellInput(i, "ubar", show(r.ubar * 100, 4), "Most mosquitoes that can be removed in percent, " + r.name)}</td></tr>`).join("");
+}
+function ctrlKey() { return netKey() + "|" + S.season + "|" + S.target; }
+function renderControl() {
+  renderSeason();
+  $("#target").value = show(S.target); $("#perday").value = show(S.perDay);
+  const res = computeNet();
+  const clear = () => ["#ctrl-insight", "#strat-bars", "#cert-note", "#plan-bars", "#tbl-plans", "#chart-season", "#season-wait"].forEach((s) => { $(s).innerHTML = ""; });
+  if (res.errs) { $("#ctrl-err").innerHTML = errBox(res.errs); clear(); $("#ctrl-insight").hidden = true; return; }
+  if (!(S.target > 0)) { $("#ctrl-err").innerHTML = '<p class="err">Enter a target above 0.</p>'; clear(); return; }
+  $("#ctrl-err").innerHTML = "";
+  const { net, an } = res, names = S.rows.map((r) => r.name);
+  const st = cached("strat", ctrlKey(), () => M.strategies(net, S.target));
+  const ins = $("#ctrl-insight"); ins.hidden = false;
+  const ex = st.exact;
+  if (an.r0 <= S.target) {
+    ins.innerHTML = `R<sub>0</sub> is already ${nf(an.r0, 3)}, at or below the target ${nf(S.target, 2)}: no control is needed this season.`;
+  } else if (!ex.feasible) {
+    ins.innerHTML = `The target ${nf(S.target, 2)} cannot be reached even with the most control everywhere. Raise the maximum reductions or the target.`;
+  } else {
+    const su = 1 - ex.cost / st.uniform.cost, sc = st.case_residence.feasible ? 1 - ex.cost / st.case_residence.cost : NaN;
+    ins.innerHTML = `The least-cost plan needs <b>${nf(ex.cost, 2)} team-days</b>${st.uniform.feasible ? `, ${nf(100 * su, 0)}% fewer than the same control everywhere` : ""}${isFinite(sc) ? ` and ${nf(100 * sc, 0)}% fewer than control where cases live` : ""}. It brings R<sub>0</sub> from ${nf(an.r0, 3)} to ${nf(ex.r0, 3)}.`;
+  }
+  const feas = STRATS.filter(([k]) => st[k].feasible).map(([k]) => st[k].cost);
+  const cmax = Math.max(1e-9, ...feas);
+  $("#strat-bars").innerHTML = STRATS.map(([k, label, sub]) => {
+    const s = st[k];
+    return `<div class="bar-row${k === "exact" ? " best" : ""}"><span class="lbl">${label}<small>${sub}</small></span>
+      <span class="bar-track" role="img" aria-label="${label}: ${s.feasible ? nf(s.cost, 2) + " team-days" : "cannot reach the target"}"><span class="bar-fill${k === "exact" ? " exact" : k === "certificate" ? " cert" : ""}" style="width:${s.feasible ? (100 * s.cost / cmax).toFixed(2) : 0}%"></span></span>
+      <span class="val">${s.feasible ? nf(s.cost, 2) : "–"}<small style="display:block;font-weight:400;color:var(--ink-3);font-size:.74rem">R<sub>0</sub> ${s.feasible ? nf(s.r0, 3) : "–"}</small></span></div>`;
+  }).join("");
+  $("#cert-note").innerHTML = ex.feasible && an.r0 > S.target
+    ? `Certified interval for the least cost: [${nf(ex.lower, 4)}, ${nf(ex.upper, 4)}] team-days, so no plan can do better than ${nf(ex.lower, 2)}. Found in ${ex.iterations} Newton steps of the interior-point method. The quick safe plan solves a linear program in which every barangay's local exposure number meets the target, so it never falls short, but it may spend more.`
+    : "";
+  $("#plan-pick").innerHTML = STRATS.map(([k, label]) => `<button type="button" data-plan="${k}" aria-pressed="${k === planPick}">${label}</button>`).join("");
+  const sp = st[planPick];
+  $("#plan-bars").innerHTML = sp.feasible ? S.rows.map((r, i) => `<div class="bar-row"><span class="lbl">${esc(r.name)}<small>${nf(sp.u[i] * r.cost, 2)} team-days</small></span>
+      <span class="bar-track" role="img" aria-label="${esc(r.name)}: remove ${pct(sp.u[i])} of mosquitoes"><span class="bar-fill${planPick === "exact" ? " exact" : ""}" style="width:${(100 * sp.u[i]).toFixed(2)}%"></span><span class="cap-mark" style="left:calc(${(100 * r.ubar).toFixed(2)}% - 1px)" title="most that can be removed"></span></span>
+      <span class="val">${pct(sp.u[i])}</span></div>`).join("") + '<p class="fine">Bars: share of mosquitoes removed. Black tick: the most that can be removed.</p>'
+    : '<p class="note">This plan cannot reach the target.</p>';
+  let h = '<thead><tr><th scope="col">Plan</th>' + names.map((nm) => `<th scope="col">${esc(short(nm))} (%)</th>`).join("") + '<th scope="col">Team-days</th><th scope="col">R<sub>0</sub> reached</th></tr></thead><tbody>';
+  STRATS.forEach(([k, label]) => { const s = st[k]; h += `<tr${k === "exact" ? ' class="hl"' : ""}><td>${label}</td>` + names.map((_, i) => `<td>${s.feasible ? nf(100 * s.u[i], 1) : "–"}</td>`).join("") + `<td class="num-strong">${s.feasible ? nf(s.cost, 2) : "–"}</td><td>${s.feasible ? nf(s.r0, 3) : "–"}</td></tr>`; });
+  $("#tbl-plans").innerHTML = h + "</tbody>";
+  renderSeasonCurve(net);
+}
+let curveTimer = 0;
+function renderSeasonCurve(net) {
+  const key = netKey() + "|" + S.target, F = [0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4];
+  const draw = (curve) => {
+    const el = $("#chart-season"), W = width(el), H = 230, ml = 48, mr = 14, mt = 14, mb = 34, iw = W - ml - mr, ih = H - mt - mb;
+    const vals = curve.map((c) => c.cost == null ? NaN : c.cost), max = niceMax(Math.max(1, ...vals.filter(isFinite)) * 1.05);
+    const X = (s) => ml + ((s - 0.6) / 0.8) * iw, Yv = (v) => mt + ih - (v / max) * ih;
+    let g = "";
+    ticks(max, 4).forEach((t) => { g += `<line class="grid" x1="${ml}" x2="${W - mr}" y1="${Yv(t)}" y2="${Yv(t)}"/><text x="${ml - 6}" y="${Yv(t) + 4}" text-anchor="end">${nf(t, 0)}</text>`; });
+    F.forEach((s) => { g += `<text x="${X(s)}" y="${H - 14}" text-anchor="middle">${nf(s, 1)}</text>`; });
+    g += `<text x="${ml + iw / 2}" y="${H}" text-anchor="middle">season factor</text>`;
+    const pts = curve.filter((c) => c.cost != null);
+    if (pts.length) g += `<path class="l-cost" d="${pts.map((c, i) => (i ? "L" : "M") + X(c.s).toFixed(1) + " " + Yv(c.cost).toFixed(1)).join(" ")}"/>`;
+    pts.forEach((c) => { g += `<circle cx="${X(c.s)}" cy="${Yv(c.cost)}" r="4" class="s-exact"><title>Season ${nf(c.s, 1)}: R0 ${nf(c.r0, 3)} without control, least cost ${nf(c.cost, 2)} team-days</title></circle>`; });
+    const cs = S.season;
+    g += `<line x1="${X(cs)}" x2="${X(cs)}" y1="${mt}" y2="${mt + ih}" stroke="var(--ink-3)" stroke-dasharray="3 3"/><text x="${Math.min(W - mr - 40, X(cs) + 4)}" y="${mt + 10}">now ${nf(cs, 2)}</text>`;
+    g += `<line class="ax" x1="${ml}" x2="${W - mr}" y1="${mt + ih}" y2="${mt + ih}"/>`;
+    el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Least cost in team-days for each season factor">${g}</svg>`;
+    const unreach = curve.filter((c) => c.cost == null).map((c) => nf(c.s, 1));
+    const thr = curve.find((c) => c.r0 > S.target);
+    $("#season-wait").innerHTML = (thr ? `Below a season factor of about ${nf(thr.s, 1)} no control is needed to stay under the target. ` : "") + (unreach.length ? `Target out of reach at season factor ${unreach.join(", ")}. ` : "") +
+      '<span class="fine">Points: ' + curve.map((c) => nf(c.s, 1) + " → " + (c.cost == null ? "out of reach" : nf(c.cost, 1))).join(" · ") + "</span>";
+  };
+  if (memo.curve && memo.curve.key === key) { draw(memo.curve.val); return; }
+  $("#season-wait").textContent = "Computing the season curve…";
+  clearTimeout(curveTimer);
+  curveTimer = setTimeout(() => {
+    const base = M.buildNetwork(spec(), S.params, 1);
+    const curve = M.seasonCurve(base, S.target, F);
+    memo.curve = { key, val: curve };
+    if (S.tab === "control") draw(curve);
+  }, net.n > 30 ? 300 : 30);
+}
+
+/* ------------------------------------------------------------------ PLACES screen */
+function renderCasesTable() {
+  $("#tbl-cases tbody").innerHTML = S.rows.map((r, i) => `<tr><td>${esc(r.name)}</td><td><input type="number" step="1" min="0" inputmode="numeric" data-case="${i}" value="${esc(show(S.cases[i]))}" aria-label="Cases among residents of ${esc(r.name)}"></td></tr>`).join("");
+}
+function isPristineD1() {
+  const D = M.D1;
+  if (!S.synthetic || S.rows.length !== D.rows.length || S.travelMode !== "positions" || S.t0 !== D.t0 || S.speed !== D.speed || S.beta !== D.beta) return false;
+  return D.rows.every((r, i) => { const s = S.rows[i]; return s.residents === r.residents && s.mhat === r.mhat && Math.abs(s.away - r.away) < 1e-12 && s.attract === r.attract && s.x === r.x && s.y === r.y; })
+    && D.cases.every((c, i) => S.cases[i] === c);
+}
+function renderPlaces() {
+  $("#period").value = S.period || "";
+  const res = computeNet();
+  const clear = () => ["#places-insight", "#chart-places", "#tbl-places", "#varah-note", "#places-legend"].forEach((s) => { $(s).innerHTML = ""; });
+  if (res.errs) { $("#places-err").innerHTML = errBox(res.errs); clear(); $("#places-insight").hidden = true; return; }
+  const bad = S.cases.some((c) => !isFinite(c) || c < 0);
+  if (bad) { $("#places-err").innerHTML = '<p class="err">Cases must be whole numbers, 0 or more.</p>'; clear(); return; }
+  $("#places-err").innerHTML = "";
+  const { net } = res, names = S.rows.map((r) => r.name), n = net.n;
+  const total = sum(S.cases);
+  const ins = $("#places-insight");
+  if (total <= 0) { ins.hidden = false; ins.innerHTML = "Enter the cases by barangay of residence to see where the infections most likely happened."; clear(); ins.innerHTML = "Enter the cases by barangay of residence to see where the infections most likely happened."; return; }
+  const inv = M.inferPlaces(net.P, net.N, S.cases);
+  const truth = isPristineD1() ? M.D1.truth : null;
+  const tc = argmax(S.cases), tp = argmax(inv.infections);
+  ins.hidden = false;
+  ins.innerHTML = (tc !== tp
+    ? `The most cases live in <b>${esc(names[tc])}</b> (${nf(S.cases[tc], 0)}), but the most infections most likely happened in <b>${esc(names[tp])}</b> (about ${nf(inv.infections[tp], 0)}).`
+    : `<b>${esc(names[tp])}</b> has both the most cases by home address (${nf(S.cases[tc], 0)}) and the most infections by place (about ${nf(inv.infections[tp], 0)}).`) +
+    (truth ? " Because D1 is synthetic, the true infections by place are known and shown for comparison." : "");
+  $("#places-legend").innerHTML = '<span><i style="background:var(--c-case)"></i>Cases by home address</span><span><i style="background:var(--c-place)"></i>Infections by place (inferred)</span>' + (truth ? '<span><i style="background:var(--c-truth)"></i>Infections by place (model truth, test network only)</span>' : "");
+  const series = [{ cls: "s-case", label: "cases by home", values: S.cases.slice() }, { cls: "s-place", label: "infections by place (inferred)", values: inv.infections }];
+  if (truth) series.push({ cls: "s-truth", label: "infections by place (model truth)", values: truth });
+  groupedBars($("#chart-places"), names, series, { fmtY: (v) => nf(v, 0), fmtV: (v) => nf(v, 1), aria: "Cases by home address and inferred infections by place" });
+  let h = `<thead><tr><th scope="col">Barangay</th><th scope="col">Cases by home (${esc(S.period || "period")})</th><th scope="col">Rate per 1,000 residents</th><th scope="col">Infection pressure per 1,000 present</th><th scope="col">Infections by place (inferred)</th><th scope="col">± bound</th>${truth ? '<th scope="col">Model truth (D1 only)</th>' : ""}</tr></thead><tbody>`;
+  for (let i = 0; i < n; i++) h += `<tr${i === tp ? ' class="hl"' : ""}><td>${esc(names[i])}</td><td>${nf(S.cases[i], 0)}</td><td>${nf(1000 * inv.rate[i], 2)}</td><td>${nf(1000 * inv.z[i], 2)}</td><td class="num-strong">${nf(inv.infections[i], 1)}</td><td>${isFinite(inv.infErr[i]) ? "± " + nf(inv.infErr[i], 1) : "–"}</td>${truth ? `<td>${nf(truth[i], 1)}</td>` : ""}</tr>`;
+  h += `</tbody><tfoot><tr><td>Total</td><td>${nf(total, 0)}</td><td></td><td></td><td>${nf(sum(inv.infections), 1)}</td><td></td>${truth ? `<td>${nf(sum(truth), 1)}</td>` : ""}</tr></tfoot>`;
+  $("#tbl-places").innerHTML = h;
+  $("#varah-note").innerHTML = isFinite(inv.varah)
+    ? `Pressures by place are found by nonnegative least squares from y = P z. Every barangay spends more than half of the biting hours at home, so P is invertible and errors in the rates move the pressures by at most ${nf(inv.varah, 2)} times as much (Varah bound). The ± column applies it to one Poisson standard deviation of the noisiest rate.`
+    : "Some barangays spend half of the biting hours or more away from home, so the Varah bound does not apply and the inferred places are less certain.";
+}
+
+/* ------------------------------------------------------------------ ALARM screen */
+function renderAlarmInputs() {
+  const A = S.alarm;
+  $("#weekly").value = A.text; $("#theta").value = show(A.theta); $("#h").value = show(A.h); $("#zval").value = show(A.z); $("#delta").value = show(A.delta); $("#mu").value = show(A.mu);
+}
+function renderAlarm() {
+  const A = S.alarm, wk = M.parseWeekly(A.text), x = wk.counts, mu = wk.expected, T = x.length;
+  $("#weekly-read").textContent = T ? T + " weeks read." : "No weeks read yet.";
+  const clear = () => { ["#alarm-status", "#chart-alarm"].forEach((s) => { $(s).innerHTML = ""; }); };
+  const bad = !(A.theta > 1) || !(A.h > 0) || !(A.z >= 0) || x.some((v) => !(v >= 0)) || mu.some((v) => !(v > 0));
+  if (!T || bad) { $("#alarm-err").innerHTML = T ? '<p class="err">Check the settings: θ above 1, h above 0, counts 0 or more and expected counts above 0.</p>' : ""; clear(); renderDesign(); return; }
+  $("#alarm-err").innerHTML = "";
+  const k = mu.map((m) => M.cusumK(m, A.theta)), cu = M.cusum(x, k, A.h), th = M.thresholdRule(x, mu, A.z);
+  const last = cu.S[T - 1];
+  $("#alarm-status").innerHTML = `
+    <div class="kpi${cu.alarm !== null ? " hero" : ""}"><div class="kpi-label">CUSUM alarm</div><div class="kpi-value">${cu.alarm !== null ? "Week " + (cu.alarm + 1) : "None"}</div><div class="kpi-sub">${cu.alarm !== null ? "S<sub>t</sub> reached h = " + nf(A.h, 2) + " in week " + (cu.alarm + 1) + "." : "Latest S<sub>t</sub> = " + nf(last, 2) + " of h = " + nf(A.h, 2) + "."}</div></div>
+    <div class="kpi"><div class="kpi-label">Single-week rule</div><div class="kpi-value">${th.alarm !== null ? "Week " + (th.alarm + 1) : "None"}</div><div class="kpi-sub">Alarm when a week's count exceeds μ<sub>t</sub> + ${nf(A.z, 2)}√μ<sub>t</sub>.</div></div>
+    <div class="kpi"><div class="kpi-label">This week</div><div class="kpi-value">${nf(x[T - 1], 0)}</div><div class="kpi-sub">cases in week ${T}, expected ${nf(mu[T - 1], 1)}; CUSUM ${nf(last, 2)}</div></div>`;
+  drawAlarm(x, mu, th.threshold, cu, th.alarm);
+  renderDesign();
+}
+function drawAlarm(x, mu, thr, cu, thAlarm) {
+  const el = $("#chart-alarm"), W = width(el), T = x.length, ml = 40, mr = 10, H1 = 200, H2 = 120, gap = 26, mt = 10, mb = 30, H = mt + H1 + gap + H2 + mb;
+  const iw = W - ml - mr, bw = iw / T, X = (t) => ml + bw * t + bw / 2;
+  const max1 = niceMax(Math.max(...x, ...thr) * 1.05), Y1 = (v) => mt + H1 - (v / max1) * H1;
+  const smax = niceMax(Math.max(S.alarm.h * 1.25, ...cu.S)), Y2 = (v) => mt + H1 + gap + H2 - (v / smax) * H2;
+  let g = "";
+  ticks(max1, 4).forEach((t) => { g += `<line class="grid" x1="${ml}" x2="${W - mr}" y1="${Y1(t)}" y2="${Y1(t)}"/><text x="${ml - 6}" y="${Y1(t) + 4}" text-anchor="end">${nf(t, 0)}</text>`; });
+  x.forEach((v, t) => { g += `<rect class="s-case" x="${(ml + bw * t + bw * 0.12).toFixed(1)}" y="${Y1(v).toFixed(1)}" width="${Math.max(1, bw * 0.76).toFixed(1)}" height="${(mt + H1 - Y1(v)).toFixed(1)}" rx="1.5"><title>Week ${t + 1}: ${v} cases, expected ${nf(mu[t], 1)}</title></rect>`; });
+  g += `<path class="l-exp" d="${mu.map((v, t) => (t ? "L" : "M") + X(t).toFixed(1) + " " + Y1(v).toFixed(1)).join(" ")}"/>`;
+  g += `<path class="l-thr" d="${thr.map((v, t) => (t ? "L" : "M") + X(t).toFixed(1) + " " + Y1(v).toFixed(1)).join(" ")}"/>`;
+  g += `<line class="ax" x1="${ml}" x2="${W - mr}" y1="${mt + H1}" y2="${mt + H1}"/>`;
+  ticks(smax, 2).forEach((t) => { g += `<line class="grid" x1="${ml}" x2="${W - mr}" y1="${Y2(t)}" y2="${Y2(t)}"/><text x="${ml - 6}" y="${Y2(t) + 4}" text-anchor="end">${nf(t, 0)}</text>`; });
+  g += `<line class="l-h" x1="${ml}" x2="${W - mr}" y1="${Y2(S.alarm.h)}" y2="${Y2(S.alarm.h)}"/><text x="${W - mr}" y="${Y2(S.alarm.h) - 5}" text-anchor="end">h = ${nf(S.alarm.h, 2)}</text>`;
+  g += `<path class="l-cus" d="${cu.S.map((v, t) => (t ? "L" : "M") + X(t).toFixed(1) + " " + Y2(v).toFixed(1)).join(" ")}"/>`;
+  g += `<line class="ax" x1="${ml}" x2="${W - mr}" y1="${mt + H1 + gap + H2}" y2="${mt + H1 + gap + H2}"/>`;
+  const every = T > 26 ? (W < 500 ? 8 : 4) : T > 12 ? 2 : 1;
+  for (let t = 0; t < T; t++) if ((t + 1) % every === 0 || t === 0) g += `<text x="${X(t)}" y="${H - 12}" text-anchor="middle">${t + 1}</text>`;
+  g += `<text x="${ml}" y="${H}" text-anchor="start">week</text><text x="${ml + 4}" y="${mt + H1 + gap - 6}">CUSUM S<tspan baseline-shift="sub" font-size="8">t</tspan></text>`;
+  if (cu.alarm !== null) g += `<line class="m-alarm" x1="${X(cu.alarm)}" x2="${X(cu.alarm)}" y1="${mt}" y2="${mt + H1 + gap + H2}"/><text x="${X(cu.alarm) + 4}" y="${mt + 12}" style="fill:var(--c-place);font-weight:700">CUSUM alarm</text>`;
+  if (thAlarm !== null) g += `<line class="m-thr" x1="${X(thAlarm)}" x2="${X(thAlarm)}" y1="${mt}" y2="${mt + H1}"/><text x="${X(thAlarm) - 4}" y="${mt + 26}" text-anchor="end" style="fill:var(--teal-ink);font-weight:700">single-week</text>`;
+  el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Weekly cases with expected counts, single-week threshold, and the CUSUM statistic">${g}</svg>`;
+}
+function renderDesign() {
+  const A = S.alarm, out = $("#design-out");
+  if (!(A.h > 0) || !(A.delta > 0) || !(A.mu > 0) || !(A.theta > 1)) { out.innerHTML = "Enter positive values."; return; }
+  const db = M.delayBound(A.h, A.delta);
+  const k = Math.round(M.cusumK(A.mu, A.theta)), hI = Math.max(1, Math.round(A.h));
+  let arl0 = null, arl1 = null;
+  if (hI <= 200 && k <= 400) { arl0 = M.arlMarkov(A.mu, k, hI); arl1 = M.arlMarkov(A.mu * A.theta, k, hI); }
+  out.innerHTML = `<p><b>Delay guarantee.</b> If from some week on every count exceeds k<sub>t</sub> by at least δ = ${nf(A.delta, 1)}, the alarm sounds within ⌈h/δ⌉ = <b>${db} weeks</b>. Higher counts never delay it.</p>
+    <p style="margin-top:.5rem"><b>Average run length</b> (exact, Brook and Evans Markov chain) for a steady expected count μ = ${nf(A.mu, 1)}, with whole numbers k = ${k} and h = ${hI}: ${arl0 != null ? `<b>${nf(arl0, 1)} weeks</b> to a false alarm in a normal year, and <b>${nf(arl1, 1)} weeks</b> to an alarm after a rise to ${nf(A.theta * A.mu, 1)} a week.` : "too large to compute here."}</p>`;
+}
+
+/* ------------------------------------------------------------------ 4S screen */
+const FOUR_S = [
+  ["search", "Search and destroy", "breeding sites", "Find and remove the places where water collects and mosquitoes breed, in and around homes, schools, markets and workplaces."],
+  ["self", "Self-protection", "", "Protect yourself from bites. Aedes aegypti bites by day, so protection matters at school and at work, not only at home."],
+  ["seek", "Seek early consultation", "", "Anyone with fever should go early to the nearest health center. BANTA-Y is not medical advice."],
+  ["support", "Support fogging or spraying", "only in hotspots", "Fogging and spraying are for hotspots only. BANTA-Y ranks hotspots by where transmission happens."]
+];
+function render4S() {
+  const res = computeNet();
+  let hot = "";
+  if (!res.errs) {
+    const an = res.an, order = an.hotspot_per_teamday.map((v, i) => i).sort((p, q) => an.hotspot_per_teamday[q] - an.hotspot_per_teamday[p]).slice(0, 3);
+    hot = ` Top hotspots now: ${order.map((i) => "<b>" + esc(S.rows[i].name) + "</b>").join(", ")} (see Spread and Control).`;
+  }
+  $("#checks").innerHTML = FOUR_S.map(([k, a, b, p]) => `<li class="check${S.checks[k] ? " done" : ""}"><input type="checkbox" id="ck-${k}" data-check="${k}"${S.checks[k] ? " checked" : ""}><label for="ck-${k}"><h3><span class="s-letter">S</span> ${a}${b ? " " + b : ""}</h3><p>${p}${k === "support" ? hot : ""}</p></label></li>`).join("");
+}
+
+/* ------------------------------------------------------------------ navigation and rendering */
+const RENDER = { network: renderNetwork, spread: renderSpread, control: renderControl, places: renderPlaces, alarm: renderAlarm, fours: render4S };
+let renderTimer = 0;
+function schedule(delay) { clearTimeout(renderTimer); renderTimer = setTimeout(() => { RENDER[S.tab](); }, delay == null ? 120 : delay); }
+function updateChrome() {
+  $("#banner").hidden = !S.synthetic;
+  $("#brand-sub").textContent = S.synthetic ? "Test network D1 · synthetic" : (S.label || "My network");
+}
+function go(tab, focus) {
+  if (TABS.indexOf(tab) < 0) tab = "network";
+  S.tab = tab; save();
+  TABS.forEach((t) => { $("#scr-" + t).hidden = t !== tab; });
+  $$(".tab").forEach((b) => { if (b.getAttribute("data-tab") === tab) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current"); });
+  try { history.replaceState(null, "", "#" + tab); } catch (e) { /* file pages may refuse */ }
+  RENDER[tab]();
+  if (focus) { window.scrollTo(0, 0); const h = $("#h-" + tab); if (h) { h.setAttribute("tabindex", "-1"); h.focus({ preventScroll: true }); } }
+}
+function rebuildAll() { memo.net = memo.strat = memo.curve = null; renderBrgyTable(); renderTravelInputs(); renderParams(); renderAlarmInputs(); updateChrome(); go(S.tab); }
+$$(".tab").forEach((b) => b.addEventListener("click", () => go(b.getAttribute("data-tab"), true)));
+window.addEventListener("hashchange", () => { const t = location.hash.slice(1); if (t && t !== S.tab && TABS.indexOf(t) >= 0) go(t); });
+
+/* ------------------------------------------------------------------ input events */
+function setRowField(i, f, raw) {
+  const r = S.rows[i]; if (!r) return;
+  if (f === "name") { r.name = String(raw).slice(0, 60); return; }
+  const v = raw === "" ? NaN : Number(raw);
+  if (f === "away" || f === "ubar") r[f] = v / 100;
+  else if (f === "households") { r.households = raw === "" ? null : v; }
+  else r[f] = v;
+}
+document.addEventListener("input", (e) => {
+  const t = e.target;
+  if (t.matches("[data-i][data-f]")) {
+    const i = +t.getAttribute("data-i"), f = t.getAttribute("data-f");
+    setRowField(i, f, t.value);
+    if (f === "households" && isFinite(S.rows[i].households) && S.perDay > 0) {
+      S.rows[i].cost = Math.round(S.rows[i].households / S.perDay * 1e6) / 1e6;
+      const c = $(`[data-i="${i}"][data-f="cost"]`); if (c) c.value = show(S.rows[i].cost);
+    }
+    const errs = rowErrors(); currentErrs = errs;
+    $$("[data-i][data-f]").forEach((inp) => { const key = inp.getAttribute("data-i") + ":" + inp.getAttribute("data-f"); if (errs[key]) { inp.setAttribute("aria-invalid", "true"); inp.title = errs[key]; } else { inp.removeAttribute("aria-invalid"); inp.removeAttribute("title"); } });
+    if (f === "name") { renderConvTableNamesOnly(); }
+    save(); schedule();
+  } else if (t.matches("[data-ti]")) {
+    const i = +t.getAttribute("data-ti"), j = +t.getAttribute("data-tj");
+    S.travel[i][j] = t.value === "" ? NaN : Number(t.value);
+    t.toggleAttribute("aria-invalid", !(S.travel[i][j] >= 0));
+    save(); schedule();
+  } else if (t.matches("[data-p]")) {
+    S.params[t.getAttribute("data-p")] = t.value === "" ? NaN : Number(t.value); save(); schedule();
+  } else if (t.matches("[data-case]")) {
+    const i = +t.getAttribute("data-case"); S.cases[i] = t.value === "" ? 0 : Number(t.value);
+    t.toggleAttribute("aria-invalid", !(S.cases[i] >= 0)); save(); schedule();
+  } else if (t.matches("[data-ci]")) {
+    const i = +t.getAttribute("data-ci"); S.rows[i].index = t.value === "" ? null : Number(t.value); save(); updateConv();
+  } else if (t.id === "season-a" || t.id === "season-b") {
+    S.season = Number(t.value); ["a", "b"].forEach((k) => { $("#season-" + k).value = S.season; $("#season-" + k + "-out").textContent = seasonLabel(S.season); }); save(); schedule(40);
+  } else if (["t0", "speed", "beta"].indexOf(t.id) >= 0) {
+    S[t.id] = t.value === "" ? NaN : Number(t.value); $("#speed-kmh").textContent = isFinite(S.speed) ? "= " + nf(S.speed * 60, 0) + " km per hour" : ""; save(); schedule();
+  } else if (t.id === "target") { S.target = Number(t.value); save(); schedule(); }
+  else if (t.id === "perday") { S.perDay = Number(t.value); save(); }
+  else if (t.id === "period") { S.period = t.value.slice(0, 40); save(); schedule(300); }
+  else if (t.id === "weekly") { S.alarm.text = t.value; save(); schedule(200); }
+  else if (["theta", "h", "zval", "delta", "mu"].indexOf(t.id) >= 0) { S.alarm[t.id === "zval" ? "z" : t.id] = Number(t.value); save(); schedule(); }
+  else if (t.id === "conv-name") { S.conv.name = t.value.slice(0, 40); save(); }
+  else if (t.id === "conv-anchor-m") { S.conv.anchorM = t.value === "" ? null : Number(t.value); save(); updateConv(); }
+});
+function renderConvTableNamesOnly() {
+  $$("#conv-anchor option").forEach((o, i) => { o.textContent = S.rows[i].name; });
+}
+document.addEventListener("change", (e) => {
+  const t = e.target;
+  if (t.id === "conv-anchor") { S.conv.anchor = +t.value; S.conv.anchorM = null; $("#conv-anchor-m").value = show(S.rows[S.conv.anchor].mhat); save(); updateConv(); }
+  else if (t.matches("[data-check]")) { S.checks[t.getAttribute("data-check")] = t.checked; save(); render4S(); }
+  else if (t.matches("[data-i][data-f='name']")) { renderBrgyTable(); renderTravelInputs(); schedule(0); }
+});
+document.addEventListener("click", (e) => {
+  const t = e.target.closest ? e.target.closest("button") : null;
+  if (!t) return;
+  if (t.hasAttribute("data-del")) {
+    const i = +t.getAttribute("data-del"); if (S.rows.length <= 1) return;
+    const name = S.rows[i].name;
+    S.rows.splice(i, 1); S.cases.splice(i, 1);
+    if (S.travel) { S.travel.splice(i, 1); S.travel.forEach((r) => r.splice(i, 1)); }
+    if (S.conv.anchor >= S.rows.length) S.conv.anchor = 0;
+    memo.curve = null; save(); renderBrgyTable(); renderTravelInputs(); schedule(0); toast("Removed " + name);
+  } else if (t.id === "add-row") {
+    const last = S.rows[S.rows.length - 1] || { residents: 1000, mhat: 1.5, away: 0.3, attract: 1, x: 0, y: 0, households: 244, cost: 4.88, ubar: 0.8 };
+    const r = Object.assign({}, last, { name: "Barangay " + (S.rows.length + 1), x: (last.x || 0) + 1, y: (last.y || 0) + 1, index: null });
+    S.rows.push(r); S.cases.push(0);
+    if (S.travel) { const n = S.rows.length, Tp = travelFromPositions(); S.travel.forEach((row, i) => row.push(Math.round(Tp[i][n - 1] * 10) / 10)); S.travel.push(Tp[n - 1].map((v) => Math.round(v * 10) / 10)); S.travel[n - 1][n - 1] = 0; }
+    save(); renderBrgyTable(); renderTravelInputs(); schedule(0);
+    const inp = $(`[data-i="${S.rows.length - 1}"][data-f="name"]`); if (inp) { inp.focus(); inp.select(); }
+  } else if (t.hasAttribute("data-tmode")) {
+    const m = t.getAttribute("data-tmode"); if (m === S.travelMode) return;
+    if (m === "matrix") S.travel = travelFromPositions().map((r) => r.map((v) => Math.round(v * 10) / 10));
+    S.travelMode = m; if (m === "positions") S.travel = null;
+    save(); renderBrgyTable(); renderTravelInputs(); schedule(0);
+  } else if (t.id === "fill-travel") {
+    S.travel = travelFromPositions().map((r) => r.map((v) => Math.round(v * 10) / 10)); save(); renderTravelInputs(); schedule(0);
+  } else if (t.id === "fill-cost") {
+    if (!(S.perDay > 0)) { toast("Enter households per team-day first"); return; }
+    S.rows.forEach((r) => { if (r.households > 0) r.cost = Math.round(r.households / S.perDay * 1e6) / 1e6; }); save(); renderCostTable(); schedule(0); toast("Team-days set from households");
+  } else if (t.hasAttribute("data-plan")) { planPick = t.getAttribute("data-plan"); renderControl(); }
+  else if (t.id === "params-reset") { S.params = Object.assign({}, M.DEFAULT_PARAMS); save(); renderParams(); schedule(0); }
+  else if (t.id === "conv-apply") {
+    const f = convFactor(); if (f == null) return;
+    S.rows.forEach((r) => { r.mhat = Math.round(r.index * f * 1e6) / 1e6; }); save(); renderBrgyTable(); schedule(0); toast("Mosquitoes per resident set from the " + (S.conv.name || "index"));
+  } else if (t.id === "cases-apply") {
+    const nums = M.parseNumbers($("#cases-paste").value);
+    if (nums.length !== S.rows.length) { toast("Found " + nums.length + " numbers for " + S.rows.length + " barangays"); return; }
+    S.cases = nums.map((v) => Math.max(0, v)); save(); renderCasesTable(); schedule(0); toast("Cases updated");
+  } else if (t.id === "weekly-demo") {
+    const D = M.D1.alarm; S.alarm = Object.assign({}, S.alarm, { text: weeklyText(D.counts, D.expected), theta: D.theta, h: D.h, z: D.z }); save(); renderAlarmInputs(); schedule(0);
+  } else if (t.id === "checks-clear") { S.checks = {}; save(); render4S(); }
+  else if (t.id === "data-btn") openDlg();
+  else if (t.id === "dlg-close") closeDlg();
+  else if (t.id === "exp-json") exportJSON();
+  else if (t.id === "exp-csv") exportCSV();
+  else if (t.id === "imp-btn") $("#imp-file").click();
+  else if (t.id === "load-d1") { const tab = S.tab; S = d1State(); S.tab = tab; save(); rebuildAll(); closeDlg(); toast("Test network D1 loaded (synthetic)"); }
+  else if (t.id === "clear-all") { try { localStorage.removeItem(KEY); } catch (err) { /* ignore */ } S = d1State(); rebuildAll(); closeDlg(); toast("Saved data cleared"); }
+  else if (t.id === "theme-btn") toggleTheme();
+});
+
+/* ------------------------------------------------------------------ import and export */
+function download(name, text, type) {
+  const blob = new Blob([text], { type }), url = URL.createObjectURL(blob), a = document.createElement("a");
+  a.href = url; a.download = name; document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 500);
+}
+function exportJSON() {
+  const out = Object.assign({ app: "BANTA-Y", version: 1, exported: new Date().toISOString(), note: S.synthetic ? "Synthetic test network D1: not real Albay data." : "" }, S);
+  download("banta-y-network.json", JSON.stringify(out, null, 1), "application/json"); toast("Exported banta-y-network.json");
+}
+const CSV_COLS = ["name", "residents", "mosquitoes_per_resident", "time_away_pct", "attraction", "east_km", "north_km", "households", "team_days", "max_reduction_pct", "cases"];
+function exportCSV() {
+  const rows = [CSV_COLS].concat(S.rows.map((r, i) => [r.name, r.residents, r.mhat, show(r.away * 100, 4), r.attract, r.x, r.y, r.households == null ? "" : r.households, r.cost, show(r.ubar * 100, 4), S.cases[i]]));
+  download("banta-y-barangays.csv", M.toCSV(rows), "text/csv"); toast("Exported banta-y-barangays.csv");
+}
+function importCSV(text) {
+  const rows = M.parseDelimited(text);
+  if (rows.length < 2) throw new Error("The CSV file needs a header row and at least one barangay.");
+  const head = rows[0].map((h) => h.toLowerCase().replace(/[^a-z_]/g, ""));
+  const col = (k, alts) => { for (const name of [k].concat(alts || [])) { const j = head.indexOf(name); if (j >= 0) return j; } return -1; };
+  const C = { name: col("name", ["barangay"]), residents: col("residents", ["population"]), mhat: col("mosquitoes_per_resident", ["mhat"]), away: col("time_away_pct", ["away_pct"]),
+    attract: col("attraction", ["attract"]), x: col("east_km", ["x_km", "x"]), y: col("north_km", ["y_km", "y"]), households: col("households"), cost: col("team_days", ["cost"]), ubar: col("max_reduction_pct"), cases: col("cases") };
+  ["name", "residents", "mhat", "away", "attract"].forEach((k) => { if (C[k] < 0) throw new Error("The CSV file has no column " + CSV_COLS[["name", "residents", "mhat", "away", "attract"].indexOf(k)] + "."); });
+  const perDay = S.perDay > 0 ? S.perDay : 50;
+  const get = (r, k) => (C[k] >= 0 && r[C[k]] !== undefined && r[C[k]] !== "" ? Number(r[C[k]]) : null);
+  const body = rows.slice(1);
+  const o = {
+    synthetic: false, label: "Imported network", travelMode: "positions", params: S.params, t0: S.t0, speed: S.speed, beta: S.beta, perDay, target: S.target, season: S.season, alarm: S.alarm, checks: S.checks, tab: S.tab,
+    rows: body.map((r, i) => {
+      const hh = get(r, "households"), cost = get(r, "cost");
+      return { name: r[C.name] || "Barangay " + (i + 1), residents: get(r, "residents"), mhat: get(r, "mhat"), away: (get(r, "away") || 0) / 100, attract: get(r, "attract"),
+        x: get(r, "x") || 0, y: get(r, "y") || 0, households: hh, cost: cost != null ? cost : hh != null ? hh / perDay : 1, ubar: get(r, "ubar") != null ? get(r, "ubar") / 100 : 0.8 };
+    }),
+    cases: body.map((r) => get(r, "cases") || 0)
+  };
+  const s = sanitize(o); if (!s) throw new Error("The CSV file could not be read.");
+  return s;
+}
+$("#imp-file").addEventListener("change", (e) => {
+  const f = e.target.files && e.target.files[0]; if (!f) return;
+  const rd = new FileReader();
+  rd.onload = () => {
+    try {
+      const text = String(rd.result);
+      let s;
+      if (/^\s*[{[]/.test(text)) { s = sanitize(JSON.parse(text)); if (!s) throw new Error("This JSON file is not a BANTA-Y network."); }
+      else s = importCSV(text);
+      S = s; save(); rebuildAll(); closeDlg(); toast("Imported " + f.name + ": " + S.rows.length + " barangays");
+    } catch (err) { toast(err.message || "Could not read the file"); }
+    e.target.value = "";
+  };
+  rd.readAsText(f);
+});
+
+/* ------------------------------------------------------------------ dialog, toast, theme */
+const dlg = $("#dlg");
+function openDlg() { if (dlg.showModal) dlg.showModal(); else dlg.setAttribute("open", ""); }
+function closeDlg() { if (dlg.close) dlg.close(); else dlg.removeAttribute("open"); }
+dlg.addEventListener("click", (e) => { if (e.target === dlg) closeDlg(); });
+let toastTimer = 0;
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 2600); }
+function effectiveTheme() { const t = document.documentElement.getAttribute("data-theme"); if (t) return t; return window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"; }
+function paintThemeButton() {
+  const dark = effectiveTheme() === "dark";
+  $("#theme-btn").setAttribute("aria-label", dark ? "Use light theme" : "Use dark theme");
+  $("#theme-ico").setAttribute("d", dark ? "M12 4V2m0 20v-2m8-8h2M2 12h2m13.7-5.7 1.4-1.4M4.9 19.1l1.4-1.4m11.4 0 1.4 1.4M4.9 4.9l1.4 1.4M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z" : "M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z");
+}
+function toggleTheme() {
+  const next = effectiveTheme() === "dark" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", next);
+  try { localStorage.setItem(THEME_KEY, next); } catch (e) { /* ignore */ }
+  paintThemeButton(); RENDER[S.tab]();
+}
+try { const th = localStorage.getItem(THEME_KEY); if (th === "dark" || th === "light") document.documentElement.setAttribute("data-theme", th); } catch (e) { /* ignore */ }
+if (window.matchMedia) { const mq = matchMedia("(prefers-color-scheme: dark)"); const f = () => { paintThemeButton(); RENDER[S.tab](); }; if (mq.addEventListener) mq.addEventListener("change", f); }
+paintThemeButton();
+
+/* redraw the charts when the width changes */
+let lastW = window.innerWidth;
+window.addEventListener("resize", () => { if (Math.abs(window.innerWidth - lastW) < 8) return; lastW = window.innerWidth; schedule(150); });
+
+/* start */
+const startTab = location.hash.slice(1);
+if (TABS.indexOf(startTab) >= 0) S.tab = startTab;
+if (location.protocol === "file:") { const a = $("#site-link"); a.href = "https://pogi6969.github.io/MAP---A/banta-y/"; }
+rebuildAll();
+window.BANTAY_APP = { state: () => S, go, compute: computeNet };
+
+/* the installed app keeps an offline copy through the site's service worker */
+if ("serviceWorker" in navigator && window.isSecureContext && location.protocol !== "file:" && $('link[rel="manifest"]')) {
+  const reg = () => navigator.serviceWorker.register("../sw.js", { scope: "../" }).catch(() => {});
+  if (document.readyState === "complete") reg(); else window.addEventListener("load", reg);
+}
+})();
+</script>
+</body>
+</html>
