@@ -1,0 +1,683 @@
+{
+ "format": "ligta-s/1",
+ "name": "Test network E1 (synthetic volcano)",
+ "synthetic": true,
+ "note": "Synthetic test network from the paper (verify_evacuation.build_e1). Not real Albay data.",
+ "units": {
+  "x": "km east of the summit",
+  "y": "km north of the summit",
+  "tau": "minutes",
+  "cap": "evacuees per minute"
+ },
+ "nodes": [
+  {
+   "id": "R0",
+   "x": 8.0,
+   "y": 0.0,
+   "kind": "ring",
+   "name": "R0"
+  },
+  {
+   "id": "R1",
+   "x": 6.928,
+   "y": 4.0,
+   "kind": "ring",
+   "name": "R1"
+  },
+  {
+   "id": "R2",
+   "x": 4.0,
+   "y": 6.928,
+   "kind": "ring",
+   "name": "R2"
+  },
+  {
+   "id": "R3",
+   "x": 0.0,
+   "y": 8.0,
+   "kind": "ring",
+   "name": "R3"
+  },
+  {
+   "id": "R4",
+   "x": -4.0,
+   "y": 6.928,
+   "kind": "ring",
+   "name": "R4"
+  },
+  {
+   "id": "R5",
+   "x": -6.928,
+   "y": 4.0,
+   "kind": "ring",
+   "name": "R5"
+  },
+  {
+   "id": "R6",
+   "x": -8.0,
+   "y": 0.0,
+   "kind": "ring",
+   "name": "R6"
+  },
+  {
+   "id": "R7",
+   "x": -6.928,
+   "y": -4.0,
+   "kind": "ring",
+   "name": "R7"
+  },
+  {
+   "id": "R8",
+   "x": -4.0,
+   "y": -6.928,
+   "kind": "ring",
+   "name": "R8"
+  },
+  {
+   "id": "R9",
+   "x": -0.0,
+   "y": -8.0,
+   "kind": "ring",
+   "name": "R9"
+  },
+  {
+   "id": "R10",
+   "x": 4.0,
+   "y": -6.928,
+   "kind": "ring",
+   "name": "R10"
+  },
+  {
+   "id": "R11",
+   "x": 6.928,
+   "y": -4.0,
+   "kind": "ring",
+   "name": "R11"
+  },
+  {
+   "id": "TE",
+   "x": 12.0,
+   "y": 0.0,
+   "kind": "town",
+   "name": "East town"
+  },
+  {
+   "id": "TNE",
+   "x": 9.192,
+   "y": 9.192,
+   "kind": "town",
+   "name": "North-east town"
+  },
+  {
+   "id": "TSE",
+   "x": 10.649,
+   "y": -7.456,
+   "kind": "town",
+   "name": "South-east town"
+  },
+  {
+   "id": "TS",
+   "x": 0.959,
+   "y": -10.958,
+   "kind": "town",
+   "name": "South town"
+  },
+  {
+   "id": "TSW",
+   "x": -9.193,
+   "y": -7.713,
+   "kind": "town",
+   "name": "South-west town"
+  },
+  {
+   "id": "O1",
+   "x": 0.799,
+   "y": 4.53,
+   "kind": "origin",
+   "name": "O1"
+  },
+  {
+   "id": "O2",
+   "x": 5.074,
+   "y": 1.847,
+   "kind": "origin",
+   "name": "O2"
+  },
+  {
+   "id": "O3",
+   "x": 2.8,
+   "y": -4.85,
+   "kind": "origin",
+   "name": "O3"
+  },
+  {
+   "id": "O4",
+   "x": -0.919,
+   "y": -6.536,
+   "kind": "origin",
+   "name": "O4"
+  },
+  {
+   "id": "O5",
+   "x": -4.55,
+   "y": -5.053,
+   "kind": "origin",
+   "name": "O5"
+  },
+  {
+   "id": "O6",
+   "x": 6.986,
+   "y": -6.29,
+   "kind": "origin",
+   "name": "O6"
+  }
+ ],
+ "roads": [
+  {
+   "u": "R0",
+   "v": "R1",
+   "tau": 9,
+   "cap": 30,
+   "tag": "ring0"
+  },
+  {
+   "u": "R1",
+   "v": "R2",
+   "tau": 9,
+   "cap": 30,
+   "tag": "ring1"
+  },
+  {
+   "u": "R2",
+   "v": "R3",
+   "tau": 9,
+   "cap": 30,
+   "tag": "ring2"
+  },
+  {
+   "u": "R3",
+   "v": "R4",
+   "tau": 9,
+   "cap": 30,
+   "tag": "ring3"
+  },
+  {
+   "u": "R4",
+   "v": "R5",
+   "tau": 9,
+   "cap": 30,
+   "tag": "ring4"
+  },
+  {
+   "u": "R5",
+   "v": "R6",
+   "tau": 9,
+   "cap": 30,
+   "tag": "ring5"
+  },
+  {
+   "u": "R6",
+   "v": "R7",
+   "tau": 9,
+   "cap": 30,
+   "tag": "ring6"
+  },
+  {
+   "u": "R7",
+   "v": "R8",
+   "tau": 9,
+   "cap": 30,
+   "tag": "ring7"
+  },
+  {
+   "u": "R8",
+   "v": "R9",
+   "tau": 9,
+   "cap": 30,
+   "tag": "B1"
+  },
+  {
+   "u": "R9",
+   "v": "R10",
+   "tau": 9,
+   "cap": 30,
+   "tag": "ring9"
+  },
+  {
+   "u": "R10",
+   "v": "R11",
+   "tau": 9,
+   "cap": 30,
+   "tag": "A1"
+  },
+  {
+   "u": "R11",
+   "v": "R0",
+   "tau": 9,
+   "cap": 30,
+   "tag": "ring11"
+  },
+  {
+   "u": "TE",
+   "v": "R0",
+   "tau": 8,
+   "cap": 40,
+   "tag": "hTE"
+  },
+  {
+   "u": "TNE",
+   "v": "R1",
+   "tau": 12,
+   "cap": 40,
+   "tag": "hTNE1"
+  },
+  {
+   "u": "TNE",
+   "v": "R2",
+   "tau": 12,
+   "cap": 40,
+   "tag": "hTNE2"
+  },
+  {
+   "u": "TSE",
+   "v": "R10",
+   "tau": 14,
+   "cap": 40,
+   "tag": "A2"
+  },
+  {
+   "u": "TSE",
+   "v": "R11",
+   "tau": 11,
+   "cap": 40,
+   "tag": "hTSE2"
+  },
+  {
+   "u": "TS",
+   "v": "R9",
+   "tau": 7,
+   "cap": 40,
+   "tag": "hTS"
+  },
+  {
+   "u": "TSW",
+   "v": "R7",
+   "tau": 9,
+   "cap": 40,
+   "tag": "hTSW1"
+  },
+  {
+   "u": "TSW",
+   "v": "R8",
+   "tau": 11,
+   "cap": 40,
+   "tag": "hTSW2"
+  },
+  {
+   "u": "TE",
+   "v": "TSE",
+   "tau": 16,
+   "cap": 30,
+   "tag": "oE"
+  },
+  {
+   "u": "TSE",
+   "v": "TS",
+   "tau": 21,
+   "cap": 30,
+   "tag": "A3"
+  },
+  {
+   "u": "TS",
+   "v": "TSW",
+   "tau": 22,
+   "cap": 30,
+   "tag": "B2"
+  },
+  {
+   "u": "TE",
+   "v": "TNE",
+   "tau": 20,
+   "cap": 30,
+   "tag": "oN"
+  },
+  {
+   "u": "O1",
+   "v": "R3",
+   "tau": 15,
+   "cap": 20,
+   "tag": "bO1R3"
+  },
+  {
+   "u": "O1",
+   "v": "R2",
+   "tau": 16,
+   "cap": 20,
+   "tag": "bO1R2"
+  },
+  {
+   "u": "O2",
+   "v": "R1",
+   "tau": 12,
+   "cap": 20,
+   "tag": "bO2R1"
+  },
+  {
+   "u": "O2",
+   "v": "R0",
+   "tau": 14,
+   "cap": 20,
+   "tag": "bO2R0"
+  },
+  {
+   "u": "O3",
+   "v": "R10",
+   "tau": 10,
+   "cap": 20,
+   "tag": "bO3R10"
+  },
+  {
+   "u": "O3",
+   "v": "R11",
+   "tau": 17,
+   "cap": 20,
+   "tag": "A4"
+  },
+  {
+   "u": "O4",
+   "v": "R9",
+   "tau": 7,
+   "cap": 20,
+   "tag": "bO4R9"
+  },
+  {
+   "u": "O4",
+   "v": "R8",
+   "tau": 13,
+   "cap": 20,
+   "tag": "B3"
+  },
+  {
+   "u": "O5",
+   "v": "R8",
+   "tau": 8,
+   "cap": 20,
+   "tag": "bO5R8"
+  },
+  {
+   "u": "O5",
+   "v": "R7",
+   "tau": 11,
+   "cap": 20,
+   "tag": "bO5R7"
+  },
+  {
+   "u": "O6",
+   "v": "R11",
+   "tau": 10,
+   "cap": 20,
+   "tag": "bO6R11"
+  },
+  {
+   "u": "O6",
+   "v": "TSE",
+   "tau": 16,
+   "cap": 20,
+   "tag": "bO6TSE"
+  }
+ ],
+ "origins": [
+  {
+   "id": "O1",
+   "name": "O1, north slope (4.6 km)",
+   "node": "O1",
+   "zones": [
+    "PDZ"
+   ],
+   "pop": 520,
+   "vul": 114
+  },
+  {
+   "id": "O2",
+   "name": "O2, east slope (5.4 km)",
+   "node": "O2",
+   "zones": [
+    "PDZ"
+   ],
+   "pop": 430,
+   "vul": 82
+  },
+  {
+   "id": "O3",
+   "name": "O3, south-east slope (5.6 km)",
+   "node": "O3",
+   "zones": [
+    "PDZ"
+   ],
+   "pop": 610,
+   "vul": 146
+  },
+  {
+   "id": "O4",
+   "name": "O4, south slope (6.6 km)",
+   "node": "O4",
+   "zones": [
+    "EDZ"
+   ],
+   "pop": 380,
+   "vul": 80
+  },
+  {
+   "id": "O5",
+   "name": "O5, south-west slope (6.8 km)",
+   "node": "O5",
+   "zones": [
+    "EDZ"
+   ],
+   "pop": 450,
+   "vul": 90
+  },
+  {
+   "id": "O6",
+   "name": "O6, south-east slope (9.4 km)",
+   "node": "O6",
+   "zones": [
+    "LAHAR"
+   ],
+   "pop": 300,
+   "vul": 75
+  }
+ ],
+ "shelters": [
+  {
+   "id": "EC1",
+   "name": "Municipal evacuation center",
+   "node": "TE",
+   "kind": "ec",
+   "areaNonSchool": 1400,
+   "areaOpen": 0,
+   "rooms": 0,
+   "learnersPerRoom": 0,
+   "accessible": true,
+   "zones": []
+  },
+  {
+   "id": "EC2",
+   "name": "Parish hall",
+   "node": "TSE",
+   "kind": "ec",
+   "areaNonSchool": 700,
+   "areaOpen": 0,
+   "rooms": 0,
+   "learnersPerRoom": 0,
+   "accessible": true,
+   "zones": []
+  },
+  {
+   "id": "EC3",
+   "name": "Barangay covered court",
+   "node": "TSW",
+   "kind": "ec",
+   "areaNonSchool": 1050,
+   "areaOpen": 0,
+   "rooms": 0,
+   "learnersPerRoom": 0,
+   "accessible": true,
+   "zones": []
+  },
+  {
+   "id": "SCH1",
+   "name": "Central elementary school",
+   "node": "TS",
+   "kind": "school",
+   "areaNonSchool": 0,
+   "areaOpen": 630,
+   "rooms": 20,
+   "learnersPerRoom": 40,
+   "accessible": true,
+   "zones": []
+  },
+  {
+   "id": "SCH2",
+   "name": "National high school",
+   "node": "TSE",
+   "kind": "school",
+   "areaNonSchool": 0,
+   "areaOpen": 840,
+   "rooms": 30,
+   "learnersPerRoom": 45,
+   "accessible": true,
+   "zones": []
+  },
+  {
+   "id": "SCH3",
+   "name": "Two-storey elementary school",
+   "node": "TNE",
+   "kind": "school",
+   "areaNonSchool": 0,
+   "areaOpen": 0,
+   "rooms": 14,
+   "learnersPerRoom": 38,
+   "accessible": false,
+   "zones": []
+  }
+ ],
+ "zones": [
+  {
+   "id": "PDZ",
+   "name": "6-km Permanent Danger Zone"
+  },
+  {
+   "id": "EDZ",
+   "name": "Extended Danger Zone (7 km, south flank)"
+  },
+  {
+   "id": "LAHAR",
+   "name": "Lahar-prone area"
+  }
+ ],
+ "channels": [
+  {
+   "id": "A",
+   "bearing": 312.0,
+   "bridges": [
+    "A1",
+    "A2",
+    "A3",
+    "A4"
+   ]
+  },
+  {
+   "id": "B",
+   "bearing": 248.0,
+   "bridges": [
+    "B1",
+    "B2",
+    "B3"
+   ]
+  }
+ ],
+ "scenarios": [
+  {
+   "id": "AL3",
+   "name": "Alert Level 3",
+   "zones": [
+    "PDZ"
+   ],
+   "closed": []
+  },
+  {
+   "id": "AL4",
+   "name": "Alert Level 4",
+   "zones": [
+    "PDZ",
+    "EDZ"
+   ],
+   "closed": []
+  },
+  {
+   "id": "AL4+L",
+   "name": "Alert Level 4 + lahar",
+   "zones": [
+    "EDZ",
+    "LAHAR",
+    "PDZ"
+   ],
+   "closed": [
+    "A1",
+    "A2",
+    "A3",
+    "A4",
+    "B1",
+    "B2",
+    "B3"
+   ]
+  }
+ ],
+ "thetaMax": 120,
+ "thetaSite": 30,
+ "candidates": [
+  {
+   "node": "TS",
+   "name": "Ligtas Pinoy Center, South town",
+   "area": 1400
+  },
+  {
+   "node": "TSW",
+   "name": "Ligtas Pinoy Center, South-west town",
+   "area": 1050
+  },
+  {
+   "node": "TNE",
+   "name": "Ligtas Pinoy Center, North-east town",
+   "area": 1225
+  },
+  {
+   "node": "TE",
+   "name": "Ligtas Pinoy Center, East town",
+   "area": 1050
+  },
+  {
+   "node": "TSE",
+   "name": "Ligtas Pinoy Center, South-east town",
+   "area": 875
+  }
+ ],
+ "geo": {
+  "summit": [
+   0,
+   0
+  ],
+  "pdzRadius": 6.0,
+  "edz": {
+   "r0": 6.0,
+   "r1": 7.0,
+   "from": 200,
+   "to": 340
+  },
+  "channelRange": [
+   1.5,
+   14.5
+  ]
+ }
+}

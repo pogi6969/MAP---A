@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>LIGTA-S</title>
+<meta name="description" content="LIGTA-S plans evacuations by hazard zone, shelter capacity and vulnerability while keeping classrooms open. Exact shelter plans, clearance times and Ligtas Pinoy Center siting. Works offline.">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="icon" href="@@FAVICON_DATAURI@@" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
+<meta name="theme-color" content="#6E0C13">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="LIGTA-S">
+<!--@CSS-->
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-plan" viewBox="0 0 24 24"><path d="M3 6.5 9 4l6 2.5L21 4v13.5L15 20l-6-2.5L3 20z M9 4v13.5 M15 6.5V20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M12 7v5.2l3.4 2" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
+  <symbol id="i-site" viewBox="0 0 24 24"><path d="M4 11 12 4l8 7v9H4z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><path d="M12 10.5v6M9 13.5h6" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M5 20c.8-3.6 3.6-5.6 7-5.6s6.2 2 7 5.6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
+  <symbol id="i-calc" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M4 12h16M12 4v16" stroke="currentColor" stroke-width="1.9"/></symbol>
+  <symbol id="i-data" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7.5" ry="2.8" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M4.5 6v12c0 1.5 3.4 2.8 7.5 2.8s7.5-1.3 7.5-2.8V6M4.5 12c0 1.5 3.4 2.8 7.5 2.8s7.5-1.3 7.5-2.8" fill="none" stroke="currentColor" stroke-width="1.9"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M12 11v5.5M12 7.6v.1" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M19.5 14.5A8 8 0 0 1 9.5 4.5a8 8 0 1 0 10 10z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></symbol>
+  <symbol id="i-auto" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 3.5v11.5m0 0-4.6-4.6M12 15l4.6-4.6M4.5 15.5v4h15v-4" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 15.5V4m0 0L7.4 8.6M12 4l4.6 4.6M4.5 15.5v4h15v-4" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 3.5 2.8 19.5h18.4z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><path d="M12 9.5v4.5M12 16.8v.1" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+</svg>
+
+<header class="top">
+  <div class="top-in">
+    <a class="brand" href="#plan" aria-label="LIGTA-S home">
+      @@LOGO_SVG@@
+      <span><b>LIGTA-S</b><small>Safe shelter, open schools</small></span>
+    </a>
+    <div class="top-actions">
+      <button type="button" class="icon-btn" id="theme-btn" aria-label="Color theme: automatic"><svg aria-hidden="true"><use href="#i-auto"/></svg></button>
+      <button type="button" class="icon-btn" id="about-btn"><svg aria-hidden="true"><use href="#i-info"/></svg><span class="lbl">About</span></button>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="Modes">
+  <div class="tabs-in" role="tablist" aria-label="LIGTA-S modes">
+    <button type="button" class="tab" role="tab" id="tab-plan" aria-controls="view-plan" data-tab="plan"><svg aria-hidden="true"><use href="#i-plan"/></svg><span>Planner</span></button>
+    <button type="button" class="tab" role="tab" id="tab-clear" aria-controls="view-clear" data-tab="clear"><svg aria-hidden="true"><use href="#i-clock"/></svg><span>Clearance</span></button>
+    <button type="button" class="tab" role="tab" id="tab-site" aria-controls="view-site" data-tab="site"><svg aria-hidden="true"><use href="#i-site"/></svg><span>Siting</span></button>
+    <button type="button" class="tab" role="tab" id="tab-res" aria-controls="view-res" data-tab="res"><svg aria-hidden="true"><use href="#i-home"/></svg><span>Resident</span></button>
+    <button type="button" class="tab" role="tab" id="tab-cap" aria-controls="view-cap" data-tab="cap"><svg aria-hidden="true"><use href="#i-calc"/></svg><span>Capacity</span></button>
+    <button type="button" class="tab" role="tab" id="tab-data" aria-controls="view-data" data-tab="data"><svg aria-hidden="true"><use href="#i-data"/></svg><span>Data</span></button>
+  </div>
+</nav>
+
+<div class="banner" id="banner"><p><svg aria-hidden="true"><use href="#i-info"/></svg><span id="banner-text">Demo data: test network E1, a synthetic volcano. Not real Albay data; every number here is from this test network.</span></p></div>
+
+<main>
+<!-- PLANNER -->
+<section id="view-plan" role="tabpanel" aria-labelledby="tab-plan" hidden>
+  <div class="view-head">
+    <h1>Shelter planner</h1>
+    <p>Who goes to which shelter, by hazard zone, capacity and vulnerability, with classrooms used last.</p>
+  </div>
+  <div class="grid">
+    <div class="card map-card sticky">
+      <div class="map-wrap"><svg class="map" id="map-plan" aria-label="Map of the road network"></svg></div>
+      <div class="map-legend" aria-hidden="true">
+        <span><i class="sw o"></i>Origin that must evacuate</span>
+        <span><i class="sw ec"></i>Non-school shelter</span>
+        <span><i class="sw sc"></i>School</span>
+        <span><i class="sw fl"></i>Evacuees on their way</span>
+        <span><i class="sw pdz"></i>6-km danger zone</span>
+        <span><i class="sw edz"></i>Extended zone</span>
+        <span><i class="sw br"></i>Bridge on a lahar channel</span>
+      </div>
+    </div>
+    <div class="stack">
+      <div class="card">
+        <h2>Scenario and rules</h2>
+        <div class="seg scen-seg" role="group" aria-label="Hazard scenario" data-scen-target="scen"></div>
+        <div class="fields" style="margin-top:.8rem">
+          <label class="field"><span>Trip limit θ<sub>max</sub> (minutes)</span><input type="number" id="theta" min="1" max="100000" step="1" inputmode="numeric"></label>
+          <label class="field"><span>Stay length (days)</span><input type="number" id="days" min="1" max="365" step="1" inputmode="numeric"></label>
+        </div>
+        <h3>Compute a plan</h3>
+        <div class="rules" role="group" aria-label="Plan rule">
+          <button type="button" class="btn teal" data-rule="lex"><span>School-preserving plan</span><small>Exact lexicographic optimum</small></button>
+          <button type="button" class="btn" data-rule="time"><span>Time-only plan</span><small>Fewest person-minutes</small></button>
+          <button type="button" class="btn" data-rule="near"><span>Nearest-site rule</span><small>Baseline, with overflow</small></button>
+        </div>
+      </div>
+      <div class="card" id="plan-result" aria-live="polite"></div>
+      <div class="card">
+        <div class="row"><h2 style="margin:0">Compare the three rules</h2><span class="spacer"></span><button type="button" class="btn small" id="compare-btn">Compute all three</button></div>
+        <div class="tbl-wrap" id="compare"></div>
+      </div>
+    </div>
+  </div>
+  <div class="stack" style="margin-top:16px">
+    <details class="card" id="plan-detail-box" open><summary>Who goes where <span class="pill" id="plan-detail-pill"></span></summary><div class="tbl-wrap" id="plan-detail"></div></details>
+    <details class="card" open><summary>Origins (barangays or puroks) <span class="pill">editable</span></summary>
+      <p class="fine" style="margin-bottom:.5rem">Zones: space-separated tags such as PDZ, EDZ or LAHAR. An origin evacuates when one of its tags is active in the scenario. Vulnerable: seniors 60 and over, children under five, persons with disability and pregnant women.</p>
+      <div class="tbl-wrap" id="tbl-origins"></div>
+      <div class="row" style="margin-top:.6rem"><button type="button" class="btn small" data-add="origins"><svg aria-hidden="true"><use href="#i-plus"/></svg>Add origin</button></div>
+    </details>
+    <details class="card" open><summary>Shelters <span class="pill">editable</span></summary>
+      <p class="fine" style="margin-bottom:.5rem">Capacity is covered floor area over 3.5 m² per person (Sphere). Classrooms hold 18 each (7 m × 9 m). Accessible: vulnerable evacuees are placed only in accessible shelters.</p>
+      <div class="tbl-wrap" id="tbl-shelters"></div>
+      <div class="row" style="margin-top:.6rem"><button type="button" class="btn small" data-add="shelters"><svg aria-hidden="true"><use href="#i-plus"/></svg>Add shelter</button></div>
+    </details>
+  </div>
+</section>
+
+<!-- CLEARANCE -->
+<section id="view-clear" role="tabpanel" aria-labelledby="tab-clear" hidden>
+  <div class="view-head">
+    <h1>Clearance time</h1>
+    <p>The exact minute by which everyone in the school-preserving plan can be inside a shelter, from a maximum flow on the time-expanded road network. Close bridges to see what a lahar does.</p>
+  </div>
+  <div class="grid">
+    <div class="card map-card sticky">
+      <div class="map-wrap"><svg class="map" id="map-clear" aria-label="Map of the road network with bridges"></svg></div>
+      <div class="map-legend" aria-hidden="true">
+        <span><i class="sw br"></i>Bridge: tap to close or reopen</span>
+        <span><i class="sw" style="background:var(--red-ink)"></i>Closed</span>
+        <span><i class="sw fl"></i>Evacuees on their way</span>
+      </div>
+    </div>
+    <div class="stack">
+      <div class="card">
+        <h2>Scenario</h2>
+        <div class="seg scen-seg" role="group" aria-label="Hazard scenario" data-scen-target="scen"></div>
+        <div id="clear-result" aria-live="polite" style="margin-top:.6rem"></div>
+      </div>
+      <div class="card">
+        <h2>Close roads</h2>
+        <p class="small muted">Close single bridges, or every bridge over a lahar channel. The plan stays as it was (so the change is the closure's own effect), and a fresh plan for the damaged network shows who is cut off.</p>
+        <div class="chips" id="bridge-chips" style="margin-top:.6rem"></div>
+        <div class="row" style="margin-top:.6rem">
+          <button type="button" class="btn small" data-close="A">Close channel A</button>
+          <button type="button" class="btn small" data-close="B">Close channel B</button>
+          <button type="button" class="btn small" data-close="AB">Close both</button>
+          <button type="button" class="btn small" data-close="none">Reopen all</button>
+        </div>
+        <div id="closure-result" aria-live="polite" style="margin-top:.6rem"></div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <div class="row"><h2 style="margin:0">Lahar study</h2><span class="pill" id="study-pill"></span></div>
+    <p class="small muted" style="margin:.3rem 0 .5rem">The scenario's hazard zones with no bridge, one channel or both channels cut. Plan held fixed, then a fresh plan.</p>
+    <div class="tbl-wrap" id="study"></div>
+  </div>
+</section>
+
+<!-- SITING -->
+<section id="view-site" role="tabpanel" aria-labelledby="tab-site" hidden>
+  <div class="view-head">
+    <h1>Ligtas Pinoy Center siting</h1>
+    <p>Where should new evacuation centers go? The gain of a set of sites is how many more evacuees can be sheltered outside classrooms within the travel-time standard. It is monotone and submodular, so the greedy choice reaches at least 63.2% of the best.</p>
+  </div>
+  <div class="grid">
+    <div class="card map-card sticky">
+      <div class="map-wrap"><svg class="map" id="map-site" aria-label="Map with candidate sites"></svg></div>
+      <div class="map-legend" aria-hidden="true">
+        <span><i class="sw" style="background:transparent;border:1.5px dashed var(--gold-ink);border-radius:50%"></i>Candidate site</span>
+        <span><i class="sw" style="background:var(--gold);border-radius:50%"></i>Chosen site</span>
+        <span><i class="sw fl"></i>Plan with the chosen sites</span>
+      </div>
+    </div>
+    <div class="stack">
+      <div class="card">
+        <h2>Settings</h2>
+        <div class="seg" role="group" aria-label="Hazard scenario for siting" id="site-scen"></div>
+        <div class="fields" style="margin-top:.8rem">
+          <label class="field"><span>Travel-time standard θ (minutes)</span><input type="number" id="site-theta" min="1" max="1000" step="1" inputmode="numeric"></label>
+          <label class="field"><span>Sites to build k</span><input type="number" id="site-k" min="1" max="8" step="1" inputmode="numeric"></label>
+        </div>
+        <div class="row" style="margin-top:.8rem"><button type="button" class="btn teal" id="site-run">Choose sites</button><span class="fine" id="site-time"></span></div>
+      </div>
+      <div class="card" id="site-result" aria-live="polite"></div>
+    </div>
+  </div>
+  <details class="card" style="margin-top:16px" open><summary>Candidate sites <span class="pill">editable</span></summary>
+    <div class="tbl-wrap" id="tbl-candidates"></div>
+    <div class="row" style="margin-top:.6rem"><button type="button" class="btn small" data-add="candidates"><svg aria-hidden="true"><use href="#i-plus"/></svg>Add candidate</button></div>
+  </details>
+</section>
+
+<!-- RESIDENT -->
+<section id="view-res" role="tabpanel" aria-labelledby="tab-res" hidden>
+  <div class="view-head">
+    <h1>Where do I go?</h1>
+    <p>Choose your barangay to see your assigned shelter at each alert level, the trip time and whether the shelter is accessible.</p>
+  </div>
+  <div class="grid">
+    <div class="card map-card sticky">
+      <div class="map-wrap"><svg class="map" id="map-res" aria-label="Map with your route"></svg></div>
+      <div class="map-legend" aria-hidden="true">
+        <span><i class="sw" style="background:var(--gold);height:5px"></i>Your route</span>
+        <span><i class="sw o"></i>Must evacuate</span>
+        <span><i class="sw ec"></i>Non-school shelter</span>
+        <span><i class="sw sc"></i>School</span>
+      </div>
+    </div>
+    <div class="stack">
+      <div class="card">
+        <div class="fields">
+          <label class="field" style="flex:1 1 14rem"><span>Your barangay (test network)</span><select id="res-origin"></select></label>
+        </div>
+        <label class="row" style="margin-top:.8rem;gap:.5rem;align-items:flex-start;cursor:pointer"><input type="checkbox" id="res-vul" style="width:20px;height:20px;accent-color:var(--teal);margin-top:.1rem"><span class="small">My household includes a senior (60+), a child under five, a person with disability or a pregnant woman.</span></label>
+      </div>
+      <div class="res-cards" id="res-cards" aria-live="polite"></div>
+      <p class="fine">A planning aid, not an evacuation order. Follow your barangay officials, the MDRRMO and PHIVOLCS. The real assignment comes from them.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CAPACITY -->
+<section id="view-cap" role="tabpanel" aria-labelledby="tab-cap" hidden>
+  <div class="view-head">
+    <h1>Capacity calculator</h1>
+    <p>Sphere Handbook (2018): 3.5 m² of covered living space per person. DepEd standard classroom: 7 m × 9 m = 63 m², so 18 evacuees per classroom.</p>
+  </div>
+  <div class="calc-grid">
+    <div class="card">
+      <h2>Floor area to persons</h2>
+      <label class="field"><span>Covered, usable floor area (m²)</span><input type="number" id="cap-area" min="0" step="1" value="600" inputmode="decimal"></label>
+      <div class="answer"><b id="cap-area-out">171</b><span>persons at 3.5 m² each</span></div>
+      <p class="formula" id="cap-area-f"></p>
+    </div>
+    <div class="card">
+      <h2>Classrooms to evacuees</h2>
+      <div class="fields">
+        <label class="field"><span>Classrooms</span><input type="number" id="cap-rooms" min="0" step="1" value="10" inputmode="numeric"></label>
+        <label class="field"><span>Room length (m)</span><input type="number" id="cap-len" min="0" step="0.1" value="9" inputmode="decimal"></label>
+        <label class="field"><span>Room width (m)</span><input type="number" id="cap-wid" min="0" step="0.1" value="7" inputmode="decimal"></label>
+      </div>
+      <div class="answer"><b id="cap-rooms-out">180</b><span id="cap-rooms-sub">evacuees, 18 per classroom</span></div>
+      <p class="formula" id="cap-rooms-f"></p>
+    </div>
+    <div class="card">
+      <h2>Evacuees to classrooms closed</h2>
+      <div class="fields">
+        <label class="field"><span>Evacuees in classrooms</span><input type="number" id="cap-ev" min="0" step="1" value="240" inputmode="numeric"></label>
+        <label class="field"><span>Learners per room</span><input type="number" id="cap-lpr" min="0" step="1" value="38" inputmode="numeric"></label>
+        <label class="field"><span>Stay (days)</span><input type="number" id="cap-days" min="0" step="1" value="15" inputmode="numeric"></label>
+      </div>
+      <div class="answer"><b id="cap-ev-out">14</b><span id="cap-ev-sub">classrooms closed</span></div>
+      <p class="formula" id="cap-ev-f"></p>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <h2>Why classrooms come last</h2>
+    <p class="small muted">Republic Act 10821 (2016, Children's Emergency Relief and Protection Act): schools may serve as evacuation centers only when no other suitable space exists. DepEd guidance: use gyms and open spaces before classrooms, and limit the use to 15 days for medium or long-term displacement unless the LGU documents the need. Republic Act 12076 (Ligtas Pinoy Centers Act, 2024) provides for an evacuation center in every city and municipality.</p>
+  </div>
+</section>
+
+<!-- DATA -->
+<section id="view-data" role="tabpanel" aria-labelledby="tab-data" hidden>
+  <div class="view-head">
+    <h1>Data</h1>
+    <p>Edits are saved in this browser only. Export them to share or keep a copy; import a JSON file from LIGTA-S or a CSV table.</p>
+  </div>
+  <div class="card">
+    <div class="row">
+      <button type="button" class="btn" id="exp-json"><svg aria-hidden="true"><use href="#i-down"/></svg>Export JSON</button>
+      <button type="button" class="btn" data-csv="origins"><svg aria-hidden="true"><use href="#i-down"/></svg>Origins CSV</button>
+      <button type="button" class="btn" data-csv="shelters"><svg aria-hidden="true"><use href="#i-down"/></svg>Shelters CSV</button>
+      <button type="button" class="btn" data-csv="roads"><svg aria-hidden="true"><use href="#i-down"/></svg>Roads CSV</button>
+      <button type="button" class="btn" data-csv="nodes"><svg aria-hidden="true"><use href="#i-down"/></svg>Map points CSV</button>
+    </div>
+    <div class="row">
+      <label class="btn teal" for="imp-file" style="cursor:pointer"><svg aria-hidden="true"><use href="#i-up"/></svg>Import JSON or CSV</label>
+      <input type="file" id="imp-file" accept=".json,.csv,application/json,text/csv" class="sr-only">
+      <button type="button" class="btn" id="reset-data">Reset to the demo network</button>
+    </div>
+    <p class="fine" id="save-status" role="status" style="margin-top:.6rem"></p>
+    <p class="fine" style="margin-top:.3rem">CSV import replaces one table, recognised by its header: origins (id,name,node,zones,pop,vul), shelters (id,name,node,kind,areaNonSchool,areaOpen,rooms,learnersPerRoom,accessible,zones), roads (u,v,tau,cap,tag) or map points (id,name,x,y,kind).</p>
+  </div>
+  <details class="card" style="margin-top:16px" open><summary>Roads <span class="pill">editable</span></summary>
+    <p class="fine" style="margin-bottom:.5rem">Minutes τ (whole minutes, at least 1) and capacity u (evacuees per minute) apply in both directions. Roads that share a tag close together; bridges over a lahar channel carry the channel letter.</p>
+    <div class="tbl-wrap" id="tbl-roads"></div>
+    <div class="row" style="margin-top:.6rem"><button type="button" class="btn small" data-add="roads"><svg aria-hidden="true"><use href="#i-plus"/></svg>Add road</button></div>
+  </details>
+  <details class="card" style="margin-top:16px"><summary>Map points <span class="pill">editable</span></summary>
+    <p class="fine" style="margin-bottom:.5rem">x and y in km east and north of the summit. Kind: origin, town or ring (a road junction).</p>
+    <div class="tbl-wrap" id="tbl-nodes"></div>
+    <div class="row" style="margin-top:.6rem"><button type="button" class="btn small" data-add="nodes"><svg aria-hidden="true"><use href="#i-plus"/></svg>Add map point</button></div>
+  </details>
+</section>
+</main>
+
+<dialog id="about" aria-labelledby="about-h">
+  <div class="dlg-head">@@LOGO_SVG@@<div><h2 id="about-h">LIGTA-S</h2><p class="small" style="color:var(--on-red-2)">Say it like ligtas, "LIG-tas": safe.</p></div>
+    <button type="button" class="icon-btn" id="about-close" aria-label="Close"><svg aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <div class="dlg-body">
+    <p>The app of the study <i>Safe Shelter, Open Schools: A Verified Network-Flow Model for Planning Evacuations in Albay by Hazard Zone, Shelter Capacity, and Vulnerability While Keeping Classrooms Open</i>.</p>
+    <dl class="people">
+      <div><dt>Researchers</dt><dd><span class="lead">De Asis, Dave Justin Ll.</span> (lead researcher and founder)<br>Brimbuela, Peter John A.<br>Shin, Yeaseong</dd></div>
+      <div><dt>Research adviser</dt><dd>Calleja, Dick Anthony M.</dd></div>
+      <div><dt>School</dt><dd>Legazpi City Science High School, Bitano, Legazpi City, Albay, Bicol Region (Region V), Philippines</dd></div>
+      <div><dt>Category</dt><dd>Mathematics and Computational Sciences, Team (MCS-T)</dd></div>
+    </dl>
+    <h3>Not an official order</h3>
+    <p>LIGTA-S is a planning aid from a student research project. It is not an evacuation order, not an official plan of PHIVOLCS, the OCD, DepEd or any LGU, and not medical advice. In an emergency follow your barangay officials and the MDRRMO, and call 911.</p>
+    <h3>Synthetic test network</h3>
+    <p>The demo data is test network E1, a synthetic volcano built for the paper. Its places, roads, schools and numbers are made up to test the method; they are not Albay data.</p>
+    <h3>Privacy</h3>
+    <p>LIGTA-S has no account, no analytics and no tracking, and sends nothing anywhere. Your edits stay in this browser. Clearing the site's data deletes them.</p>
+    <p class="row"><a class="btn small" href="https://pogi6969.github.io/MAP---A/ligta-s/">LIGTA-S website</a><a class="btn small" href="https://pogi6969.github.io/MAP---A/research/safe-shelter-open-schools/paper/Safe-Shelter-Open-Schools_MCS-T.pdf">Read the paper (PDF)</a></p>
+    <p class="fine">Version @@VERSION@@ · engine @@ENGINE_VERSION@@</p>
+  </div>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<!--@DATA-->
+<!--@ENGINE-->
+<!--@MAP-->
+<!--@APPJS-->
+</body>
+</html>
