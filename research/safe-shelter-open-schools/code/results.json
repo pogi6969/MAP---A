@@ -1,0 +1,1570 @@
+{
+ "seed": 20261017,
+ "verification": {
+  "V1": {
+   "instances": 300,
+   "agree": 300,
+   "levels": 1500,
+   "nonintegral": 0
+  },
+  "V2": {
+   "cases": 150,
+   "violations": 0,
+   "exact": 144,
+   "gap_max": 2,
+   "gap_mean": 0.04666666666666667,
+   "gap_hist": {
+    "0": 144,
+    "1": 5,
+    "2": 1
+   },
+   "schools_used_max": 6
+  },
+  "V3": {
+   "pairs": 660,
+   "agree": 660,
+   "nonzero": 480
+  },
+  "V4": {
+   "instances": 79,
+   "agree": 79,
+   "lb_violations": 0,
+   "lb_ratio_mean": 0.58544018399813,
+   "lb_ratio_min": 0.125,
+   "bisection_calls_mean": 5.189873417721519,
+   "scan_calls_mean": 26.89873417721519
+  },
+  "V5": {
+   "checks": {
+    "closure_time": 119,
+    "closure_rooms": 120,
+    "add_rooms": 53,
+    "add_time": 119,
+    "alert": 52
+   },
+   "violations": {
+    "closure_time": 0,
+    "closure_rooms": 0,
+    "add_rooms": 0,
+    "add_time": 0,
+    "alert": 0
+   }
+  },
+  "V6": {
+   "checks": {
+    "road": 2400,
+    "coverage": 2396
+   },
+   "violations": {
+    "road": 0,
+    "coverage": 0
+   },
+   "checks_total": 4796,
+   "violations_total": 0
+  },
+  "V7": {
+   "instances": 320,
+   "ratio_min": 0.8897535667963683,
+   "ratio_mean": 0.997099855570615,
+   "share_optimal": 0.946875,
+   "by_k": {
+    "1": {
+     "n": 80,
+     "min": 1.0,
+     "mean": 1.0
+    },
+    "2": {
+     "n": 80,
+     "min": 0.8897535667963683,
+     "mean": 0.994857827804082
+    },
+    "3": {
+     "n": 80,
+     "min": 0.9150259067357513,
+     "mean": 0.994426245213672
+    },
+    "4": {
+     "n": 80,
+     "min": 0.9292279411764706,
+     "mean": 0.9991153492647058
+    }
+   }
+  }
+ },
+ "timing": {
+  "plan": [
+   {
+    "nodes": 100,
+    "origins": 20,
+    "shelters": 15,
+    "arcs": 382,
+    "demand": 5022,
+    "seconds": 0.01565259800008789
+   },
+   {
+    "nodes": 200,
+    "origins": 40,
+    "shelters": 30,
+    "arcs": 774,
+    "demand": 8293,
+    "seconds": 0.07385145899979761
+   },
+   {
+    "nodes": 400,
+    "origins": 80,
+    "shelters": 60,
+    "arcs": 1550,
+    "demand": 18237,
+    "seconds": 0.46539395199988576
+   },
+   {
+    "nodes": 800,
+    "origins": 160,
+    "shelters": 120,
+    "arcs": 3032,
+    "demand": 36654,
+    "seconds": 2.916627438999967
+   }
+  ],
+  "expanded": [
+   {
+    "horizon": 30,
+    "vertices": 1245,
+    "arcs": 5416,
+    "seconds": 0.04438218100040103
+   },
+   {
+    "horizon": 60,
+    "vertices": 2445,
+    "arcs": 11266,
+    "seconds": 0.1201850900001773
+   },
+   {
+    "horizon": 120,
+    "vertices": 4845,
+    "arcs": 22966,
+    "seconds": 0.20761157599963553
+   },
+   {
+    "horizon": 240,
+    "vertices": 9645,
+    "arcs": 46366,
+    "seconds": 0.5597963509999317
+   }
+  ]
+ },
+ "e1": {
+  "origins": [
+   {
+    "id": "O1",
+    "zone": "PDZ",
+    "pop": 520,
+    "vul": 114,
+    "dist_km": 4.6,
+    "nearest": "SCH3",
+    "nearest_min": 28
+   },
+   {
+    "id": "O2",
+    "zone": "PDZ",
+    "pop": 430,
+    "vul": 82,
+    "dist_km": 5.4,
+    "nearest": "EC1",
+    "nearest_min": 22
+   },
+   {
+    "id": "O3",
+    "zone": "PDZ",
+    "pop": 610,
+    "vul": 146,
+    "dist_km": 5.6,
+    "nearest": "EC2",
+    "nearest_min": 24
+   },
+   {
+    "id": "O4",
+    "zone": "EDZ",
+    "pop": 380,
+    "vul": 80,
+    "dist_km": 6.6,
+    "nearest": "SCH1",
+    "nearest_min": 14
+   },
+   {
+    "id": "O5",
+    "zone": "EDZ",
+    "pop": 450,
+    "vul": 90,
+    "dist_km": 6.8,
+    "nearest": "EC3",
+    "nearest_min": 19
+   },
+   {
+    "id": "O6",
+    "zone": "LAHAR",
+    "pop": 300,
+    "vul": 75,
+    "dist_km": 9.4,
+    "nearest": "EC2",
+    "nearest_min": 16
+   }
+  ],
+  "shelters": [
+   {
+    "id": "EC1",
+    "name": "Municipal evacuation center",
+    "kind": "ec",
+    "area": 1400,
+    "cap_ec": 400,
+    "cap_open": 0,
+    "rooms": 0,
+    "room_cap": 0,
+    "accessible": true,
+    "learners_per_room": 0
+   },
+   {
+    "id": "EC2",
+    "name": "Parish hall",
+    "kind": "ec",
+    "area": 700,
+    "cap_ec": 200,
+    "cap_open": 0,
+    "rooms": 0,
+    "room_cap": 0,
+    "accessible": true,
+    "learners_per_room": 0
+   },
+   {
+    "id": "EC3",
+    "name": "Barangay covered court",
+    "kind": "ec",
+    "area": 1050,
+    "cap_ec": 300,
+    "cap_open": 0,
+    "rooms": 0,
+    "room_cap": 0,
+    "accessible": true,
+    "learners_per_room": 0
+   },
+   {
+    "id": "SCH1",
+    "name": "Central elementary school",
+    "kind": "school",
+    "area": 630,
+    "cap_ec": 0,
+    "cap_open": 180,
+    "rooms": 20,
+    "room_cap": 360,
+    "accessible": true,
+    "learners_per_room": 40
+   },
+   {
+    "id": "SCH2",
+    "name": "National high school",
+    "kind": "school",
+    "area": 840,
+    "cap_ec": 0,
+    "cap_open": 240,
+    "rooms": 30,
+    "room_cap": 540,
+    "accessible": true,
+    "learners_per_room": 45
+   },
+   {
+    "id": "SCH3",
+    "name": "Two-storey elementary school",
+    "kind": "school",
+    "area": 0,
+    "cap_ec": 0,
+    "cap_open": 0,
+    "rooms": 14,
+    "room_cap": 252,
+    "accessible": false,
+    "learners_per_room": 38
+   }
+  ],
+  "scenarios": {
+   "AL3": {
+    "demand": 1560,
+    "vulnerable": 342,
+    "nearest_overflow": 298,
+    "nearest_person_minutes": 38660,
+    "blind": {
+     "vul_placed": 342,
+     "placed": 1560,
+     "unplaced": 0,
+     "persons_ec": 600,
+     "persons_open": 240,
+     "persons_room": 720,
+     "rooms_closed_total": 40,
+     "learners_displaced": 1702,
+     "person_minutes": 45988,
+     "max_time": 54,
+     "mean_time": 29.48,
+     "rooms_by_school": {
+      "SCH2": 26,
+      "SCH3": 14
+     },
+     "load": {
+      "SCH2": 708,
+      "SCH3": 252,
+      "EC1": 400,
+      "EC2": 200
+     }
+    },
+    "lex": {
+     "vul_placed": 342,
+     "placed": 1560,
+     "unplaced": 0,
+     "persons_ec": 900,
+     "persons_open": 420,
+     "persons_room": 240,
+     "rooms_closed_total": 14,
+     "learners_displaced": 532,
+     "person_minutes": 48640,
+     "max_time": 60,
+     "mean_time": 31.18,
+     "rooms_by_school": {
+      "SCH3": 14
+     },
+     "load": {
+      "EC3": 300,
+      "SCH3": 240,
+      "EC1": 400,
+      "EC2": 200,
+      "SCH1": 180,
+      "SCH2": 240
+     }
+    },
+    "clearance_lex": 53,
+    "clearance_blind": 53,
+    "clearance_lb": 34,
+    "assignment": [
+     {
+      "origin": "O1",
+      "shelter": "EC3",
+      "space": "non-school",
+      "persons": 280
+     },
+     {
+      "origin": "O1",
+      "shelter": "SCH3",
+      "space": "classroom",
+      "persons": 240
+     },
+     {
+      "origin": "O2",
+      "shelter": "EC1",
+      "space": "non-school",
+      "persons": 400
+     },
+     {
+      "origin": "O2",
+      "shelter": "EC2",
+      "space": "non-school",
+      "persons": 30
+     },
+     {
+      "origin": "O3",
+      "shelter": "EC2",
+      "space": "non-school",
+      "persons": 170
+     },
+     {
+      "origin": "O3",
+      "shelter": "EC3",
+      "space": "non-school",
+      "persons": 20
+     },
+     {
+      "origin": "O3",
+      "shelter": "SCH1",
+      "space": "school open space",
+      "persons": 180
+     },
+     {
+      "origin": "O3",
+      "shelter": "SCH2",
+      "space": "school open space",
+      "persons": 240
+     }
+    ]
+   },
+   "AL4": {
+    "demand": 2390,
+    "vulnerable": 512,
+    "nearest_overflow": 448,
+    "nearest_person_minutes": 52530,
+    "blind": {
+     "vul_placed": 512,
+     "placed": 2390,
+     "unplaced": 0,
+     "persons_ec": 900,
+     "persons_open": 410,
+     "persons_room": 1080,
+     "rooms_closed_total": 60,
+     "learners_displaced": 2502,
+     "person_minutes": 60608,
+     "max_time": 54,
+     "mean_time": 25.36,
+     "rooms_by_school": {
+      "SCH2": 26,
+      "SCH3": 14,
+      "SCH1": 20
+     },
+     "load": {
+      "SCH2": 708,
+      "EC1": 400,
+      "EC2": 200,
+      "SCH3": 252,
+      "SCH1": 530,
+      "EC3": 300
+     }
+    },
+    "lex": {
+     "vul_placed": 512,
+     "placed": 2390,
+     "unplaced": 0,
+     "persons_ec": 900,
+     "persons_open": 420,
+     "persons_room": 1070,
+     "rooms_closed_total": 60,
+     "learners_displaced": 2502,
+     "person_minutes": 60608,
+     "max_time": 54,
+     "mean_time": 25.36,
+     "rooms_by_school": {
+      "SCH2": 26,
+      "SCH3": 14,
+      "SCH1": 20
+     },
+     "load": {
+      "SCH2": 708,
+      "EC1": 400,
+      "SCH3": 252,
+      "EC2": 200,
+      "SCH1": 530,
+      "EC3": 300
+     }
+    },
+    "clearance_lex": 53,
+    "clearance_blind": 53,
+    "clearance_lb": 28,
+    "assignment": [
+     {
+      "origin": "O1",
+      "shelter": "EC1",
+      "space": "non-school",
+      "persons": 154
+     },
+     {
+      "origin": "O1",
+      "shelter": "SCH2",
+      "space": "classroom",
+      "persons": 114
+     },
+     {
+      "origin": "O1",
+      "shelter": "SCH3",
+      "space": "classroom",
+      "persons": 252
+     },
+     {
+      "origin": "O2",
+      "shelter": "EC1",
+      "space": "non-school",
+      "persons": 246
+     },
+     {
+      "origin": "O2",
+      "shelter": "SCH2",
+      "space": "classroom",
+      "persons": 184
+     },
+     {
+      "origin": "O3",
+      "shelter": "EC2",
+      "space": "non-school",
+      "persons": 200
+     },
+     {
+      "origin": "O3",
+      "shelter": "SCH2",
+      "space": "classroom",
+      "persons": 170
+     },
+     {
+      "origin": "O3",
+      "shelter": "SCH2",
+      "space": "school open space",
+      "persons": 240
+     },
+     {
+      "origin": "O4",
+      "shelter": "SCH1",
+      "space": "classroom",
+      "persons": 260
+     },
+     {
+      "origin": "O4",
+      "shelter": "SCH1",
+      "space": "school open space",
+      "persons": 120
+     },
+     {
+      "origin": "O5",
+      "shelter": "EC3",
+      "space": "non-school",
+      "persons": 300
+     },
+     {
+      "origin": "O5",
+      "shelter": "SCH1",
+      "space": "classroom",
+      "persons": 90
+     },
+     {
+      "origin": "O5",
+      "shelter": "SCH1",
+      "space": "school open space",
+      "persons": 60
+     }
+    ]
+   },
+   "AL4+L": {
+    "demand": 2690,
+    "vulnerable": 587,
+    "nearest_overflow": 898,
+    "nearest_person_minutes": 58550,
+    "blind": {
+     "vul_placed": 587,
+     "placed": 2240,
+     "unplaced": 450,
+     "persons_ec": 900,
+     "persons_open": 420,
+     "persons_room": 920,
+     "rooms_closed_total": 52,
+     "learners_displaced": 2142,
+     "person_minutes": 65428,
+     "max_time": 94,
+     "mean_time": 29.21,
+     "rooms_by_school": {
+      "SCH2": 18,
+      "SCH3": 14,
+      "SCH1": 20
+     },
+     "load": {
+      "SCH2": 548,
+      "SCH3": 252,
+      "EC1": 400,
+      "SCH1": 540,
+      "EC3": 300,
+      "EC2": 200
+     }
+    },
+    "lex": {
+     "vul_placed": 587,
+     "placed": 2240,
+     "unplaced": 450,
+     "persons_ec": 900,
+     "persons_open": 420,
+     "persons_room": 920,
+     "rooms_closed_total": 52,
+     "learners_displaced": 2142,
+     "person_minutes": 65428,
+     "max_time": 94,
+     "mean_time": 29.21,
+     "rooms_by_school": {
+      "SCH2": 18,
+      "SCH3": 14,
+      "SCH1": 20
+     },
+     "load": {
+      "SCH2": 548,
+      "SCH3": 252,
+      "EC1": 400,
+      "EC2": 200,
+      "SCH1": 540,
+      "EC3": 300
+     }
+    },
+    "clearance_lex": 74,
+    "clearance_blind": 74,
+    "clearance_lb": 28,
+    "assignment": [
+     {
+      "origin": "O1",
+      "shelter": "SCH2",
+      "space": "classroom",
+      "persons": 151
+     },
+     {
+      "origin": "O1",
+      "shelter": "SCH2",
+      "space": "school open space",
+      "persons": 117
+     },
+     {
+      "origin": "O1",
+      "shelter": "SCH3",
+      "space": "classroom",
+      "persons": 252
+     },
+     {
+      "origin": "O2",
+      "shelter": "EC1",
+      "space": "non-school",
+      "persons": 340
+     },
+     {
+      "origin": "O2",
+      "shelter": "EC2",
+      "space": "non-school",
+      "persons": 8
+     },
+     {
+      "origin": "O2",
+      "shelter": "SCH2",
+      "space": "classroom",
+      "persons": 82
+     },
+     {
+      "origin": "O3",
+      "shelter": "SCH1",
+      "space": "classroom",
+      "persons": 146
+     },
+     {
+      "origin": "O3",
+      "shelter": "SCH1",
+      "space": "school open space",
+      "persons": 14
+     },
+     {
+      "origin": "O4",
+      "shelter": "SCH1",
+      "space": "classroom",
+      "persons": 214
+     },
+     {
+      "origin": "O4",
+      "shelter": "SCH1",
+      "space": "school open space",
+      "persons": 166
+     },
+     {
+      "origin": "O5",
+      "shelter": "EC1",
+      "space": "non-school",
+      "persons": 60
+     },
+     {
+      "origin": "O5",
+      "shelter": "EC3",
+      "space": "non-school",
+      "persons": 300
+     },
+     {
+      "origin": "O5",
+      "shelter": "SCH2",
+      "space": "school open space",
+      "persons": 90
+     },
+     {
+      "origin": "O6",
+      "shelter": "EC2",
+      "space": "non-school",
+      "persons": 192
+     },
+     {
+      "origin": "O6",
+      "shelter": "SCH2",
+      "space": "classroom",
+      "persons": 75
+     },
+     {
+      "origin": "O6",
+      "shelter": "SCH2",
+      "space": "school open space",
+      "persons": 33
+     }
+    ]
+   }
+  },
+  "siting": {
+   "theta": 30,
+   "candidates": [
+    "TS",
+    "TSW",
+    "TNE",
+    "TE",
+    "TSE"
+   ],
+   "capacity": [
+    400,
+    300,
+    350,
+    300,
+    250
+   ],
+   "area": [
+    1400,
+    1050,
+    1225,
+    1050,
+    875
+   ],
+   "phi0": 1180,
+   "rows": [
+    {
+     "k": 1,
+     "sites": [
+      "TS"
+     ],
+     "gain": 400,
+     "best_sites": [
+      "TS"
+     ],
+     "best_gain": 400,
+     "unplaced": 50,
+     "persons_room": 920,
+     "rooms_closed": 52,
+     "learners": 2142,
+     "clearance": 74
+    },
+    {
+     "k": 2,
+     "sites": [
+      "TS",
+      "TNE"
+     ],
+     "gain": 750,
+     "best_sites": [
+      "TS",
+      "TNE"
+     ],
+     "best_gain": 750,
+     "unplaced": 50,
+     "persons_room": 570,
+     "rooms_closed": 32,
+     "learners": 1256,
+     "clearance": 74
+    },
+    {
+     "k": 3,
+     "sites": [
+      "TS",
+      "TNE",
+      "TSW"
+     ],
+     "gain": 900,
+     "best_sites": [
+      "TS",
+      "TSW",
+      "TNE"
+     ],
+     "best_gain": 900,
+     "unplaced": 50,
+     "persons_room": 360,
+     "rooms_closed": 20,
+     "learners": 800,
+     "clearance": 67
+    }
+   ],
+   "single_gains": {
+    "TS": 400,
+    "TSW": 150,
+    "TNE": 350,
+    "TE": 30,
+    "TSE": 0
+   }
+  },
+  "bridge_single": {
+   "open": 53,
+   "closed": {
+    "A1": 53,
+    "A2": 53,
+    "A3": 53,
+    "A4": 54,
+    "B1": 53,
+    "B2": 53,
+    "B3": 53
+   }
+  },
+  "channel_closures": {
+   "none": {
+    "bridges": [],
+    "clearance_fixed_plan": 53,
+    "unplaced": 0,
+    "persons_room": 1070,
+    "rooms_closed": 60,
+    "clearance_new_plan": 53,
+    "mean_time": 25.36,
+    "max_time": 54
+   },
+   "A": {
+    "bridges": [
+     "A1",
+     "A2",
+     "A3",
+     "A4"
+    ],
+    "clearance_fixed_plan": 95,
+    "unplaced": 0,
+    "persons_room": 1070,
+    "rooms_closed": 60,
+    "clearance_new_plan": 95,
+    "mean_time": 46.73,
+    "max_time": 105
+   },
+   "B": {
+    "bridges": [
+     "B1",
+     "B2",
+     "B3"
+    ],
+    "clearance_fixed_plan": 74,
+    "unplaced": 0,
+    "persons_room": 1070,
+    "rooms_closed": 60,
+    "clearance_new_plan": 74,
+    "mean_time": 29.82,
+    "max_time": 68
+   },
+   "A+B": {
+    "bridges": [
+     "A1",
+     "A2",
+     "A3",
+     "A4",
+     "B1",
+     "B2",
+     "B3"
+    ],
+    "clearance_fixed_plan": Infinity,
+    "unplaced": 450,
+    "persons_room": 620,
+    "rooms_closed": 35,
+    "clearance_new_plan": 74,
+    "mean_time": 31.25,
+    "max_time": 94
+   }
+  },
+  "curves": {
+   "AL3": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    20,
+    100,
+    220,
+    380,
+    580,
+    780,
+    930,
+    1070,
+    1190,
+    1270,
+    1300,
+    1340,
+    1380,
+    1420,
+    1470,
+    1530,
+    1560,
+    1560,
+    1560,
+    1560,
+    1560
+   ],
+   "AL4": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    20,
+    60,
+    100,
+    200,
+    340,
+    560,
+    840,
+    1080,
+    1360,
+    1610,
+    1760,
+    1900,
+    2032,
+    2112,
+    2142,
+    2182,
+    2222,
+    2262,
+    2312,
+    2372,
+    2390,
+    2390,
+    2390,
+    2390,
+    2390
+   ],
+   "AL4+L": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    20,
+    80,
+    160,
+    300,
+    520,
+    780,
+    1040,
+    1220,
+    1420,
+    1620,
+    1710,
+    1770,
+    1822,
+    1822,
+    1842,
+    1882,
+    1922,
+    1962,
+    2012,
+    2072,
+    2090,
+    2090,
+    2090,
+    2090,
+    2090,
+    2090,
+    2090,
+    2110,
+    2150,
+    2190,
+    2240,
+    2240,
+    2240,
+    2240,
+    2240,
+    2240
+   ]
+  },
+  "pos": {
+   "R0": [
+    8.0,
+    0.0
+   ],
+   "R1": [
+    6.928,
+    4.0
+   ],
+   "R2": [
+    4.0,
+    6.928
+   ],
+   "R3": [
+    0.0,
+    8.0
+   ],
+   "R4": [
+    -4.0,
+    6.928
+   ],
+   "R5": [
+    -6.928,
+    4.0
+   ],
+   "R6": [
+    -8.0,
+    0.0
+   ],
+   "R7": [
+    -6.928,
+    -4.0
+   ],
+   "R8": [
+    -4.0,
+    -6.928
+   ],
+   "R9": [
+    -0.0,
+    -8.0
+   ],
+   "R10": [
+    4.0,
+    -6.928
+   ],
+   "R11": [
+    6.928,
+    -4.0
+   ],
+   "TE": [
+    12.0,
+    0.0
+   ],
+   "TNE": [
+    9.192,
+    9.192
+   ],
+   "TSE": [
+    10.649,
+    -7.456
+   ],
+   "TS": [
+    0.959,
+    -10.958
+   ],
+   "TSW": [
+    -9.193,
+    -7.713
+   ],
+   "O1": [
+    0.799,
+    4.53
+   ],
+   "O2": [
+    5.074,
+    1.847
+   ],
+   "O3": [
+    2.8,
+    -4.85
+   ],
+   "O4": [
+    -0.919,
+    -6.536
+   ],
+   "O5": [
+    -4.55,
+    -5.053
+   ],
+   "O6": [
+    6.986,
+    -6.29
+   ]
+  },
+  "arcs": [
+   [
+    "R0",
+    "R1",
+    9,
+    30,
+    "ring0"
+   ],
+   [
+    "R1",
+    "R0",
+    9,
+    30,
+    "ring0"
+   ],
+   [
+    "R1",
+    "R2",
+    9,
+    30,
+    "ring1"
+   ],
+   [
+    "R2",
+    "R1",
+    9,
+    30,
+    "ring1"
+   ],
+   [
+    "R2",
+    "R3",
+    9,
+    30,
+    "ring2"
+   ],
+   [
+    "R3",
+    "R2",
+    9,
+    30,
+    "ring2"
+   ],
+   [
+    "R3",
+    "R4",
+    9,
+    30,
+    "ring3"
+   ],
+   [
+    "R4",
+    "R3",
+    9,
+    30,
+    "ring3"
+   ],
+   [
+    "R4",
+    "R5",
+    9,
+    30,
+    "ring4"
+   ],
+   [
+    "R5",
+    "R4",
+    9,
+    30,
+    "ring4"
+   ],
+   [
+    "R5",
+    "R6",
+    9,
+    30,
+    "ring5"
+   ],
+   [
+    "R6",
+    "R5",
+    9,
+    30,
+    "ring5"
+   ],
+   [
+    "R6",
+    "R7",
+    9,
+    30,
+    "ring6"
+   ],
+   [
+    "R7",
+    "R6",
+    9,
+    30,
+    "ring6"
+   ],
+   [
+    "R7",
+    "R8",
+    9,
+    30,
+    "ring7"
+   ],
+   [
+    "R8",
+    "R7",
+    9,
+    30,
+    "ring7"
+   ],
+   [
+    "R8",
+    "R9",
+    9,
+    30,
+    "B1"
+   ],
+   [
+    "R9",
+    "R8",
+    9,
+    30,
+    "B1"
+   ],
+   [
+    "R9",
+    "R10",
+    9,
+    30,
+    "ring9"
+   ],
+   [
+    "R10",
+    "R9",
+    9,
+    30,
+    "ring9"
+   ],
+   [
+    "R10",
+    "R11",
+    9,
+    30,
+    "A1"
+   ],
+   [
+    "R11",
+    "R10",
+    9,
+    30,
+    "A1"
+   ],
+   [
+    "R11",
+    "R0",
+    9,
+    30,
+    "ring11"
+   ],
+   [
+    "R0",
+    "R11",
+    9,
+    30,
+    "ring11"
+   ],
+   [
+    "TE",
+    "R0",
+    8,
+    40,
+    "hTE"
+   ],
+   [
+    "R0",
+    "TE",
+    8,
+    40,
+    "hTE"
+   ],
+   [
+    "TNE",
+    "R1",
+    12,
+    40,
+    "hTNE1"
+   ],
+   [
+    "R1",
+    "TNE",
+    12,
+    40,
+    "hTNE1"
+   ],
+   [
+    "TNE",
+    "R2",
+    12,
+    40,
+    "hTNE2"
+   ],
+   [
+    "R2",
+    "TNE",
+    12,
+    40,
+    "hTNE2"
+   ],
+   [
+    "TSE",
+    "R10",
+    14,
+    40,
+    "A2"
+   ],
+   [
+    "R10",
+    "TSE",
+    14,
+    40,
+    "A2"
+   ],
+   [
+    "TSE",
+    "R11",
+    11,
+    40,
+    "hTSE2"
+   ],
+   [
+    "R11",
+    "TSE",
+    11,
+    40,
+    "hTSE2"
+   ],
+   [
+    "TS",
+    "R9",
+    7,
+    40,
+    "hTS"
+   ],
+   [
+    "R9",
+    "TS",
+    7,
+    40,
+    "hTS"
+   ],
+   [
+    "TSW",
+    "R7",
+    9,
+    40,
+    "hTSW1"
+   ],
+   [
+    "R7",
+    "TSW",
+    9,
+    40,
+    "hTSW1"
+   ],
+   [
+    "TSW",
+    "R8",
+    11,
+    40,
+    "hTSW2"
+   ],
+   [
+    "R8",
+    "TSW",
+    11,
+    40,
+    "hTSW2"
+   ],
+   [
+    "TE",
+    "TSE",
+    16,
+    30,
+    "oE"
+   ],
+   [
+    "TSE",
+    "TE",
+    16,
+    30,
+    "oE"
+   ],
+   [
+    "TSE",
+    "TS",
+    21,
+    30,
+    "A3"
+   ],
+   [
+    "TS",
+    "TSE",
+    21,
+    30,
+    "A3"
+   ],
+   [
+    "TS",
+    "TSW",
+    22,
+    30,
+    "B2"
+   ],
+   [
+    "TSW",
+    "TS",
+    22,
+    30,
+    "B2"
+   ],
+   [
+    "TE",
+    "TNE",
+    20,
+    30,
+    "oN"
+   ],
+   [
+    "TNE",
+    "TE",
+    20,
+    30,
+    "oN"
+   ],
+   [
+    "O1",
+    "R3",
+    15,
+    20,
+    "bO1R3"
+   ],
+   [
+    "R3",
+    "O1",
+    15,
+    20,
+    "bO1R3"
+   ],
+   [
+    "O1",
+    "R2",
+    16,
+    20,
+    "bO1R2"
+   ],
+   [
+    "R2",
+    "O1",
+    16,
+    20,
+    "bO1R2"
+   ],
+   [
+    "O2",
+    "R1",
+    12,
+    20,
+    "bO2R1"
+   ],
+   [
+    "R1",
+    "O2",
+    12,
+    20,
+    "bO2R1"
+   ],
+   [
+    "O2",
+    "R0",
+    14,
+    20,
+    "bO2R0"
+   ],
+   [
+    "R0",
+    "O2",
+    14,
+    20,
+    "bO2R0"
+   ],
+   [
+    "O3",
+    "R10",
+    10,
+    20,
+    "bO3R10"
+   ],
+   [
+    "R10",
+    "O3",
+    10,
+    20,
+    "bO3R10"
+   ],
+   [
+    "O3",
+    "R11",
+    17,
+    20,
+    "A4"
+   ],
+   [
+    "R11",
+    "O3",
+    17,
+    20,
+    "A4"
+   ],
+   [
+    "O4",
+    "R9",
+    7,
+    20,
+    "bO4R9"
+   ],
+   [
+    "R9",
+    "O4",
+    7,
+    20,
+    "bO4R9"
+   ],
+   [
+    "O4",
+    "R8",
+    13,
+    20,
+    "B3"
+   ],
+   [
+    "R8",
+    "O4",
+    13,
+    20,
+    "B3"
+   ],
+   [
+    "O5",
+    "R8",
+    8,
+    20,
+    "bO5R8"
+   ],
+   [
+    "R8",
+    "O5",
+    8,
+    20,
+    "bO5R8"
+   ],
+   [
+    "O5",
+    "R7",
+    11,
+    20,
+    "bO5R7"
+   ],
+   [
+    "R7",
+    "O5",
+    11,
+    20,
+    "bO5R7"
+   ],
+   [
+    "O6",
+    "R11",
+    10,
+    20,
+    "bO6R11"
+   ],
+   [
+    "R11",
+    "O6",
+    10,
+    20,
+    "bO6R11"
+   ],
+   [
+    "O6",
+    "TSE",
+    16,
+    20,
+    "bO6TSE"
+   ],
+   [
+    "TSE",
+    "O6",
+    16,
+    20,
+    "bO6TSE"
+   ]
+  ]
+ }
+}

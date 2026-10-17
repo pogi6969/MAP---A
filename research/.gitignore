@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+tools/assets/original_turnitin_report.txt
+tools/assets/original_similarity_fixed.txt
+tools/assets/sample_narration_script.pdf

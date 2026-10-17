@@ -1,0 +1,250 @@
+[
+[
+1,
+"ABSTRACT"
+],
+[
+1,
+"1. INTRODUCTION"
+],
+[
+2,
+"1.1 Statement of the Problem"
+],
+[
+2,
+"1.2 Objectives of the Study"
+],
+[
+2,
+"1.3 Research Questions"
+],
+[
+2,
+"1.4 Review of Related Literature"
+],
+[
+3,
+"1.4.1 Dengue and Its Vector"
+],
+[
+3,
+"1.4.2 Dengue in the Philippines and in Albay"
+],
+[
+3,
+"1.4.3 Reproduction Numbers for Mosquito-Borne Infections"
+],
+[
+3,
+"1.4.4 Human Movement and Dengue"
+],
+[
+3,
+"1.4.5 Uneven Exposure"
+],
+[
+3,
+"1.4.6 Weather and Dengue"
+],
+[
+3,
+"1.4.7 Vector Control and Its Evidence"
+],
+[
+3,
+"1.4.8 Detecting Outbreaks"
+],
+[
+3,
+"1.4.9 Matrix Tools"
+],
+[
+3,
+"1.4.10 Open Data for Dengue Planning"
+],
+[
+2,
+"1.5 Research Gap"
+],
+[
+2,
+"1.6 Contributions of the Study"
+],
+[
+2,
+"1.7 Scope and Delimitation"
+],
+[
+2,
+"1.8 Contribution to the Sustainable Development Goals"
+],
+[
+1,
+"2. FRAMEWORK"
+],
+[
+2,
+"2.1 Study Area and Barangays"
+],
+[
+2,
+"2.2 Where Residents Spend the Day"
+],
+[
+2,
+"2.3 Mosquitoes and Transmission"
+],
+[
+2,
+"2.4 The Reproduction Number"
+],
+[
+2,
+"2.5 How Much Transmission Each Place Carries"
+],
+[
+2,
+"2.6 Vector Control at Least Cost"
+],
+[
+2,
+"2.7 Where People Get Infected"
+],
+[
+2,
+"2.8 The Outbreak Alarm"
+],
+[
+2,
+"2.9 Seasons"
+],
+[
+2,
+"2.10 Strategies Compared"
+],
+[
+2,
+"2.11 Assumptions"
+],
+[
+2,
+"2.12 Notation"
+],
+[
+1,
+"3. FINDINGS"
+],
+[
+2,
+"3.0 Data and Integrity of the Results"
+],
+[
+2,
+"3.1 General Methods"
+],
+[
+2,
+"3.2 Theoretical Results"
+],
+[
+2,
+"3.3 Software Verification"
+],
+[
+2,
+"3.4 Computational Cost"
+],
+[
+2,
+"3.5 Worked Instance D1"
+],
+[
+3,
+"3.5.1 How Much Transmission Each Place Carries"
+],
+[
+3,
+"3.5.2 Vector Control at Least Cost"
+],
+[
+3,
+"3.5.3 Where People Got Infected"
+],
+[
+3,
+"3.5.4 Early Warning"
+],
+[
+2,
+"3.6 Planned Experiments on the Albay Instance"
+],
+[
+3,
+"3.6.1 Sensitivity Analysis"
+],
+[
+3,
+"3.6.2 Statistical Treatment"
+],
+[
+3,
+"3.6.3 Hypotheses Fixed in Advance"
+],
+[
+3,
+"3.6.4 Sensitivity Sweeps"
+],
+[
+1,
+"4. CONCLUSIONS"
+],
+[
+2,
+"4.1 Summary of the Findings"
+],
+[
+2,
+"4.2 Limitations"
+],
+[
+2,
+"4.3 Recommendations and Next Steps"
+],
+[
+2,
+"4.4 Applications"
+],
+[
+1,
+"5. REFERENCES"
+],
+[
+1,
+"APPENDIX A. REGISTER OF PUBLIC DATA SOURCES"
+],
+[
+1,
+"APPENDIX B. FILES OF THE DATA SET"
+],
+[
+1,
+"APPENDIX C. MOSQUITO INDEX AND CASE FIELDS"
+],
+[
+1,
+"APPENDIX D. FEATURES OF THE BANTA-Y APPLICATION"
+],
+[
+1,
+"APPENDIX E. RISK REGISTER"
+],
+[
+1,
+"APPENDIX F. HOW TO REPRODUCE EVERY NUMBER"
+],
+[
+1,
+"ETHICS STATEMENT"
+]
+]

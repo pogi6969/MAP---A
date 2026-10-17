@@ -1,0 +1,94 @@
+verification done 118.6 s
+timing done 123.7 s
+E1 done 143.6 s
+{
+ "V1": {
+  "instances": 300,
+  "agree": 300,
+  "levels": 1500,
+  "nonintegral": 0
+ },
+ "V2": {
+  "cases": 150,
+  "violations": 0,
+  "exact": 144,
+  "gap_max": 2,
+  "gap_mean": 0.04666666666666667,
+  "gap_hist": {
+   "0": 144,
+   "1": 5,
+   "2": 1
+  },
+  "schools_used_max": 6
+ },
+ "V3": {
+  "pairs": 660,
+  "agree": 660,
+  "nonzero": 480
+ },
+ "V4": {
+  "instances": 79,
+  "agree": 79,
+  "lb_violations": 0,
+  "lb_ratio_mean": 0.58544018399813,
+  "lb_ratio_min": 0.125,
+  "bisection_calls_mean": 5.189873417721519,
+  "scan_calls_mean": 26.89873417721519
+ },
+ "V5": {
+  "checks": {
+   "closure_time": 119,
+   "closure_rooms": 120,
+   "add_rooms": 53,
+   "add_time": 119,
+   "alert": 52
+  },
+  "violations": {
+   "closure_time": 0,
+   "closure_rooms": 0,
+   "add_rooms": 0,
+   "add_time": 0,
+   "alert": 0
+  }
+ },
+ "V6": {
+  "checks": {
+   "road": 2400,
+   "coverage": 2396
+  },
+  "violations": {
+   "road": 0,
+   "coverage": 0
+  },
+  "checks_total": 4796,
+  "violations_total": 0
+ },
+ "V7": {
+  "instances": 320,
+  "ratio_min": 0.8897535667963683,
+  "ratio_mean": 0.997099855570615,
+  "share_optimal": 0.946875,
+  "by_k": {
+   "1": {
+    "n": 80,
+    "min": 1.0,
+    "mean": 1.0
+   },
+   "2": {
+    "n": 80,
+    "min": 0.8897535667963683,
+    "mean": 0.994857827804082
+   },
+   "3": {
+    "n": 80,
+    "min": 0.9150259067357513,
+    "mean": 0.994426245213672
+   },
+   "4": {
+    "n": 80,
+    "min": 0.9292279411764706,
+    "mean": 0.9991153492647058
+   }
+  }
+ }
+}
