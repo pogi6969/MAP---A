@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>BANTA-Y rationale video renderer</title>
+<link rel="stylesheet" href="fonts.css">
+<link rel="stylesheet" href="vendor/katex/katex.min.css">
+<script src="vendor/katex/katex.min.js"></script>
+<script src="timeline.js"></script>
+<style>
+  :root{
+    --crimson:#7A1020; --crimson2:#B81E28; --gold:#E0A92A; --gold2:#F6D06B; --cream:#FFF5DE;
+    --ink:#12080A; --teal:#22C3B0; --red:#E04A3A; --grey:#9C8F86;
+  }
+  html,body{margin:0;padding:0;background:#000;}
+  #stage{position:relative;width:1920px;height:1080px;overflow:hidden;background:var(--ink);
+    font-family:'Lato',sans-serif;color:var(--cream);}
+  .abs{position:absolute;}
+  .serif{font-family:'Merriweather',serif;}
+  .times{font-family:'Liberation Serif','Times New Roman',serif;}
+  .gold{color:var(--gold2);}
+  .hide{display:none;}
+  #bg{left:0;top:0;width:1920px;height:1080px;
+    background:radial-gradient(1200px 800px at 45% 40%, #2A0D13 0%, #170A0D 55%, #0D0607 100%);}
+  #bgdots{left:0;top:0;width:1920px;height:1080px;opacity:.5;
+    background-image:radial-gradient(rgba(255,245,222,.07) 1.4px, transparent 1.6px);background-size:40px 40px;}
+  /* scene label and stakes ladder */
+  #label{left:64px;top:38px;font-weight:900;font-size:21px;letter-spacing:4px;color:var(--gold);text-transform:uppercase;}
+  #label span{color:var(--cream);opacity:.75;font-weight:700;}
+  #ladder{left:1790px;top:250px;width:110px;height:520px;}
+  .rung{position:absolute;left:0;width:110px;text-align:center;}
+  .rung .dot{width:26px;height:26px;border-radius:50%;margin:0 auto;border:3px solid rgba(255,245,222,.35);background:#1a0c0f;box-sizing:border-box;}
+  .rung .lab{font-size:15px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;margin-top:6px;color:rgba(255,245,222,.45);}
+  #ladTrack{position:absolute;left:52px;top:13px;width:6px;height:450px;background:rgba(255,245,222,.12);border-radius:3px;}
+  #ladFill{position:absolute;left:52px;width:6px;background:linear-gradient(#F6D06B,#E0A92A);border-radius:3px;}
+  #ladTitle{position:absolute;left:0;top:-46px;width:110px;text-align:center;font-size:13px;letter-spacing:2px;font-weight:900;color:rgba(255,245,222,.5);}
+  /* subtitles */
+  #sub{left:140px;width:1640px;bottom:40px;text-align:center;}
+  #sub .bar{display:inline-block;background:rgba(10,4,6,.78);border-radius:14px;padding:12px 34px 14px;
+    font-weight:700;font-size:44px;line-height:1.25;color:#fff;box-shadow:0 6px 24px rgba(0,0,0,.35);
+    border:1px solid rgba(224,169,42,.25);}
+  #sub .g{color:var(--gold2);}
+  /* generic cards and chips */
+  .card{background:rgba(255,245,222,.06);border:1.5px solid rgba(224,169,42,.35);border-radius:20px;box-sizing:border-box;}
+  .chip{display:inline-block;padding:8px 18px;border-radius:999px;font-weight:700;font-size:22px;
+    background:rgba(10,4,6,.72);border:1.5px solid rgba(224,169,42,.6);color:var(--cream);white-space:nowrap;}
+  .src{font-size:19px;color:rgba(255,245,222,.6);font-weight:400;font-style:italic;}
+  .kicker{font-weight:900;font-size:24px;letter-spacing:5px;color:var(--gold);text-transform:uppercase;}
+  .eq{position:absolute;left:36px;right:36px;color:var(--cream);}
+  .eq .katex{font-size:36px;}
+  .eq .cap{font-size:20px;color:rgba(255,245,222,.62);margin-top:2px;font-weight:400;}
+  .katex .mord.mathcal{font-family:KaTeX_Caligraphic;}
+  /* title card */
+  #title{left:0;top:0;width:1920px;height:1080px;overflow:hidden;}
+  #tBg{left:-20px;top:-12px;width:1960px;height:1104px;background:url(school_building.png) center/cover no-repeat;}
+  #tOv{left:0;top:0;width:1920px;height:1080px;
+    background:linear-gradient(180deg, rgba(110,10,24,.80) 0%, rgba(122,16,32,.76) 45%, rgba(84,6,16,.86) 100%);}
+  #tWord{left:0;width:1920px;top:250px;text-align:center;font-weight:700;font-size:220px;line-height:1;white-space:nowrap;}
+  #tWord span{display:inline-block;color:#F2BE3C;text-shadow:0 6px 0 rgba(70,10,10,.35), 0 0 40px rgba(246,208,107,.25);}
+  #tShine{left:0;width:1920px;top:250px;text-align:center;font-weight:700;font-size:220px;line-height:1;white-space:nowrap;
+    color:transparent;-webkit-background-clip:text;background-clip:text;
+    background-image:linear-gradient(105deg, transparent 0%, transparent 42%, rgba(255,255,240,.95) 50%, transparent 58%, transparent 100%);
+    background-size:300% 100%;background-repeat:no-repeat;}
+  #tLines{left:160px;width:1600px;top:520px;text-align:center;font-weight:700;font-size:50px;line-height:1.24;color:#fff;
+    text-shadow:0 2px 10px rgba(40,0,0,.45);}
+  #tLines div{white-space:nowrap;}
+  .tRule{height:2px;background:#fff;top:0;}
+  #tLead{left:0;width:1920px;top:868px;text-align:center;font-weight:700;font-size:50px;color:#F2BE3C;white-space:nowrap;
+    text-shadow:0 2px 10px rgba(40,0,0,.45);}
+  #tRole{left:0;width:1920px;top:937px;text-align:center;font-weight:900;font-size:17px;letter-spacing:3px;color:#F2BE3C;white-space:nowrap;}
+  #tOthers{left:0;width:1920px;top:968px;text-align:center;font-size:32px;color:#fff;white-space:nowrap;}
+  #black{left:0;top:0;width:1920px;height:1080px;background:#000;}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="bg" class="abs"></div>
+  <div id="bgdots" class="abs"></div>
+  <div id="world" class="abs" style="left:0;top:0;width:1920px;height:1080px;"></div>
+  <div id="label" class="abs"></div>
+  <div id="ladder" class="abs"></div>
+  <div id="sub" class="abs"></div>
+  <div id="title" class="abs"></div>
+  <div id="black" class="abs" style="opacity:0"></div>
+</div>
+<script src="render.js"></script>
+</body>
+</html>

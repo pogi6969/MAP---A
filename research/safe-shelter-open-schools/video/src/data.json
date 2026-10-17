@@ -1,0 +1,1242 @@
+{
+ "note": "Synthetic test network E1 from code/verify_evacuation.py; not Albay data.",
+ "pos": {
+  "R0": [
+   8.0,
+   0.0
+  ],
+  "R1": [
+   6.9282,
+   4.0
+  ],
+  "R2": [
+   4.0,
+   6.9282
+  ],
+  "R3": [
+   0.0,
+   8.0
+  ],
+  "R4": [
+   -4.0,
+   6.9282
+  ],
+  "R5": [
+   -6.9282,
+   4.0
+  ],
+  "R6": [
+   -8.0,
+   0.0
+  ],
+  "R7": [
+   -6.9282,
+   -4.0
+  ],
+  "R8": [
+   -4.0,
+   -6.9282
+  ],
+  "R9": [
+   -0.0,
+   -8.0
+  ],
+  "R10": [
+   4.0,
+   -6.9282
+  ],
+  "R11": [
+   6.9282,
+   -4.0
+  ],
+  "TE": [
+   12.0,
+   0.0
+  ],
+  "TNE": [
+   9.1924,
+   9.1924
+  ],
+  "TSE": [
+   10.649,
+   -7.4565
+  ],
+  "TS": [
+   0.9587,
+   -10.9581
+  ],
+  "TSW": [
+   -9.1925,
+   -7.7135
+  ],
+  "O1": [
+   0.7988,
+   4.5301
+  ],
+  "O2": [
+   5.0743,
+   1.8469
+  ],
+  "O3": [
+   2.8,
+   -4.8497
+  ],
+  "O4": [
+   -0.9185,
+   -6.5358
+  ],
+  "O5": [
+   -4.5501,
+   -5.0534
+  ],
+  "O6": [
+   6.9856,
+   -6.2898
+  ]
+ },
+ "roads": [
+  {
+   "u": "R0",
+   "v": "R1",
+   "tau": 9,
+   "cap": 30,
+   "tag": "ring0",
+   "kind": "ring"
+  },
+  {
+   "u": "R1",
+   "v": "R2",
+   "tau": 9,
+   "cap": 30,
+   "tag": "ring1",
+   "kind": "ring"
+  },
+  {
+   "u": "R2",
+   "v": "R3",
+   "tau": 9,
+   "cap": 30,
+   "tag": "ring2",
+   "kind": "ring"
+  },
+  {
+   "u": "R3",
+   "v": "R4",
+   "tau": 9,
+   "cap": 30,
+   "tag": "ring3",
+   "kind": "ring"
+  },
+  {
+   "u": "R4",
+   "v": "R5",
+   "tau": 9,
+   "cap": 30,
+   "tag": "ring4",
+   "kind": "ring"
+  },
+  {
+   "u": "R5",
+   "v": "R6",
+   "tau": 9,
+   "cap": 30,
+   "tag": "ring5",
+   "kind": "ring"
+  },
+  {
+   "u": "R6",
+   "v": "R7",
+   "tau": 9,
+   "cap": 30,
+   "tag": "ring6",
+   "kind": "ring"
+  },
+  {
+   "u": "R7",
+   "v": "R8",
+   "tau": 9,
+   "cap": 30,
+   "tag": "ring7",
+   "kind": "ring"
+  },
+  {
+   "u": "R8",
+   "v": "R9",
+   "tau": 9,
+   "cap": 30,
+   "tag": "B1",
+   "kind": "ring"
+  },
+  {
+   "u": "R10",
+   "v": "R9",
+   "tau": 9,
+   "cap": 30,
+   "tag": "ring9",
+   "kind": "ring"
+  },
+  {
+   "u": "R10",
+   "v": "R11",
+   "tau": 9,
+   "cap": 30,
+   "tag": "A1",
+   "kind": "ring"
+  },
+  {
+   "u": "R0",
+   "v": "R11",
+   "tau": 9,
+   "cap": 30,
+   "tag": "ring11",
+   "kind": "ring"
+  },
+  {
+   "u": "R0",
+   "v": "TE",
+   "tau": 8,
+   "cap": 40,
+   "tag": "hTE",
+   "kind": "highway"
+  },
+  {
+   "u": "R1",
+   "v": "TNE",
+   "tau": 12,
+   "cap": 40,
+   "tag": "hTNE1",
+   "kind": "highway"
+  },
+  {
+   "u": "R2",
+   "v": "TNE",
+   "tau": 12,
+   "cap": 40,
+   "tag": "hTNE2",
+   "kind": "highway"
+  },
+  {
+   "u": "R10",
+   "v": "TSE",
+   "tau": 14,
+   "cap": 40,
+   "tag": "A2",
+   "kind": "highway"
+  },
+  {
+   "u": "R11",
+   "v": "TSE",
+   "tau": 11,
+   "cap": 40,
+   "tag": "hTSE2",
+   "kind": "highway"
+  },
+  {
+   "u": "R9",
+   "v": "TS",
+   "tau": 7,
+   "cap": 40,
+   "tag": "hTS",
+   "kind": "highway"
+  },
+  {
+   "u": "R7",
+   "v": "TSW",
+   "tau": 9,
+   "cap": 40,
+   "tag": "hTSW1",
+   "kind": "highway"
+  },
+  {
+   "u": "R8",
+   "v": "TSW",
+   "tau": 11,
+   "cap": 40,
+   "tag": "hTSW2",
+   "kind": "highway"
+  },
+  {
+   "u": "TE",
+   "v": "TSE",
+   "tau": 16,
+   "cap": 30,
+   "tag": "oE",
+   "kind": "outer"
+  },
+  {
+   "u": "TS",
+   "v": "TSE",
+   "tau": 21,
+   "cap": 30,
+   "tag": "A3",
+   "kind": "outer"
+  },
+  {
+   "u": "TS",
+   "v": "TSW",
+   "tau": 22,
+   "cap": 30,
+   "tag": "B2",
+   "kind": "outer"
+  },
+  {
+   "u": "TE",
+   "v": "TNE",
+   "tau": 20,
+   "cap": 30,
+   "tag": "oN",
+   "kind": "outer"
+  },
+  {
+   "u": "O1",
+   "v": "R3",
+   "tau": 15,
+   "cap": 20,
+   "tag": "bO1R3",
+   "kind": "local"
+  },
+  {
+   "u": "O1",
+   "v": "R2",
+   "tau": 16,
+   "cap": 20,
+   "tag": "bO1R2",
+   "kind": "local"
+  },
+  {
+   "u": "O2",
+   "v": "R1",
+   "tau": 12,
+   "cap": 20,
+   "tag": "bO2R1",
+   "kind": "local"
+  },
+  {
+   "u": "O2",
+   "v": "R0",
+   "tau": 14,
+   "cap": 20,
+   "tag": "bO2R0",
+   "kind": "local"
+  },
+  {
+   "u": "O3",
+   "v": "R10",
+   "tau": 10,
+   "cap": 20,
+   "tag": "bO3R10",
+   "kind": "local"
+  },
+  {
+   "u": "O3",
+   "v": "R11",
+   "tau": 17,
+   "cap": 20,
+   "tag": "A4",
+   "kind": "local"
+  },
+  {
+   "u": "O4",
+   "v": "R9",
+   "tau": 7,
+   "cap": 20,
+   "tag": "bO4R9",
+   "kind": "local"
+  },
+  {
+   "u": "O4",
+   "v": "R8",
+   "tau": 13,
+   "cap": 20,
+   "tag": "B3",
+   "kind": "local"
+  },
+  {
+   "u": "O5",
+   "v": "R8",
+   "tau": 8,
+   "cap": 20,
+   "tag": "bO5R8",
+   "kind": "local"
+  },
+  {
+   "u": "O5",
+   "v": "R7",
+   "tau": 11,
+   "cap": 20,
+   "tag": "bO5R7",
+   "kind": "local"
+  },
+  {
+   "u": "O6",
+   "v": "R11",
+   "tau": 10,
+   "cap": 20,
+   "tag": "bO6R11",
+   "kind": "local"
+  },
+  {
+   "u": "O6",
+   "v": "TSE",
+   "tau": 16,
+   "cap": 20,
+   "tag": "bO6TSE",
+   "kind": "local"
+  }
+ ],
+ "bridges": [
+  {
+   "tag": "A1",
+   "u": "R10",
+   "v": "R11",
+   "x": 5.177740183711503,
+   "y": -5.750463046564007
+  },
+  {
+   "tag": "A2",
+   "u": "R10",
+   "v": "TSE",
+   "x": 6.410642106608448,
+   "y": -7.119739351690331
+  },
+  {
+   "tag": "A3",
+   "u": "TS",
+   "v": "TSE",
+   "x": 7.6798988412564775,
+   "y": -8.529391765721671
+  },
+  {
+   "tag": "A4",
+   "u": "O3",
+   "v": "R11",
+   "x": 4.1217563646842725,
+   "y": -4.577674201695237
+  },
+  {
+   "tag": "B1",
+   "u": "R8",
+   "v": "R9",
+   "x": -2.916476439349352,
+   "y": -7.218532493331944
+  },
+  {
+   "tag": "B2",
+   "u": "TS",
+   "v": "TSW",
+   "x": -3.8113649615617646,
+   "y": -9.433459309933022
+  },
+  {
+   "tag": "B3",
+   "u": "O4",
+   "v": "R8",
+   "x": -2.7340368086165663,
+   "y": -6.7669785617631035
+  }
+ ],
+ "channels": {
+  "A": 312.0,
+  "B": 248.0
+ },
+ "origins": [
+  {
+   "id": "O1",
+   "node": "O1",
+   "pop": 520,
+   "vul": 114,
+   "zone": "PDZ"
+  },
+  {
+   "id": "O2",
+   "node": "O2",
+   "pop": 430,
+   "vul": 82,
+   "zone": "PDZ"
+  },
+  {
+   "id": "O3",
+   "node": "O3",
+   "pop": 610,
+   "vul": 146,
+   "zone": "PDZ"
+  },
+  {
+   "id": "O4",
+   "node": "O4",
+   "pop": 380,
+   "vul": 80,
+   "zone": "EDZ"
+  },
+  {
+   "id": "O5",
+   "node": "O5",
+   "pop": 450,
+   "vul": 90,
+   "zone": "EDZ"
+  },
+  {
+   "id": "O6",
+   "node": "O6",
+   "pop": 300,
+   "vul": 75,
+   "zone": "LAHAR"
+  }
+ ],
+ "shelters": [
+  {
+   "id": "EC1",
+   "name": "Municipal evacuation center",
+   "node": "TE",
+   "kind": "ec",
+   "cap_ec": 400,
+   "cap_open": 0,
+   "rooms": 0,
+   "room_cap": 0,
+   "accessible": true,
+   "learners_per_room": 0
+  },
+  {
+   "id": "EC2",
+   "name": "Parish hall",
+   "node": "TSE",
+   "kind": "ec",
+   "cap_ec": 200,
+   "cap_open": 0,
+   "rooms": 0,
+   "room_cap": 0,
+   "accessible": true,
+   "learners_per_room": 0
+  },
+  {
+   "id": "EC3",
+   "name": "Barangay covered court",
+   "node": "TSW",
+   "kind": "ec",
+   "cap_ec": 300,
+   "cap_open": 0,
+   "rooms": 0,
+   "room_cap": 0,
+   "accessible": true,
+   "learners_per_room": 0
+  },
+  {
+   "id": "SCH1",
+   "name": "Central elementary school",
+   "node": "TS",
+   "kind": "school",
+   "cap_ec": 0,
+   "cap_open": 180,
+   "rooms": 20,
+   "room_cap": 360,
+   "accessible": true,
+   "learners_per_room": 40
+  },
+  {
+   "id": "SCH2",
+   "name": "National high school",
+   "node": "TSE",
+   "kind": "school",
+   "cap_ec": 0,
+   "cap_open": 240,
+   "rooms": 30,
+   "room_cap": 540,
+   "accessible": true,
+   "learners_per_room": 45
+  },
+  {
+   "id": "SCH3",
+   "name": "Two-storey elementary school",
+   "node": "TNE",
+   "kind": "school",
+   "cap_ec": 0,
+   "cap_open": 0,
+   "rooms": 14,
+   "room_cap": 252,
+   "accessible": false,
+   "learners_per_room": 38
+  }
+ ],
+ "towns": {
+  "TE": "east town",
+  "TNE": "northeast town",
+  "TSE": "southeast city",
+  "TS": "south town",
+  "TSW": "southwest town"
+ },
+ "al3": {
+  "demand": 1560,
+  "vulnerable": 342,
+  "nearest": [
+   {
+    "origin": "O1",
+    "node": "TNE",
+    "minutes": 28,
+    "persons": 520,
+    "path": [
+     "O1",
+     "R2",
+     "TNE"
+    ]
+   },
+   {
+    "origin": "O2",
+    "node": "TE",
+    "minutes": 22,
+    "persons": 430,
+    "path": [
+     "O2",
+     "R0",
+     "TE"
+    ]
+   },
+   {
+    "origin": "O3",
+    "node": "TSE",
+    "minutes": 24,
+    "persons": 610,
+    "path": [
+     "O3",
+     "R10",
+     "TSE"
+    ]
+   }
+  ],
+  "nearest_sites": [
+   {
+    "node": "TNE",
+    "load": 520,
+    "cap": 252,
+    "over": 268
+   },
+   {
+    "node": "TE",
+    "load": 430,
+    "cap": 400,
+    "over": 30
+   },
+   {
+    "node": "TSE",
+    "load": 610,
+    "cap": 980,
+    "over": 0
+   }
+  ],
+  "nearest_overflow": 298,
+  "blind": {
+   "streams": [
+    {
+     "origin": "O1",
+     "shelter": "SCH2",
+     "tier": 2,
+     "persons": 268,
+     "minutes": 54,
+     "path": [
+      "O1",
+      "R2",
+      "R1",
+      "R0",
+      "R11",
+      "TSE"
+     ]
+    },
+    {
+     "origin": "O1",
+     "shelter": "SCH3",
+     "tier": 2,
+     "persons": 252,
+     "minutes": 28,
+     "path": [
+      "O1",
+      "R2",
+      "TNE"
+     ]
+    },
+    {
+     "origin": "O2",
+     "shelter": "EC1",
+     "tier": 0,
+     "persons": 400,
+     "minutes": 22,
+     "path": [
+      "O2",
+      "R0",
+      "TE"
+     ]
+    },
+    {
+     "origin": "O2",
+     "shelter": "SCH2",
+     "tier": 2,
+     "persons": 30,
+     "minutes": 34,
+     "path": [
+      "O2",
+      "R0",
+      "R11",
+      "TSE"
+     ]
+    },
+    {
+     "origin": "O3",
+     "shelter": "EC2",
+     "tier": 0,
+     "persons": 200,
+     "minutes": 24,
+     "path": [
+      "O3",
+      "R10",
+      "TSE"
+     ]
+    },
+    {
+     "origin": "O3",
+     "shelter": "SCH2",
+     "tier": 1,
+     "persons": 240,
+     "minutes": 24,
+     "path": [
+      "O3",
+      "R10",
+      "TSE"
+     ]
+    },
+    {
+     "origin": "O3",
+     "shelter": "SCH2",
+     "tier": 2,
+     "persons": 170,
+     "minutes": 24,
+     "path": [
+      "O3",
+      "R10",
+      "TSE"
+     ]
+    }
+   ],
+   "rooms": {
+    "SCH2": 26,
+    "SCH3": 14
+   },
+   "rooms_total": 40,
+   "learners": 1702,
+   "mean": 29.48,
+   "persons_ec": 600,
+   "persons_open": 240,
+   "persons_room": 720
+  },
+  "lex": {
+   "streams": [
+    {
+     "origin": "O1",
+     "shelter": "EC3",
+     "tier": 0,
+     "persons": 280,
+     "minutes": 60,
+     "path": [
+      "O1",
+      "R3",
+      "R4",
+      "R5",
+      "R6",
+      "R7",
+      "TSW"
+     ]
+    },
+    {
+     "origin": "O1",
+     "shelter": "SCH3",
+     "tier": 2,
+     "persons": 240,
+     "minutes": 28,
+     "path": [
+      "O1",
+      "R2",
+      "TNE"
+     ]
+    },
+    {
+     "origin": "O2",
+     "shelter": "EC1",
+     "tier": 0,
+     "persons": 400,
+     "minutes": 22,
+     "path": [
+      "O2",
+      "R0",
+      "TE"
+     ]
+    },
+    {
+     "origin": "O2",
+     "shelter": "EC2",
+     "tier": 0,
+     "persons": 30,
+     "minutes": 34,
+     "path": [
+      "O2",
+      "R0",
+      "R11",
+      "TSE"
+     ]
+    },
+    {
+     "origin": "O3",
+     "shelter": "EC2",
+     "tier": 0,
+     "persons": 170,
+     "minutes": 24,
+     "path": [
+      "O3",
+      "R10",
+      "TSE"
+     ]
+    },
+    {
+     "origin": "O3",
+     "shelter": "EC3",
+     "tier": 0,
+     "persons": 20,
+     "minutes": 39,
+     "path": [
+      "O3",
+      "R10",
+      "R9",
+      "R8",
+      "TSW"
+     ]
+    },
+    {
+     "origin": "O3",
+     "shelter": "SCH1",
+     "tier": 1,
+     "persons": 180,
+     "minutes": 26,
+     "path": [
+      "O3",
+      "R10",
+      "R9",
+      "TS"
+     ]
+    },
+    {
+     "origin": "O3",
+     "shelter": "SCH2",
+     "tier": 1,
+     "persons": 240,
+     "minutes": 24,
+     "path": [
+      "O3",
+      "R10",
+      "TSE"
+     ]
+    }
+   ],
+   "rooms": {
+    "SCH3": 14
+   },
+   "rooms_total": 14,
+   "learners": 532,
+   "mean": 31.18,
+   "persons_ec": 900,
+   "persons_open": 420,
+   "persons_room": 240
+  },
+  "curve": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   20,
+   40,
+   100,
+   160,
+   220,
+   280,
+   380,
+   480,
+   580,
+   680,
+   780,
+   870,
+   930,
+   990,
+   1070,
+   1150,
+   1190,
+   1230,
+   1270,
+   1280,
+   1300,
+   1320,
+   1340,
+   1360,
+   1380,
+   1400,
+   1420,
+   1440,
+   1470,
+   1500,
+   1530,
+   1560,
+   1560,
+   1560,
+   1560,
+   1560,
+   1560,
+   1560,
+   1560
+  ],
+  "tstar": 53,
+  "lb": 34,
+  "steps": [
+   {
+    "kind": "double",
+    "T": 8,
+    "F": 0
+   },
+   {
+    "kind": "double",
+    "T": 16,
+    "F": 0
+   },
+   {
+    "kind": "double",
+    "T": 32,
+    "F": 780
+   },
+   {
+    "kind": "double",
+    "T": 64,
+    "F": 1560
+   },
+   {
+    "kind": "bisect",
+    "T": 31,
+    "F": 680,
+    "ok": false
+   },
+   {
+    "kind": "bisect",
+    "T": 47,
+    "F": 1400,
+    "ok": false
+   },
+   {
+    "kind": "bisect",
+    "T": 55,
+    "F": 1560,
+    "ok": true
+   },
+   {
+    "kind": "bisect",
+    "T": 51,
+    "F": 1500,
+    "ok": false
+   },
+   {
+    "kind": "bisect",
+    "T": 53,
+    "F": 1560,
+    "ok": true
+   },
+   {
+    "kind": "bisect",
+    "T": 52,
+    "F": 1530,
+    "ok": false
+   }
+  ]
+ },
+ "al4": {
+  "vul_placed": 512,
+  "placed": 2390,
+  "unplaced": 0,
+  "persons_ec": 900,
+  "persons_open": 420,
+  "persons_room": 1070,
+  "rooms_closed_total": 60,
+  "learners_displaced": 2502,
+  "person_minutes": 60608,
+  "max_time": 54,
+  "mean_time": 25.36,
+  "rooms_by_school": {
+   "SCH2": 26,
+   "SCH3": 14,
+   "SCH1": 20
+  },
+  "load": {
+   "SCH2": 708,
+   "EC1": 400,
+   "SCH3": 252,
+   "EC2": 200,
+   "SCH1": 530,
+   "EC3": 300
+  },
+  "demand": 2390
+ },
+ "closures": {
+  "none": {
+   "bridges": [],
+   "clearance_fixed_plan": 53,
+   "unplaced": 0,
+   "persons_room": 1070,
+   "rooms_closed": 60,
+   "clearance_new_plan": 53,
+   "mean_time": 25.36,
+   "max_time": 54
+  },
+  "A": {
+   "bridges": [
+    "A1",
+    "A2",
+    "A3",
+    "A4"
+   ],
+   "clearance_fixed_plan": 95,
+   "unplaced": 0,
+   "persons_room": 1070,
+   "rooms_closed": 60,
+   "clearance_new_plan": 95,
+   "mean_time": 46.73,
+   "max_time": 105
+  },
+  "B": {
+   "bridges": [
+    "B1",
+    "B2",
+    "B3"
+   ],
+   "clearance_fixed_plan": 74,
+   "unplaced": 0,
+   "persons_room": 1070,
+   "rooms_closed": 60,
+   "clearance_new_plan": 74,
+   "mean_time": 29.82,
+   "max_time": 68
+  },
+  "A+B": {
+   "bridges": [
+    "A1",
+    "A2",
+    "A3",
+    "A4",
+    "B1",
+    "B2",
+    "B3"
+   ],
+   "clearance_fixed_plan": Infinity,
+   "unplaced": 450,
+   "persons_room": 620,
+   "rooms_closed": 35,
+   "clearance_new_plan": 74,
+   "mean_time": 31.25,
+   "max_time": 94
+  }
+ },
+ "pocket": {
+  "unplaced": 450,
+  "origins": [
+   "O3",
+   "O4"
+  ],
+  "school": "SCH1"
+ },
+ "siting": {
+  "theta": 30,
+  "candidates": [
+   "TS",
+   "TSW",
+   "TNE",
+   "TE",
+   "TSE"
+  ],
+  "capacity": [
+   400,
+   300,
+   350,
+   300,
+   250
+  ],
+  "area": [
+   1400,
+   1050,
+   1225,
+   1050,
+   875
+  ],
+  "phi0": 1180,
+  "rows": [
+   {
+    "k": 1,
+    "sites": [
+     "TS"
+    ],
+    "gain": 400,
+    "best_sites": [
+     "TS"
+    ],
+    "best_gain": 400,
+    "unplaced": 50,
+    "persons_room": 920,
+    "rooms_closed": 52,
+    "learners": 2142,
+    "clearance": 74
+   },
+   {
+    "k": 2,
+    "sites": [
+     "TS",
+     "TNE"
+    ],
+    "gain": 750,
+    "best_sites": [
+     "TS",
+     "TNE"
+    ],
+    "best_gain": 750,
+    "unplaced": 50,
+    "persons_room": 570,
+    "rooms_closed": 32,
+    "learners": 1256,
+    "clearance": 74
+   },
+   {
+    "k": 3,
+    "sites": [
+     "TS",
+     "TNE",
+     "TSW"
+    ],
+    "gain": 900,
+    "best_sites": [
+     "TS",
+     "TSW",
+     "TNE"
+    ],
+    "best_gain": 900,
+    "unplaced": 50,
+    "persons_room": 360,
+    "rooms_closed": 20,
+    "learners": 800,
+    "clearance": 67
+   }
+  ],
+  "single_gains": {
+   "TS": 400,
+   "TSW": 150,
+   "TNE": 350,
+   "TE": 30,
+   "TSE": 0
+  }
+ },
+ "verification": {
+  "V1": {
+   "instances": 300,
+   "agree": 300,
+   "levels": 1500,
+   "nonintegral": 0
+  },
+  "V2": {
+   "cases": 150,
+   "violations": 0,
+   "exact": 144,
+   "gap_max": 2,
+   "gap_mean": 0.04666666666666667,
+   "gap_hist": {
+    "0": 144,
+    "1": 5,
+    "2": 1
+   },
+   "schools_used_max": 6
+  },
+  "V3": {
+   "pairs": 660,
+   "agree": 660,
+   "nonzero": 480
+  },
+  "V4": {
+   "instances": 79,
+   "agree": 79,
+   "lb_violations": 0,
+   "lb_ratio_mean": 0.58544018399813,
+   "lb_ratio_min": 0.125,
+   "bisection_calls_mean": 5.189873417721519,
+   "scan_calls_mean": 26.89873417721519
+  },
+  "V5": {
+   "checks": {
+    "closure_time": 119,
+    "closure_rooms": 120,
+    "add_rooms": 53,
+    "add_time": 119,
+    "alert": 52
+   },
+   "violations": {
+    "closure_time": 0,
+    "closure_rooms": 0,
+    "add_rooms": 0,
+    "add_time": 0,
+    "alert": 0
+   }
+  },
+  "V6": {
+   "checks": {
+    "road": 2400,
+    "coverage": 2396
+   },
+   "violations": {
+    "road": 0,
+    "coverage": 0
+   },
+   "checks_total": 4796,
+   "violations_total": 0
+  },
+  "V7": {
+   "instances": 320,
+   "ratio_min": 0.8897535667963683,
+   "ratio_mean": 0.997099855570615,
+   "share_optimal": 0.946875,
+   "by_k": {
+    "1": {
+     "n": 80,
+     "min": 1.0,
+     "mean": 1.0
+    },
+    "2": {
+     "n": 80,
+     "min": 0.8897535667963683,
+     "mean": 0.994857827804082
+    },
+    "3": {
+     "n": 80,
+     "min": 0.9150259067357513,
+     "mean": 0.994426245213672
+    },
+    "4": {
+     "n": 80,
+     "min": 0.9292279411764706,
+     "mean": 0.9991153492647058
+    }
+   }
+  }
+ }
+}

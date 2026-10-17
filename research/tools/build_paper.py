@@ -35,8 +35,9 @@ W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
 M = "http://schemas.openxmlformats.org/officeDocument/2006/math"
 R = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
 NS = {"w": W, "m": M, "r": R}
-SOFFICE = ("/root/.claude/skills/synced/1c1c66f6-6abb-415d-89a8-440d0931221b_"
-           "a75439dd-d780-4e79-831a-a542a96602a8/docx/scripts/office/soffice.py")
+# LibreOffice command used to turn the DOCX into a PDF. Set SOFFICE_CMD to override,
+# e.g. SOFFICE_CMD="python3 /path/to/soffice_wrapper.py" on machines where soffice needs a wrapper.
+SOFFICE = os.environ.get("SOFFICE_CMD", "soffice").split()
 TEXT_WIDTH = 9360          # 6.5 in in twips
 
 
@@ -452,7 +453,7 @@ def find_pages(pdf, entries):
 
 
 def to_pdf(docx, outdir):
-    subprocess.run([sys.executable, SOFFICE, "--headless", "--convert-to", "pdf", "--outdir", outdir, docx],
+    subprocess.run(SOFFICE + ["--headless", "--convert-to", "pdf", "--outdir", outdir, docx],
                    check=True, capture_output=True)
     return os.path.join(outdir, os.path.splitext(os.path.basename(docx))[0] + ".pdf")
 

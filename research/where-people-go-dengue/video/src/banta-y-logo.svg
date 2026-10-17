@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="t">
+  <title id="t">BANTA-Y logo: a gold guard shield holding a watchful eye whose iris is a network of barangays</title>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0.35" y2="1">
+      <stop offset="0" stop-color="#B81E28"/>
+      <stop offset="1" stop-color="#4E0810"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F6D06B"/>
+      <stop offset="1" stop-color="#D99A1E"/>
+    </linearGradient>
+    <radialGradient id="iris" cx="0.5" cy="0.42" r="0.62">
+      <stop offset="0" stop-color="#22C3B0"/>
+      <stop offset="1" stop-color="#0A5C55"/>
+    </radialGradient>
+  </defs>
+  <rect id="bgrect" width="512" height="512" rx="112" fill="url(#bg)"/>
+  <g id="mark">
+    <!-- rays: the LegaSci sunburst, here the watch never sleeping -->
+    <g id="rays" stroke="#F6D06B" stroke-width="14" stroke-linecap="round" opacity=".95">
+      <path d="M256 30v34"/>
+      <path d="M150 58l17 28"/>
+      <path d="M362 58l-17 28"/>
+    </g>
+    <!-- shield -->
+    <path d="M256 84 L404 128 V248 C404 346 338 414 256 446 C174 414 108 346 108 248 V128 Z" fill="url(#gold)"/>
+    <path d="M256 110 L380 147 V248 C380 330 326 388 256 417 C186 388 132 330 132 248 V147 Z" fill="#5E0A10"/>
+    <!-- eye -->
+    <path d="M142 262 C192 184 320 184 370 262 C320 340 192 340 142 262 Z" fill="#FFF5DE"/>
+    <circle cx="256" cy="262" r="62" fill="url(#iris)"/>
+    <!-- network of barangays in the iris -->
+    <g id="net"><g stroke="#FFF5DE" stroke-width="5" stroke-linecap="round" opacity=".9">
+      <path d="M256 262 L256 222 M256 262 L294 250 M256 262 L280 294 M256 262 L232 294 M256 262 L218 250"/>
+      <path d="M256 222 L294 250 L280 294 L232 294 L218 250 Z" fill="none" stroke-width="3.5" opacity=".7"/>
+    </g>
+    <g fill="#FFF5DE">
+      <circle cx="256" cy="222" r="7.5"/>
+      <circle cx="294" cy="250" r="7.5"/>
+      <circle cx="280" cy="294" r="7.5"/>
+      <circle cx="232" cy="294" r="7.5"/>
+      <circle cx="218" cy="250" r="7.5"/>
+    </g></g>
+    <circle cx="256" cy="262" r="17" fill="#1C0F0E" stroke="#F6D06B" stroke-width="5"/>
+  </g>
+</svg>
