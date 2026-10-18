@@ -462,6 +462,23 @@ def hit(out, t, gain=0.22):
     out[i0:i1, 1] += s[: i1 - i0]
 
 
+def title_hits(brand):
+    """Times (from the start of the title card) at which the brand letters land; matches TitleCard.draw."""
+    return [0.35 + 0.12 * i + 0.28 for i in range(len(brand.replace("-", " - ")))]
+
+
+def soundtrack(total, mcs_start, boom_t, title_t, scene_starts, brand):
+    """Music bed and effects for the whole video (stereo, SR)."""
+    aud = music(total, mcs_start, boom_t, title_t)
+    for t in scene_starts[1:]:
+        whoosh(aud, t - 0.35)
+    whoosh(aud, title_t - 0.35, gain=0.12)
+    boom(aud, boom_t)
+    for h in title_hits(brand):
+        hit(aud, title_t + h)
+    return aud
+
+
 def write_wav(path, data):
     data = np.clip(data, -1, 1)
     pcm = (data * 32767).astype(np.int16)
@@ -521,14 +538,7 @@ def render(spec, out_dir, name, preview_every=None, only=None):
     proc.stdin.close()
     proc.wait()
     # audio
-    aud = music(total, spec.mcs_start, spec.boom_t, title_t)
-    for sc in spec.scenes[1:]:
-        whoosh(aud, sc["start"] - 0.35)
-    whoosh(aud, title_t - 0.35, gain=0.12)
-    boom(aud, spec.boom_t)
-    _, hits = spec.title.draw(0)
-    for h in hits:
-        hit(aud, title_t + h)
+    aud = soundtrack(total, spec.mcs_start, spec.boom_t, title_t, [sc["start"] for sc in spec.scenes], spec.title.brand)
     write_wav(wav, aud)
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", tmp_video, "-i", wav, "-c:v", "copy",
                     "-af", "loudnorm=I=-20:TP=-2:LRA=11", "-c:a", "aac", "-b:a", "192k", "-ar", "48000",
