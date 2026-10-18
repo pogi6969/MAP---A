@@ -1,0 +1,226 @@
+{
+ "total": 154.56,
+ "title_start": 144.56,
+ "boom": 121.76,
+ "scenes": [
+  {
+   "name": "Family",
+   "bar": "Safety",
+   "cues": [
+    {
+     "id": "1.1",
+     "text": "January 2026. Mayon rises to Alert Level 3.",
+     "onscreen": "Mayon smokes on the right; a house and a family of four on the left; the badge \"ALERT LEVEL 3\" drops in under \"January 2026\".",
+     "start": 0.3,
+     "end": 3.7,
+     "words": 8
+    },
+    {
+     "id": "1.2",
+     "text": "A family in the danger zone packs one bag and asks one question.",
+     "onscreen": "A packed bag appears beside the family; a dotted path leaves the house toward the lowlands.",
+     "start": 4.25,
+     "end": 9.79,
+     "words": 13
+    },
+    {
+     "id": "1.3",
+     "text": "Where do we go, and will there be room for Lola?",
+     "onscreen": "Speech bubble \"Where do we go?\", then \"Room for Lola?\" over the grandmother with a cane.",
+     "start": 10.34,
+     "end": 15.02,
+     "words": 11
+    },
+    {
+     "id": "1.4",
+     "text": "The nearest shelter is a school, and it is already full.",
+     "onscreen": "A school at the end of the path fills window by window; a red stamp \"FULL\" lands on it.",
+     "start": 15.57,
+     "end": 20.25,
+     "words": 11
+    }
+   ],
+   "start": 0.0,
+   "end": 21.6
+  },
+  {
+   "name": "Community",
+   "bar": "Learning",
+   "cues": [
+    {
+     "id": "2.1",
+     "text": "Zoom out to the whole province.",
+     "onscreen": "Albay as a field of 720 barangay dots in 18 towns; the danger zone glows around Mayon.",
+     "start": 21.9,
+     "end": 24.45,
+     "words": 6
+    },
+    {
+     "id": "2.2",
+     "text": "In January, four schools turned into evacuation centers, and 3,424 learners were affected.",
+     "onscreen": "Card: \"4 schools became evacuation centers · 3,424 learners affected\" (counter), source line Philippine Daily Inquirer, 2026.",
+     "start": 25.0,
+     "end": 30.53,
+     "words": 13
+    },
+    {
+     "id": "2.3",
+     "text": "By May, 34 classrooms in Camalig were sheltering about 1,315 people.",
+     "onscreen": "A grid of 34 classroom tiles fills; \"34 classrooms · 488 families · about 1,315 people\", source Daily Tribune, 2026.",
+     "start": 31.08,
+     "end": 35.76,
+     "words": 11
+    },
+    {
+     "id": "2.4",
+     "text": "Sustainable Development Goal 4 asks for safe places to learn. Goal 11 asks us to protect people from disasters.",
+     "onscreen": "Chips slide in: \"SDG 4.a · safe places to learn\" and \"SDG 11.5 · protect people from disasters\".",
+     "start": 36.31,
+     "end": 44.4,
+     "words": 19
+    },
+    {
+     "id": "2.5",
+     "text": "In Albay, both goals meet in the same classroom.",
+     "onscreen": "Both chips glide to the centre and meet over one classroom; RA 10821: \"schools are a last resort\" appears below.",
+     "start": 44.95,
+     "end": 48.78,
+     "words": 9
+    }
+   ],
+   "start": 21.6,
+   "end": 50.13
+  },
+  {
+   "name": "Stakes",
+   "bar": "Time",
+   "cues": [
+    {
+     "id": "3.1",
+     "text": "Then the alert rises, and minutes start to matter.",
+     "onscreen": "Badge changes to \"ALERT LEVEL 4\"; a clock counts minutes.",
+     "start": 50.43,
+     "end": 54.26,
+     "words": 9
+    },
+    {
+     "id": "3.2",
+     "text": "Heavy rain sends lahar down the river channels and closes the bridges.",
+     "onscreen": "Two brown lahar channels cut across the road ring; bridges A1 to A4 and B1 to B3 turn red with a cross.",
+     "start": 54.81,
+     "end": 59.91,
+     "words": 12
+    },
+    {
+     "id": "3.3",
+     "text": "Send everyone to the nearest site, and families arrive at shelters that are already full.",
+     "onscreen": "Arrows from every barangay to its nearest shelter; overflow counter \"298 arrive at full shelters\" (test network).",
+     "start": 60.46,
+     "end": 66.85,
+     "words": 15
+    },
+    {
+     "id": "3.4",
+     "text": "So how do we shelter everyone, the vulnerable first, while keeping the most classrooms open?",
+     "onscreen": "Three lines build: \"Everyone sheltered · Vulnerable first · Classrooms last\" with a question mark.",
+     "start": 67.4,
+     "end": 73.78,
+     "words": 15
+    }
+   ],
+   "start": 50.13,
+   "end": 75.13
+  },
+  {
+   "name": "How MCS comes into play",
+   "bar": "MCS",
+   "cues": [
+    {
+     "id": "4.1",
+     "text": "This is where MCS comes into play.",
+     "onscreen": "The letters M, C and S drop in, then unfold into Mathematical, Computational, Sciences.",
+     "start": 75.43,
+     "end": 78.41,
+     "words": 7
+    },
+    {
+     "id": "4.2",
+     "text": "Mathematics turns open data into a road graph, with travel times, capacities, and shelters in three tiers.",
+     "onscreen": "Chain lights \"Open data → Graph\"; panel MATHEMATICS: test network E1 draws in; G = (N, E), τ_e, u_e; tiers: non-school, school open space, classrooms (18 per room).",
+     "start": 78.96,
+     "end": 86.19,
+     "words": 17
+    },
+    {
+     "id": "4.3",
+     "text": "The law's order becomes one lexicographic minimum-cost flow: vulnerable first, then everyone, then classrooms last.",
+     "onscreen": "Lexicographic objective and the penalties M_O and M_Y; evacuee flows animate from O1 to O3 into their shelters (Alert Level 3 plan).",
+     "start": 86.74,
+     "end": 93.13,
+     "words": 15
+    },
+    {
+     "id": "4.4",
+     "text": "Computing solves it exactly in seconds, and a time-expanded network gives the exact clearance time.",
+     "onscreen": "Chain lights \"Algorithm → Numbers\"; panel COMPUTING: copies of the road network per minute; arrival curve F(T) climbs to 1,560; T* = 53 min, lower bound 34.",
+     "start": 93.68,
+     "end": 100.06,
+     "words": 15
+    },
+    {
+     "id": "4.5",
+     "text": "Optimisation sites new Ligtas Pinoy Centers, and the greedy rule is guaranteed at least sixty-three percent of the best.",
+     "onscreen": "Chain lights \"Optimisation\"; panel OPTIMISATION: f(S_g) ≥ (1 − 1/e) f(S*) ≈ 0.632 f(S*); the south town lights inside the lahar pocket: 400 of 450 sheltered.",
+     "start": 100.61,
+     "end": 108.69,
+     "words": 19
+    },
+    {
+     "id": "4.6",
+     "text": "On the test network, the plan closes fourteen classrooms instead of forty, for under two minutes more travel.",
+     "onscreen": "Counters: classrooms closed 40 → 14; learners displaced 1,702 → 532; extra mean trip +1.70 min. Label \"test network E1 (synthetic)\".",
+     "start": 109.24,
+     "end": 116.9,
+     "words": 18
+    },
+    {
+     "id": "4.7",
+     "text": "Ten results, proven, then verified against independent code.",
+     "onscreen": "Chain lights \"Proof\"; ten proof squares turn into green checks; 300/300 plans, 660/660 networks, 4,796 checks, 0 violations.",
+     "start": 117.45,
+     "end": 120.86,
+     "words": 8
+    },
+    {
+     "id": "4.8",
+     "text": "LIGTA-S will not build one more shelter.",
+     "pause": 0.6,
+     "onscreen": "Boom. Screen darkens; the line appears in white.",
+     "start": 122.01,
+     "end": 124.99,
+     "words": 7
+    },
+    {
+     "id": "4.9",
+     "text": "But when the alert rises, it will tell every family where to go, and keep the most classrooms open.",
+     "onscreen": "The line appears in gold.",
+     "start": 125.54,
+     "end": 133.62,
+     "words": 19
+    },
+    {
+     "id": "4.10",
+     "text": "[pause] Distance tells you where the shelter is. A plan tells you if there is room, in time.",
+     "pause": 0.8,
+     "hold": 1.0,
+     "onscreen": "Two lines: \"Distance tells you where the shelter is.\" (white), then \"A plan tells you if there is room, in time.\" (gold).",
+     "start": 134.97,
+     "end": 142.21,
+     "words": 17
+    }
+   ],
+   "start": 75.13,
+   "end": 144.56
+  }
+ ]
+}

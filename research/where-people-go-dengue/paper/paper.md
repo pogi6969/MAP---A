@@ -255,6 +255,25 @@ The model treats dengue as one virus. It does not distinguish the four serotypes
 
 SDG 3 (Good Health and Well-being) is the goal served most directly. Target 3.3 calls for ending epidemics of neglected tropical diseases, dengue among them, and target 3.d for stronger early warning and better handling of health risks (United Nations General Assembly [UNGA], 2015). The CUSUM alarm addresses target 3.d, and the least-cost control addresses target 3.3. The hotspot ranking often singles out schools as places of transmission, so target 4.a (safe learning environments) is touched as well, while the open data set relates to target 17.18. None of these links has been measured in practice; they describe intended uses of a model that is still to be field-tested.
 
+::: {custom-style="Figure Para"}
+![](/home/user/MAP---A/research/where-people-go-dengue/paper/fig_sdg.png){width=4.2in}
+:::
+
+::: {custom-style="Source Line"}
+SDG icons: United Nations
+:::
+
+
+## 1.9 How Mathematics and Computational Sciences Come into Play
+
+This is a study in Mathematics and Computational Sciences in a precise sense: each of its three parts does work that the other two cannot.
+
+* **Mathematics** states the problem exactly. Daily movement becomes a residence-time matrix, transmission becomes a symmetric matrix whose largest eigenvalue is the reproduction number, and the cheapest effective control becomes a convex program. Twelve propositions then fix what the model guarantees.
+* **Computation** turns those statements into answers. An eigen-solver gives the reproduction number and the place shares for all 720 barangays in under a second, an interior-point method finds the least-cost plan with a certified gap, and a Markov chain gives the exact run length of the alarm.
+* **Science** keeps the work honest. Inputs come from public registers and published parameter ranges, every proposition was tested against separately written code, and every number in Chapter 3 is reproduced by one seeded script.
+
+Together the three move from open data to a matrix, from the matrix to an algorithm, from the algorithm to numbers, and from the numbers to a control plan that is both cheapest and proven (Figure 1).
+
 
 # 2. FRAMEWORK
 

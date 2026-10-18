@@ -76,6 +76,7 @@ def main():
     d = res["d1"]
     val = {}
     val["HEADER"] = os.path.join(ROOT, "tools", "assets", "deped_header.png")
+    val["FIG_SDG"] = os.path.join(HERE, "fig_sdg.png")
     val["FIG_FRAMEWORK"] = os.path.join(HERE, "fig_framework.png")
     val["FIG_NET"] = os.path.join(CODE, "figures", "fig_d1_network.png")
     val["FIG_SHARES"] = os.path.join(CODE, "figures", "fig_d1_shares.png")

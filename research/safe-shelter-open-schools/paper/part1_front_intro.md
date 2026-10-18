@@ -257,3 +257,22 @@ The model plans; it does not order. Decisions remain with the local disaster ris
 Because the SDGs are linked to one another, a single study may contribute to more than one of them (UNGA, 2015). The work reported here is computational and offers a planning tool. It has not yet been put into practice, so the paper reports no Albay value for any indicator.
 
 The study bears most directly on two goals: Sustainable Cities and Communities (SDG 11), via target 11.5 on reducing the people affected by disasters, and Climate Action (SDG 13), via target 13.1 on resilience to climate-related hazards. The classroom measures serve SDG 4, Quality Education, through target 4.a on safe learning environments: every classroom the plan keeps open is a class that keeps meeting. The vulnerable-first level relates to SDG 10, Reduced Inequalities (target 10.2), and the siting tool to SDG 1 (target 1.5, resilience of the poor). Each of these links is a likely use of the work, not a demonstrated outcome.
+
+::: {custom-style="Figure Para"}
+![](<<FIG_SDG>>){width=6.2in}
+:::
+
+::: {custom-style="Source Line"}
+SDG icons: United Nations
+:::
+
+
+## 1.9 How Mathematics and Computational Sciences Come into Play
+
+This is a study in Mathematics and Computational Sciences in a precise sense: each of its three parts does work that the other two cannot.
+
+* **Mathematics** states the problem exactly. Roads become a graph with travel times and capacities, shelters become three tiers of capacity, and the legal order of priorities becomes a lexicographic minimum-cost flow. Ten propositions then say what any plan of this kind can and cannot do.
+* **Computation** turns those statements into answers. An exact flow solver produces a plan in seconds, a time-expanded network gives the clearance time by bisection, and a greedy rule sites new centers with a proven guarantee.
+* **Science** keeps the work honest. Every input comes from a public register or a published standard, every proposition was tested against separately written code, and every number in Chapter 3 can be reproduced from one seeded script.
+
+Together the three move from open data to a graph, from the graph to an algorithm, from the algorithm to numbers, and from the numbers to a plan that is both optimal and proven (Figure 1).

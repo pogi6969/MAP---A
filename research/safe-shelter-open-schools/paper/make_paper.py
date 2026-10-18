@@ -66,6 +66,7 @@ def main():
     sc = e["scenarios"]
     val = {}
     val["HEADER"] = os.path.join(ROOT, "tools", "assets", "deped_header.png")
+    val["FIG_SDG"] = os.path.join(HERE, "fig_sdg.png")
     val["FIG_FRAMEWORK"] = os.path.join(HERE, "fig_framework.png")
     val["FIG_MAP"] = os.path.join(CODE, "figures", "fig_e1_map.png")
     val["FIG_ARR"] = os.path.join(CODE, "figures", "fig_e1_arrivals.png")

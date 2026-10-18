@@ -1,0 +1,226 @@
+{
+ "total": 157.54,
+ "title_start": 147.54,
+ "boom": 128.14,
+ "scenes": [
+  {
+   "name": "Pupil",
+   "bar": "Health",
+   "cues": [
+    {
+     "id": "1.1",
+     "text": "September 2026. A Grade 5 pupil in Legazpi wakes up with a high fever.",
+     "onscreen": "\"SEPTEMBER 2026\"; a house at dawn; a pupil with a thermometer; the badge \"DENGUE\" fades in.",
+     "start": 0.3,
+     "end": 6.26,
+     "words": 14
+    },
+    {
+     "id": "1.2",
+     "text": "The clinic writes down one thing first: her home address.",
+     "onscreen": "A case-report card slides in: \"Case report · Address: home barangay\"; a pin drops on the house.",
+     "start": 6.81,
+     "end": 11.06,
+     "words": 10
+    },
+    {
+     "id": "1.3",
+     "text": "But the mosquito that bit her was not at home. It was at school, in the middle of the day.",
+     "onscreen": "The sun rises; a dotted path runs from the house to the school; an Aedes mosquito circles the school; the house pin greys out.",
+     "start": 11.61,
+     "end": 20.12,
+     "words": 20
+    }
+   ],
+   "start": 0.0,
+   "end": 21.47
+  },
+  {
+   "name": "Province",
+   "bar": "Province",
+   "cues": [
+    {
+     "id": "2.1",
+     "text": "Zoom out to Albay.",
+     "onscreen": "Albay as a field of 720 barangay dots in 18 towns.",
+     "start": 21.77,
+     "end": 23.48,
+     "words": 4
+    },
+    {
+     "id": "2.2",
+     "text": "By mid-September, the province had 2,179 cases and 14 deaths, 84 percent more than the year before.",
+     "onscreen": "Counters: 2,179 cases · 14 deaths · +84% vs the same period of 2025 (Jan 1 to Sept 12, 2026); source Daily Tribune, 2026.",
+     "start": 24.03,
+     "end": 31.26,
+     "words": 17
+    },
+    {
+     "id": "2.3",
+     "text": "The province declared a state of calamity, and schools closed for a week of cleanup.",
+     "onscreen": "Badge \"STATE OF CALAMITY\"; a school with the sign \"Closed Sept 14 to 18 · cleanup and fogging\".",
+     "start": 31.81,
+     "end": 38.19,
+     "words": 15
+    },
+    {
+     "id": "2.4",
+     "text": "Sustainable Development Goal 3 asks us to end epidemics like dengue.",
+     "onscreen": "Chips: \"SDG 3.3 · end the epidemics of neglected tropical diseases\" and \"SDG 3.d · early warning\".",
+     "start": 38.74,
+     "end": 43.42,
+     "words": 11
+    }
+   ],
+   "start": 21.47,
+   "end": 44.77
+  },
+  {
+   "name": "Place",
+   "bar": "Place",
+   "cues": [
+    {
+     "id": "3.1",
+     "text": "Every case is filed by home address, so the brigades go to the homes.",
+     "onscreen": "Test network D1 (synthetic): bars of cases by residence; B2 has the most; brigade markers move to B2.",
+     "start": 45.07,
+     "end": 51.03,
+     "words": 14
+    },
+    {
+     "id": "3.2",
+     "text": "But Aedes aegypti bites by day, where people gather: classrooms, markets, terminals.",
+     "onscreen": "Daytime arrows flow from every barangay into B1, the poblacion with the central school and public market; B1 glows.",
+     "start": 51.58,
+     "end": 56.69,
+     "words": 12
+    },
+    {
+     "id": "3.3",
+     "text": "Spray where cases live, and you may spray the wrong barangay.",
+     "onscreen": "Spray cloud over B2 while B1 stays red; stamp \"WRONG PLACE?\".",
+     "start": 57.24,
+     "end": 61.92,
+     "words": 11
+    },
+    {
+     "id": "3.4",
+     "text": "So where is dengue really spreading, and how much control is enough?",
+     "onscreen": "Three lines build: \"Where does it spread? · How much is enough? · When do we warn?\"",
+     "start": 62.47,
+     "end": 67.57,
+     "words": 12
+    }
+   ],
+   "start": 44.77,
+   "end": 68.92
+  },
+  {
+   "name": "How MCS comes into play",
+   "bar": "MCS",
+   "cues": [
+    {
+     "id": "4.1",
+     "text": "This is where MCS comes into play.",
+     "onscreen": "The letters M, C and S drop in, then unfold into Mathematical, Computational, Sciences.",
+     "start": 69.22,
+     "end": 72.2,
+     "words": 7
+    },
+    {
+     "id": "4.2",
+     "text": "Mathematics writes each barangay's day as a matrix: who spends how many hours, and where.",
+     "onscreen": "Chain lights \"Open data → Graph\"; panel MATHEMATICS: the 6 × 6 residence-time matrix P of test network D1 fills in as a heat map; p_ii = 1 − ω_i, p_ij ∝ A_j e^(−βT_ij).",
+     "start": 72.75,
+     "end": 79.14,
+     "words": 15
+    },
+    {
+     "id": "4.3",
+     "text": "Its largest eigenvalue gives the reproduction number, and dengue fades when it falls below one.",
+     "onscreen": "M = κ D_N P W Pᵀ, R0² = λ_max(S); dial shows R0 = 1.214 with the threshold line at 1.",
+     "start": 79.69,
+     "end": 86.07,
+     "words": 15
+    },
+    {
+     "id": "4.4",
+     "text": "Computing splits that number into shares by place, and ranks the true hotspots.",
+     "onscreen": "Chain lights \"Algorithm → Numbers\"; panel COMPUTING: paired bars, cases by residence vs transmission by place; B1 rises to 42.6%.",
+     "start": 86.62,
+     "end": 92.15,
+     "words": 13
+    },
+    {
+     "id": "4.5",
+     "text": "Optimisation finds the cheapest brigade plan that brings the number below one, with a certificate that nothing cheaper exists.",
+     "onscreen": "Chain lights \"Optimisation\"; panel OPTIMISATION: min Σ c_j u_j subject to R0(u) ≤ 0.95; cost bars for five strategies, least cost 22.60 team-days with its certified lower bound.",
+     "start": 92.7,
+     "end": 100.79,
+     "words": 19
+    },
+    {
+     "id": "4.6",
+     "text": "On the test network, cases pointed to a residential barangay, but forty-three percent of transmission was at the school and market.",
+     "onscreen": "Two cards: \"Most cases by home: B2, 28.5%\" and \"Most transmission by place: B1, 42.6%\" (test network D1, synthetic).",
+     "start": 101.34,
+     "end": 110.27,
+     "words": 21
+    },
+    {
+     "id": "4.7",
+     "text": "The least-cost plan needed forty percent fewer team-days than spraying everywhere.",
+     "onscreen": "Counter: 37.47 → 22.60 team-days, −40%; versus spraying where cases live 38.88 (−42%).",
+     "start": 110.82,
+     "end": 115.5,
+     "words": 11
+    },
+    {
+     "id": "4.8",
+     "text": "And a CUSUM alarm warned more than a week and a half sooner than a single-week threshold.",
+     "onscreen": "CUSUM curve S_t climbs past h = 12.75; bars of mean delay: CUSUM 4.84 weeks vs single-week rule 6.52 weeks at the same 5% false-alarm rate (5,000 simulated years).",
+     "start": 116.05,
+     "end": 123.29,
+     "words": 17
+    },
+    {
+     "id": "4.9",
+     "text": "Twelve results, proven, then verified against independent code.",
+     "onscreen": "Chain lights \"Proof\"; twelve proof squares turn into green checks; 300/300 reproduction numbers, 120/120 control plans, 10,000 alarm sequences.",
+     "start": 123.84,
+     "end": 127.24,
+     "words": 8
+    },
+    {
+     "id": "4.10",
+     "text": "BANTA-Y will not kill one mosquito.",
+     "pause": 0.6,
+     "onscreen": "Boom. Screen darkens; the line appears in white.",
+     "start": 128.39,
+     "end": 130.94,
+     "words": 6
+    },
+    {
+     "id": "4.11",
+     "text": "But it will tell the brigades where the bites really happen, and how much is enough.",
+     "onscreen": "The line appears in gold.",
+     "start": 131.49,
+     "end": 138.3,
+     "words": 16
+    },
+    {
+     "id": "4.12",
+     "text": "[pause] Homes tell you where dengue is reported. Places tell you where it spreads.",
+     "pause": 0.8,
+     "hold": 1.0,
+     "onscreen": "Two lines: \"Homes tell you where dengue is reported.\" (white), then \"Places tell you where it spreads.\" (gold).",
+     "start": 139.65,
+     "end": 145.19,
+     "words": 13
+    }
+   ],
+   "start": 68.92,
+   "end": 147.54
+  }
+ ]
+}
