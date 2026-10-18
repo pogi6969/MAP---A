@@ -782,6 +782,57 @@ svg.leaflet-image-layer.leaflet-interactive path {
 @media (prefers-reduced-motion:reduce){#splash *,#splash::after{animation:none!important}}
 @media (max-width:400px){.sp-title{font-size:38px}.sp-logo{width:118px;height:118px}}
 .app-mark{width:1.35em;height:1.35em;vertical-align:-.3em;margin-right:.35em;object-fit:contain}
+/* Project credits: comes up after the opening screen for a few seconds, then
+   fades. Same content and colours as the About section of the website. */
+#credits{position:fixed;inset:0;z-index:9600;display:flex;align-items:center;justify-content:center;
+  padding:calc(16px + var(--safe-t)) 16px calc(16px + var(--safe-b));background:rgba(22,12,12,.84);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);animation:crFade .35s ease both;transition:opacity .4s ease}
+#credits[hidden]{display:none}
+#credits.gone{opacity:0}
+.cr-card{display:flex;flex-direction:column;width:100%;max-width:940px;max-height:100%;overflow:hidden;
+  border-radius:20px;background:#160C0C;color:#FBEFD9;border:1px solid #3A251F;
+  box-shadow:0 30px 60px -20px rgba(0,0,0,.7);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  animation:crIn .5s cubic-bezier(.2,.8,.3,1) both}
+.cr-main{display:grid;gap:20px;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:22px 20px 18px}
+@media (min-width:760px){.cr-main{grid-template-columns:minmax(0,15rem) minmax(0,1fr);align-items:start;gap:0 36px;padding:30px 36px 22px}
+  .cr-logo{position:sticky;top:0}}
+.cr-logo{display:block;width:min(42vw,160px);aspect-ratio:1/1;justify-self:center;filter:drop-shadow(0 14px 24px rgba(0,0,0,.5))}
+@media (min-width:760px){.cr-logo{width:100%}}
+@media (max-height:520px){.cr-logo{width:120px}.cr-body h2{font-size:24px}}
+.cr-eyebrow{margin:0 0 8px;font:600 11px/1.3 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.18em;
+  text-transform:uppercase;color:#CDB6A2}
+.cr-body h2{margin:0 0 10px;font:700 clamp(22px,4.4vw,34px)/1.08 "Arial Narrow","Roboto Condensed",system-ui,sans-serif;
+  font-stretch:condensed;color:#FBEFD9;text-wrap:balance}
+.cr-lede{margin:0 0 16px;font-size:14px;line-height:1.55;color:#CDB6A2}
+.cr-people{margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 20px;border-top:2px solid #FBEFD9}
+.cr-people>div{padding:10px 0;border-bottom:1px solid #3A251F;min-width:0}
+.cr-people>.cr-wide{grid-column:1 / -1}
+.cr-people dt{font:600 10.5px/1.3 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.12em;
+  text-transform:uppercase;color:#CDB6A2}
+.cr-people dd{margin:5px 0 0;font-size:14.5px;font-weight:700;line-height:1.35}
+.cr-lead{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:9px 12px;border-left:4px solid #E9B949;
+  border-radius:3px;background:rgba(233,185,73,.14)}
+.cr-lead-name{font-size:clamp(19px,3.4vw,24px);font-weight:800;line-height:1.15}
+.cr-role{padding:4px 7px 3px;border-radius:3px;background:#E9B949;color:#3A1A06;
+  font:600 10.5px/1.25 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.06em;text-transform:uppercase}
+.cr-co{display:grid;gap:2px;margin-top:8px;padding-left:16px;font-size:clamp(17px,2.8vw,20px);font-weight:800;line-height:1.25}
+.cr-people dd.cr-support{font-weight:600;color:#CDB6A2}
+.cr-sdg{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0 0;padding:0;list-style:none}
+.cr-sdg li{padding:5px 8px 4px;border:1.5px solid #E9B949;border-radius:3px;
+  font:600 10.5px/1.2 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.04em}
+.cr-fine{margin:12px 0 0;font:500 11px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:#CDB6A2}
+.cr-foot{flex:none;display:flex;align-items:center;gap:14px;padding:12px 20px 16px;border-top:1px solid #3A251F}
+@media (min-width:760px){.cr-foot{padding:14px 36px 18px}}
+.cr-timer{flex:1;height:3px;border-radius:2px;background:rgba(251,239,217,.14);overflow:hidden}
+.cr-timer i{display:block;height:100%;background:#E9B949;transform-origin:left;animation:crCount 8s linear forwards}
+.cr-timer i.held{animation-play-state:paused;opacity:.4}
+.cr-go{min-height:40px;padding:10px 18px;border:0;border-radius:8px;background:#B81E28;color:#FFF5DE;
+  font:600 14px/1 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;cursor:pointer}
+.cr-go:focus-visible{outline:3px solid #FBEFD9;outline-offset:2px}
+@keyframes crFade{from{opacity:0}to{opacity:1}}
+@keyframes crIn{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes crCount{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+@media (prefers-reduced-motion:reduce){#credits,.cr-card,.cr-timer i{animation:none}}
 /* ============================================================
    DESIGN TOKENS
    Google Maps geometry (pill search, blue route, white casing)
@@ -1429,6 +1480,33 @@ body.navigating .leaflet-control-attribution{opacity:.55}
   </div>
   <div class="sp-foot">Albay Provincial Transit Atlas &middot; 18 LGUs &middot; Districts I–III &middot; v49</div>
 </div>
+<div id="credits" role="dialog" aria-modal="false" aria-labelledby="crTitle" hidden>
+  <div class="cr-card">
+    <div class="cr-main">
+    <img class="cr-logo" alt="MAP-A logo: a red map pin carrying a yellow medical cross and a jeepney, over Mayon Volcano, a church belfry and a green hill.">
+    <div class="cr-body">
+      <p class="cr-eyebrow">About the project</p>
+      <h2 id="crTitle">A Landmark-Anchored Timetable-Graph Model of Public Transport</h2>
+      <p class="cr-lede">Verified computation of accessibility, its inequality and the fare matrix from open data, with agent-reported hospital bed capacity for ambulance and patient routing.</p>
+      <dl class="cr-people">
+        <div class="cr-wide"><dt>Researchers</dt><dd><span class="cr-lead"><span class="cr-lead-name">Dave Justin Ll. De Asis</span><span class="cr-role">Leader and founder of MAP-A and the research</span></span><span class="cr-co"><span>Peter John A. Brimbuela</span><span>Yeaseong Shin</span></span></dd></div>
+        <div class="cr-wide"><dt>Support group</dt><dd class="cr-support">Uriel Sizouzemihr D. Guianan</dd></div>
+        <div><dt>Research adviser</dt><dd>Dick Anthony M. Calleja</dd></div>
+        <div><dt>School</dt><dd>Legazpi City Science High School, Legazpi City, Albay</dd></div>
+        <div class="cr-wide"><dt>Category</dt><dd>Mathematics and Computational Sciences, Team</dd></div>
+      </dl>
+      <ul class="cr-sdg" aria-label="Sustainable Development Goal targets">
+        <li>SDG 11.2 Transport for all</li>
+        <li>SDG 3.8 Health coverage</li>
+        <li>SDG 10.2 Inclusion</li>
+        <li>SDG 3.d Health risk readiness</li>
+      </ul>
+      <p class="cr-fine">The logo: a red map pin carrying a yellow medical cross and a jeepney, set over Mayon Volcano, a church belfry and a green hill. Logo created by Kiah Miraflor.</p>
+    </div>
+    </div>
+    <div class="cr-foot"><div class="cr-timer" aria-hidden="true"><i id="crTimer"></i></div><button id="crGo" class="cr-go" type="button">Continue</button></div>
+  </div>
+</div>
 <div id="map" role="application" aria-label="Map of Albay"></div>
 
 <!-- ============ TOP: search + category rail ============ -->
@@ -1677,7 +1755,7 @@ function splashDone(){
   if (left>0){ setTimeout(splashDone,left); return; }   /* hold the full five seconds */
   splashReady=true;
   splashStep(100,"Ready");
-  setTimeout(function(){ el.classList.add("gone"); setTimeout(function(){ el.remove(); },600); },300);
+  setTimeout(function(){ el.classList.add("gone"); startCredits(); setTimeout(function(){ el.remove(); },600); },300);
 }
 setTimeout(function(){
   const el=document.getElementById("splash");
@@ -1702,7 +1780,47 @@ function firstRun(){
   const rd=document.getElementById("frRead");
   if (rd) rd.addEventListener("click",function(){ close(); if (typeof showPrivacy==="function") showPrivacy(); });
 }
-setTimeout(function(){ try{ firstRun(); }catch(e){} },5600);
+/* The project credits come up as the splash fades, stay for eight seconds and
+   fade out. Continue, a tap outside the card or Escape closes them sooner;
+   touching the card holds it open so it can be read or scrolled. The one-time
+   privacy notice follows. */
+const CREDITS_MS=8000;
+let creditsStarted=false;
+function startCredits(){
+  if (creditsStarted) return;
+  creditsStarted=true;
+  const next=function(){ try{ firstRun(); }catch(e){} };
+  try{ showCredits(next); }catch(e){ next(); }
+}
+function showCredits(then){
+  const el=document.getElementById("credits");
+  if (!el){ then(); return; }
+  const card=el.querySelector(".cr-card"), main=el.querySelector(".cr-main");
+  const logo=el.querySelector(".cr-logo");
+  if (logo){ if (APP_LOGO) logo.src=APP_LOGO; else logo.remove(); }
+  const bar=document.getElementById("crTimer");
+  let timer=0, closed=false;
+  const onKey=function(e){ if (e.key==="Escape") close(); };
+  const hold=function(){ clearTimeout(timer); if (bar) bar.classList.add("held"); };
+  function close(){
+    if (closed) return;
+    closed=true;
+    clearTimeout(timer);
+    document.removeEventListener("keydown",onKey);
+    el.classList.add("gone");
+    setTimeout(function(){ el.hidden=true; then(); },420);
+  }
+  if (bar) bar.style.animationDuration=CREDITS_MS+"ms";
+  el.hidden=false;
+  timer=setTimeout(close,CREDITS_MS);
+  el.addEventListener("click",function(e){ if (e.target===el) close(); });
+  if (card) card.addEventListener("pointerdown",hold);
+  if (main) main.addEventListener("scroll",hold,{passive:true});
+  const go=document.getElementById("crGo");
+  if (go) go.addEventListener("click",close);
+  document.addEventListener("keydown",onKey);
+}
+setTimeout(startCredits,9000);   /* failsafe, in case the splash never hands over */
 /* =====================================================================
    0 · CONFIG
    ===================================================================== */
