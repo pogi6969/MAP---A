@@ -1,6 +1,6 @@
 """Narration script PDF for a rationale video, built from the video's timeline.json.
 
-Usage: python3 narration_script.py timeline.json BRAND video.mp4 title.png out.pdf "pron1|pron2|..."
+Usage: python3 narration_script.py timeline.json BRAND video.mp4 title.png out.pdf "pron1|pron2|..." [version]
 """
 
 import html
@@ -59,7 +59,7 @@ tr { page-break-inside: avoid; }
 """
 
 
-def build_html(tl, brand, video_name, title_png, prons):
+def build_html(tl, brand, video_name, title_png, prons, version="v1"):
     scenes = tl["scenes"]
     words = sum(c["words"] for sc in scenes for c in sc["cues"])
     total = tl["total"]
@@ -68,7 +68,7 @@ def build_html(tl, brand, video_name, title_png, prons):
     windows = ", ".join("%s–%s" % (fmt(sc["start"]) if i else "0:00", fmt(sc["end"])) for i, sc in enumerate(scenes))
     conc = [c for c in scenes[-1]["cues"]][-3:]
     h = ["<html><head><meta charset='utf-8'><style>%s</style></head><body>" % CSS]
-    h.append("<div class='band'><h1>Narration Script</h1><div class='sub'>%s rationale video v1 · how MCS comes into play · version without narration</div></div>" % brand)
+    h.append("<div class='band'><h1>Narration Script</h1><div class='sub'>%s rationale video %s · how MCS comes into play · version without narration</div></div>" % (brand, version))
     h.append("<p class='lede'>Length %s · 1920 × 1080 · 30 fps · subtitles burned in · %d words in four scenes, then a 10-second title card with no narration. "
              "Read each line over <b>%s</b>. Each line starts when its subtitle appears, and every visual cue is tied to a word, so match your pace to the subtitles.</p>"
              % (fmt_short(total), words, html.escape(video_name)))
@@ -76,7 +76,7 @@ def build_html(tl, brand, video_name, title_png, prons):
              "<li>Play the video and start speaking when each subtitle appears (<b>Start</b>).</li>"
              "<li>Finish the line by <b>Finish by</b>. <b>Read time</b> is the time the line needs at an easy pace.</li>"
              "<li>Record each scene as its own take. Scene windows: %s, then the title card %s–%s (no narration).</li>"
-             "<li>The boom lands at %s. Read the conclusion (%s to %s) after it, with a full pause before the last line, then stay silent through the title card to %s.</li>"
+             "<li>The boom lands at %s. Read the conclusion (%s to %s) after it, then stay silent through the title card to %s.</li>"
              "<li>Pace is about 2.3 words per second, with a short breath at each comma.</li></ol></div>"
              % (windows, fmt(ts), fmt_short(total), fmt(boom), conc[0]["id"], conc[-1]["id"], fmt_short(total)))
     h.append("<div class='r'><h3>Say it this way</h3><ul>%s</ul></div></div>" % "".join("<li>%s</li>" % p for p in prons))
@@ -121,7 +121,7 @@ try { pw = require('playwright'); } catch (e) { pw = require('/opt/node-tools/no
   await p.goto(pathToFileURL(process.argv[2]).href, { waitUntil: 'load' });
   await p.pdf({ path: process.argv[3], format: 'Letter', printBackground: true,
     displayHeaderFooter: true, headerTemplate: '<span></span>',
-    footerTemplate: '<div style="font-size:7px;color:#888;width:100%;padding:0 0.55in;display:flex;justify-content:space-between;font-family:sans-serif"><span>' + process.argv[4] + ' rationale video v1 · how MCS comes into play · narration script for the non-narrated version</span><span>Page <span class="pageNumber"></span></span></div>',
+    footerTemplate: '<div style="font-size:7px;color:#888;width:100%;padding:0 0.55in;display:flex;justify-content:space-between;font-family:sans-serif"><span>' + process.argv[4] + ' rationale video ' + process.argv[5] + ' · how MCS comes into play · narration script for the non-narrated version</span><span>Page <span class="pageNumber"></span></span></div>',
     margin: { top: '0.55in', bottom: '0.6in', left: '0.55in', right: '0.55in' } });
   await b.close();
 })();
@@ -130,14 +130,15 @@ try { pw = require('playwright'); } catch (e) { pw = require('/opt/node-tools/no
 
 def main():
     tl_path, brand, video, title_png, out_pdf, prons = sys.argv[1:7]
+    version = sys.argv[7] if len(sys.argv) > 7 else "v1"
     tl = json.load(open(tl_path))
-    page = build_html(tl, brand, os.path.basename(video), title_png, prons.split("|"))
+    page = build_html(tl, brand, os.path.basename(video), title_png, prons.split("|"), version)
     tmp = tempfile.mkdtemp()
     hp = os.path.join(tmp, "script.html")
     open(hp, "w").write(page)
     js = os.path.join(tmp, "print.cjs")
     open(js, "w").write(PRINT_JS)
-    subprocess.run(["node", js, hp, os.path.abspath(out_pdf), brand], check=True)
+    subprocess.run(["node", js, hp, os.path.abspath(out_pdf), brand, version], check=True)
     # plain metadata
     print(out_pdf)
 

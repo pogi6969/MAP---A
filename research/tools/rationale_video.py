@@ -267,19 +267,20 @@ def fmt_t(t):
 def draw_subtitle(cv, t, scenes):
     for sc in scenes:
         if sc["start"] <= t < sc["end"]:
-            for c in sc["cues"]:
-                if c["start"] - 0.1 <= t <= c["end"] + 0.35:
-                    a = min(prog(t, c["start"] - 0.1, 0.18), 1 - prog(t, c["end"] + 0.15, 0.2))
-                    txt = c["text"].replace("[pause] ", "").replace("[pause]", "")
-                    lines = cv.wrap(txt, 44, 1500, "SemiBold")
-                    hh = 44 * 1.28 * len(lines) + 34
-                    y0 = H - 70 - hh
-                    wmax = max(font(44, "SemiBold").getlength(ln) for ln in lines)
-                    cv.rect((W / 2 - wmax / 2 - 34, y0, W / 2 + wmax / 2 + 34, H - 70), (8, 4, 6), 0.72 * a, 18)
-                    y = y0 + 17
-                    for ln in lines:
-                        cv.ctext(W / 2, y, ln, 44, WHITE, a, "SemiBold")
-                        y += int(44 * 1.28)
+            live = [c for c in sc["cues"] if c["start"] - 0.1 <= t <= c["end"] + 0.35]
+            # when lines follow closely, show only the newest one
+            for c in live[-1:]:
+                a = min(prog(t, c["start"] - 0.1, 0.18), 1 - prog(t, c["end"] + 0.15, 0.2))
+                txt = c["text"].replace("[pause] ", "").replace("[pause]", "")
+                lines = cv.wrap(txt, 44, 1500, "SemiBold")
+                hh = 44 * 1.28 * len(lines) + 34
+                y0 = H - 70 - hh
+                wmax = max(font(44, "SemiBold").getlength(ln) for ln in lines)
+                cv.rect((W / 2 - wmax / 2 - 34, y0, W / 2 + wmax / 2 + 34, H - 70), (8, 4, 6), 0.72 * a, 18)
+                y = y0 + 17
+                for ln in lines:
+                    cv.ctext(W / 2, y, ln, 44, WHITE, a, "SemiBold")
+                    y += int(44 * 1.28)
             return
 
 

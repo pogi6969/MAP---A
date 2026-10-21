@@ -49,6 +49,13 @@ PHONEME_FIX = {
     "ˈiːdz ˈiːdʒɪpti": "eɪˈiːdiːz iːdʒˈɪptaɪ",   # Aedes aegypti
     "pˈɪnɔɪ": "pɪnˈɔɪ",                 # Pinoy
     "lˈæhɑːɹ": "lˈɑːhɑːɹ",              # lahar: LAH-har
+    "ɹᵻmˈɛɪŋ": "ɹˈɛmɪŋ",                # Reming: REH-ming
+    "θˈeɪl": "tˈaɪl",                   # Theil: like "tile"
+    "pˈɑːmə": "pˈɑːlmə",                # Palma
+    "bˈɪkɑːl": "bˈiːkoʊl",              # Bicol: BEE-kol
+    "mˈælɐsˌækɪt": "mɑːlɐsˈɑːkɪt",       # Malasakit: ma-la-SA-kit
+    "dˈeɪkstɹəz": "dˈaɪkstɹəz",          # Dijkstra's: DIKE-struhz
+    "dˈeɪkstɹə": "dˈaɪkstɹə",
 }
 
 # spelled-out forms read more naturally than espeak's defaults
@@ -57,6 +64,8 @@ TEXT_FIX = [
      r"\1 twenty twenty-six"),
     (r"\bMCS\b", "M C S"),
     (r"\bCUSUM\b", "cue-sum"),
+    (r"\bNo\. ?(\d)", r"Number \1"),
+    (r"\bMAP-A\b", "Map A"),
 ]
 
 
