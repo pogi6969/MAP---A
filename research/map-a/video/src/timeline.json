@@ -1,0 +1,249 @@
+{
+ "total": 161.26,
+ "title_start": 151.26,
+ "boom": 136.72,
+ "scenes": [
+  {
+   "name": "Trip",
+   "bar": "Mobility",
+   "cues": [
+    {
+     "id": "1.1",
+     "text": "Start with one trip, from Legazpi Grand Central Terminal to Tabaco City.",
+     "onscreen": "A road from a terminal (A) in Legazpi to Tabaco City (B); a jeepney waits at A.",
+     "start": 0.35,
+     "end": 4.823,
+     "words": 12
+    },
+    {
+     "id": "1.2",
+     "text": "Which jeepney do you ride, when do you arrive, and what do you pay?",
+     "onscreen": "Three chips: \"Which jeepney?\", \"When do I arrive?\", \"How much?\".",
+     "start": 5.123,
+     "end": 8.48,
+     "words": 14
+    },
+    {
+     "id": "1.3",
+     "text": "In Albay, jeepneys, tricycles, buses, and UV Express vans publish no machine-readable routes, stops, or fares.",
+     "onscreen": "Four vehicle cards; a red stamp \"NO ROUTE DATA\".",
+     "start": 8.78,
+     "end": 16.307,
+     "words": 16
+    },
+    {
+     "id": "1.4",
+     "text": "Many leave only when full, and since September 28, the base jeepney fare is 14 pesos for the first four kilometers.",
+     "onscreen": "Fare card \"₱14.00 for the first 4 km · ₱2.00 per km after · 20% discount for students, seniors, PWD\". Source: Daguno-Bersamina, 2026 (LTFRB).",
+     "start": 16.607,
+     "end": 24.374,
+     "words": 21
+    }
+   ],
+   "start": 0.0,
+   "end": 25.124
+  },
+  {
+   "name": "Community",
+   "bar": "Access",
+   "cues": [
+    {
+     "id": "2.1",
+     "text": "Zoom out to the whole province.",
+     "onscreen": "Albay as a field of 720 barangay dots.",
+     "start": 25.474,
+     "end": 27.044,
+     "words": 6
+    },
+    {
+     "id": "2.2",
+     "text": "Albay has 720 barangays and nearly 1.4 million people in 18 cities and municipalities.",
+     "onscreen": "\"ALBAY · 18 cities and municipalities · 720 barangays · 1,379,398 residents\" (2024 Census, Proclamation No. 973, s. 2025).",
+     "start": 27.344,
+     "end": 34.744,
+     "words": 14
+    },
+    {
+     "id": "2.3",
+     "text": "Bicol is one of six regions where fewer than 80 percent of people live within two hours of a public hospital that can do essential surgery.",
+     "onscreen": "Card \"Bicol: fewer than 80% within 2 hours of essential surgery\". Source: Lim et al., 2023.",
+     "start": 35.044,
+     "end": 43.7,
+     "words": 26
+    },
+    {
+     "id": "2.4",
+     "text": "Target 11.2 asks for transport accessible to all, and Target 3.8 for health care people can use without hardship.",
+     "onscreen": "Chips \"SDG 11.2 · accessible transport\" and \"SDG 3.8 · health care without hardship\"; \"SDG 10.2 · inclusion\".",
+     "start": 44.0,
+     "end": 52.01,
+     "words": 19
+    },
+    {
+     "id": "2.5",
+     "text": "In Albay, there was nothing to measure them against.",
+     "onscreen": "The chips meet over an empty chart: \"no baseline data\".",
+     "start": 52.31,
+     "end": 54.915,
+     "words": 9
+    }
+   ],
+   "start": 25.124,
+   "end": 55.665
+  },
+  {
+   "name": "Patient",
+   "bar": "Health",
+   "cues": [
+    {
+     "id": "3.1",
+     "text": "Now, an emergency.",
+     "onscreen": "An ambulance with flashing light.",
+     "start": 56.015,
+     "end": 57.18,
+     "words": 3
+    },
+    {
+     "id": "3.2",
+     "text": "The nearest hospital may be full, may lack the right level of care, or may cost more than the family can pay.",
+     "onscreen": "Three hospitals: \"FULL\", \"Level 1 only\", \"₱₱₱\".",
+     "start": 57.48,
+     "end": 63.516,
+     "words": 22
+    },
+    {
+     "id": "3.3",
+     "text": "The Department of Health publishes where hospitals are and how many beds they have, but not which beds are free.",
+     "onscreen": "Card \"Published: location, bed capacity · Not published: free beds\". Source: DOH Freedom of Information Unit, personal communication, September 22, 2026.",
+     "start": 63.816,
+     "end": 69.901,
+     "words": 20
+    },
+    {
+     "id": "3.4",
+     "text": "So how does a crew know, in minutes, which hospital can take the patient?",
+     "onscreen": "\"Right care · Free bed · Fair price · In minutes\" with a question mark.",
+     "start": 70.201,
+     "end": 73.879,
+     "words": 14
+    }
+   ],
+   "start": 55.665,
+   "end": 74.629
+  },
+  {
+   "name": "How MCS comes into play",
+   "bar": "MCS",
+   "cues": [
+    {
+     "id": "4.1",
+     "text": "This is where MCS comes into play.",
+     "onscreen": "The letters M, C and S drop in and unfold into Mathematical, Computational, Sciences.",
+     "start": 74.979,
+     "end": 77.06,
+     "words": 7
+    },
+    {
+     "id": "4.2",
+     "text": "Objective one: a timetable graph from open data that routes by arrival, fare, and transfers, within vehicle road limits.",
+     "onscreen": "Panel OBJECTIVE 1 · TIMETABLE GRAPH; a time-expanded graph with ride, wait and transfer arcs; ten vehicle classes.",
+     "start": 77.36,
+     "end": 85.346,
+     "words": 19
+    },
+    {
+     "id": "4.3",
+     "text": "Dijkstra's search gives the exact earliest arrival, and the regulated fare is proven monotone and subadditive.",
+     "onscreen": "The earliest-arrival path lights gold; equations for the mean travel time and the regulated fare f(ℓ₁+ℓ₂) ≤ f(ℓ₁)+f(ℓ₂).",
+     "start": 85.646,
+     "end": 92.116,
+     "words": 16
+    },
+    {
+     "id": "4.4",
+     "text": "Objective two: measure who is left behind, with the Gini, Theil, and Palma measures, and split inequality within and between towns.",
+     "onscreen": "Panel OBJECTIVE 2 · INEQUALITY; a Lorenz curve; cumulative accessibility and the exact Theil split; S1: 86.0% between municipalities.",
+     "start": 92.416,
+     "end": 100.731,
+     "words": 21
+    },
+    {
+     "id": "4.5",
+     "text": "Objective three: e-mail agents gather bed reports, and an early-stopping search finds the nearest hospital that can take the patient.",
+     "onscreen": "Panel OBJECTIVE 3 · HOSPITAL MODE; agents exchange tokened e-mails; the route skips the full hospital; suitability rule and nearest suitable hospital.",
+     "start": 101.031,
+     "end": 109.331,
+     "words": 20
+    },
+    {
+     "id": "4.6",
+     "text": "In an emergency, payment never delays the route.",
+     "onscreen": "Badge \"Acuity 1–2: payment filter off · payment gap = 0\" (RA 10932).",
+     "start": 109.631,
+     "end": 112.506,
+     "words": 8
+    },
+    {
+     "id": "4.7",
+     "text": "Objective four: MAP-A, one app that puts all of this on a phone, even without a signal.",
+     "onscreen": "Panel OBJECTIVE 4 · THE APP; a phone with the MAP-A trip planner and hospital mode; \"offline\".",
+     "start": 112.806,
+     "end": 118.035,
+     "words": 17
+    },
+    {
+     "id": "4.8",
+     "text": "Twelve propositions, proven, then checked: 618 of 618 trips, 5,200 of 5,200 hospital queries, and all 200 forged replies rejected.",
+     "onscreen": "Twelve green checks; cards 618/618 earliest-arrival queries, 5,200/5,200 hospital queries, 200/200 forged replies rejected.",
+     "start": 118.335,
+     "end": 131.692,
+     "words": 20
+    },
+    {
+     "id": "4.9",
+     "text": "Fifteen of the sixteen app features work, and it runs with no connection at all.",
+     "onscreen": "Cards 11,620 vehicle-class pairs, 0 violations · 15 of 16 checklist features working · runs offline.",
+     "start": 131.992,
+     "end": 136.365,
+     "words": 15
+    },
+    {
+     "id": "4.10",
+     "text": "MAP-A will not add one bed to Albay.",
+     "pause": 0.3,
+     "onscreen": "Boom. Screen darkens; the line appears in white.",
+     "start": 136.965,
+     "end": 138.898,
+     "words": 8
+    },
+    {
+     "id": "4.11",
+     "text": "But it will tell a rider what to ride and what to pay, and tell a crew which hospital can take the patient now.",
+     "onscreen": "The line appears in gold.",
+     "start": 139.198,
+     "end": 145.13,
+     "words": 24
+    },
+    {
+     "id": "4.12",
+     "text": "Distance tells you where the hospital is.",
+     "onscreen": "\"Distance tells you where the hospital is.\" in white.",
+     "start": 145.43,
+     "end": 147.482,
+     "words": 7
+    },
+    {
+     "id": "4.13",
+     "text": "Access tells you whether it can help in time.",
+     "hold": 0.6,
+     "onscreen": "\"Access tells you whether it can help in time.\" in gold.",
+     "start": 147.782,
+     "end": 149.908,
+     "words": 9
+    }
+   ],
+   "start": 74.629,
+   "end": 151.258
+  }
+ ]
+}
