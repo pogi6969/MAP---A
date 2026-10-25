@@ -1,8 +1,8 @@
-name: Store apps
+name: Play Store app
 on:
   push:
     branches: [main]
-    paths: ["native/**", "app/index.html", ".github/workflows/store-apps.yml"]
+    paths: ["native/android/**", "app/index.html", ".github/workflows/store-apps.yml"]
   workflow_dispatch:
 
 jobs:
@@ -43,21 +43,3 @@ jobs:
             native/android/app/build/outputs/apk/debug/*.apk
             native/android/app/build/outputs/bundle/release/*.aab
 
-  ios:
-    runs-on: macos-15
-    steps:
-      - uses: actions/checkout@v4
-      - name: Generate the Xcode project
-        run: |
-          brew install xcodegen
-          cd native/ios && xcodegen generate
-      - name: Build for the simulator
-        run: |
-          cd native/ios
-          xcodebuild -project MAPA.xcodeproj -scheme MAPA -configuration Release \
-            -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
-            -derivedDataPath build CODE_SIGNING_ALLOWED=NO build
-      - uses: actions/upload-artifact@v4
-        with:
-          name: MAP-A-ios-simulator
-          path: native/ios/build/Build/Products/Release-iphonesimulator/MAPA.app
