@@ -15,7 +15,7 @@ Cover for the LED strip in the "LED Strip Assembly and Gap Plan" blueprint.
 
 | | |
 |---|---|
-| Cover | 150.0 × 18.0 × 9.0 |
+| Cover | 150.0 × 18.0 × 2.0 |
 | LED bores | 32 (16 × 2), Ø5.2 through |
 | LED flange pocket | Ø6.2 × 1.2 deep, from the bottom |
 | LED pitch | 7.5 along the strip, 7.5 row to row (2.5 gap) |
