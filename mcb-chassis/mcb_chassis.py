@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-"""MCB chassis - main plate of LineaViper-X16, long sensor arms removed.
+"""MCB chassis (3D) - LineaViper-X16 main plate, long sensor arms removed.
 
-Same plate, holes, windows and motor tabs as the original (0.36 deg skew of
-the original outline squared up). Front closed as a mirror of the back, so the
-motor axle sits at the plate centre and the robot stands on its two wheels.
-Mount the N20s on top (brackets on the original tab holes): the plate hangs
-below the axle and keeps the centre of gravity low. Prints flat, no supports.
+Same plate, windows and motor tabs as the original (0.36 deg skew squared up),
+front closed as a mirror of the back so the axle sits at the plate centre.
+On top: two N20 cradles with gearbox face walls (M1.6 face screws), zip-tie
+holes on the original bracket holes, and 4 short MCB posts (M3 self-tap) on the
+original board holes, just above the motors. Motors on top keep the plate
+below the axle, so it stands and drives on the two wheels only.
+Prints flat side down, no supports.
 
     pip install manifold3d numpy matplotlib && python3 mcb_chassis.py
 
@@ -27,8 +29,13 @@ MOTOR = [(38.07, -8.55), (38.07, 8.55)]   # N20 bracket holes d2.69, mirrored in
 MOTOR_D = 2.69
 WIN = (5.5, 20.0, -16.48, 22.52)          # two windows: X in +-[5.5, 20], Y range
 # ---- preview parts ----
-MOT_W, MOT_H, MOT_L = 12, 10, 24          # N20
-WHEEL_D, WHEEL_W, WHEEL_GAP = 34, 8, 1.5
+# ---- 3D parts ----
+MOT_W, MOT_H, MOT_L = 12, 10, 24          # N20 body (gearbox + can)
+WALL_T, CRADLE_T, CRADLE_X0 = 2, 1.6, 21  # face wall, cradle walls, cradle inner end
+SCREW_SP, SCREW_D, BOSS_D = 9, 1.8, 4.5   # N20 face: 2x M1.6 @ 9 mm, shaft boss
+POST_D, PILOT, POST_GAP = 6.5, 2.6, 1.5   # MCB posts, M3 self-tap, clearance over motors
+WHEEL_D, WHEEL_W, WHEEL_GAP = 34, 8, 1.5  # preview only
+BOARD_SIZE = (75, 44, 1.6)                # preview only
 
 half = [(W - CX, -L), (W, -L + CY), (W, TAB_Y0), (TAB_X, TAB_Y0), (TAB_X, TAB_Y1),
         (W, TAB_Y1), (W, L - CY), (W - CX, L)]
@@ -40,23 +47,52 @@ for pts, d in ((BOARD, BOARD_D), (MOTOR, MOTOR_D)):
     for x, y in pts:
         for s in (-1, 1):
             cs -= CrossSection.circle(d / 2).translate([s * x, y])
-plate = Manifold.extrude(cs, T)
+prism = Manifold.extrude(CrossSection([outline]), 30)
 
-AXLE = T + MOT_H / 2                      # axle height above plate bottom (motors on top)
+AXLE = T + MOT_H / 2                      # axle height above plate bottom
 GROUND = AXLE - WHEEL_D / 2               # ground Z in plate coordinates
+POST_TOP = T + MOT_H + POST_GAP           # MCB underside
+XF = TAB_X - WALL_T                       # gearbox face
 
 
 def box(x0, x1, y0, y1, z0, z1):
     return Manifold.cube([x1 - x0, y1 - y0, z1 - z0]).translate([x0, y0, z0])
 
 
+def cyl(x, y, z0, z1, d):
+    return Manifold.cylinder(z1 - z0, d / 2).translate([x, y, z0])
+
+
+def cylx(x0, x1, y, z, d):
+    return Manifold.cylinder(x1 - x0, d / 2).rotate([0, 90, 0]).translate([x0, y, z])
+
+
 def mx(m):
     return m + m.mirror([1, 0, 0])
 
 
-motors = mx(box(TAB_X - MOT_L, TAB_X, -MOT_W / 2, MOT_W / 2, T, T + MOT_H))
-wheels = mx(Manifold.cylinder(WHEEL_W, WHEEL_D / 2).rotate([0, 90, 0])
-            .translate([TAB_X + WHEEL_GAP, 0, AXLE]))
+cw = MOT_W / 2 + 0.15
+mount = (box(CRADLE_X0, XF, -cw - CRADLE_T, cw + CRADLE_T, T - 0.1, AXLE)
+         - box(CRADLE_X0 - 1, XF + 0.1, -cw, cw, T, AXLE + 1)
+         + box(XF, TAB_X, -SCREW_SP / 2 - 4.5, SCREW_SP / 2 + 4.5, T - 0.1, AXLE + 8)
+         - cylx(XF - 1, TAB_X + 1, 0, AXLE, BOSS_D)
+         - cylx(XF - 1, TAB_X + 1, -SCREW_SP / 2, AXLE, SCREW_D)
+         - cylx(XF - 1, TAB_X + 1, SCREW_SP / 2, AXLE, SCREW_D))
+body = Manifold.extrude(cs, T) + mx(mount)
+for x, y in BOARD:
+    for s in (-1, 1):
+        body += cyl(s * x, y, T - 0.1, POST_TOP, POST_D) ^ prism
+cut = [cyl(s * x, y, -1, POST_TOP + 1, PILOT) for x, y in BOARD for s in (-1, 1)]
+cut += [cyl(s * x, y, -1, 30, MOTOR_D) for x, y in MOTOR for s in (-1, 1)]   # zip-tie holes
+plate = body
+for c in cut:
+    plate -= c
+
+motors = mx(box(XF - MOT_L, XF, -MOT_W / 2, MOT_W / 2, T, T + MOT_H))
+wheels = mx(cylx(TAB_X + WHEEL_GAP, TAB_X + WHEEL_GAP + WHEEL_W, 0, AXLE, WHEEL_D))
+bw, bl, bt = BOARD_SIZE
+board = box(-bw / 2, bw / 2, (BOARD[0][1] + BOARD[1][1] - bl) / 2, (BOARD[0][1] + BOARD[1][1] + bl) / 2,
+            POST_TOP, POST_TOP + bt)
 
 
 def tris(m):
@@ -86,17 +122,24 @@ def render(path):
     from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
     light = np.array([0.3, -0.5, 0.8]) / np.linalg.norm([0.3, -0.5, 0.8])
-    t, col = [], []
-    for m, c in ((plate, (0.0, 0.47, 0.84)), (motors, (0.78, 0.78, 0.78)), (wheels, (0.22, 0.22, 0.22))):
-        tt = tris(m)
-        shade = 0.35 + 0.65 * np.clip(normals(tt) @ light, 0, 1)
-        t.append(tt)
-        col.append(np.array(c)[None] * shade[:, None])
-    t, col = np.concatenate(t), np.concatenate(col)
+
+    def mesh(parts):
+        t, col = [], []
+        for m, c, a in parts:
+            tt = tris(m)
+            shade = 0.35 + 0.65 * np.clip(normals(tt) @ light, 0, 1)
+            t.append(tt)
+            col.append(np.c_[np.array(c)[None] * shade[:, None], np.full(len(tt), a)])
+        return np.concatenate(t), np.concatenate(col)
+
+    blue, grey, black, green = (0.0, 0.47, 0.84), (0.78, 0.78, 0.78), (0.22, 0.22, 0.22), (0.1, 0.55, 0.25)
+    part = mesh([(plate, blue, 1)])
+    full = mesh([(plate, blue, 1), (motors, grey, 1), (wheels, black, 1), (board, green, 0.35)])
     xw = TAB_X + WHEEL_GAP + WHEEL_W
-    fig = plt.figure(figsize=(14, 5))
-    for i, (el, az, title) in enumerate(((28, -55, "iso"), (90, -90, "top"),
-                                         (0, 0, "side: only the wheels touch the ground"))):
+    fig = plt.figure(figsize=(15, 5))
+    for i, ((t, col), el, az, title) in enumerate(((part, 32, -55, "chassis (print)"),
+                                                   (full, 25, -55, "with N20s, wheels, MCB"),
+                                                   (full, 0, 0, "side: only the wheels touch the ground"))):
         ax = fig.add_subplot(1, 3, i + 1, projection="3d")
         ax.add_collection3d(Poly3DCollection(t, facecolors=col, linewidths=0))
         ax.plot([-xw, xw, xw, -xw, -xw], [-L, -L, L, L, -L], GROUND, "k-", lw=0.6)
@@ -104,7 +147,7 @@ def render(path):
         ax.set_box_aspect((2 * xw, 2 * L, WHEEL_D))
         ax.view_init(el, az)
         ax.set_axis_off()
-    fig.tight_layout()
+    fig.subplots_adjust(left=0, right=1, bottom=0, top=0.92, wspace=0)
     fig.savefig(path, dpi=100)
 
 
@@ -113,4 +156,6 @@ if __name__ == "__main__":
     render("preview.png")
     bb = plate.bounding_box()
     print(f"bbox {bb[3]-bb[0]:.2f} x {bb[4]-bb[1]:.2f} x {bb[5]-bb[2]:.2f} mm, genus {plate.genus()}, "
-          f"vol {plate.volume()/1000:.1f} cm3, ground clearance {-GROUND:.1f} mm, tris {len(tris(plate))}")
+          f"vol {plate.volume()/1000:.1f} cm3 (~{plate.volume()*1.24e-3:.0f} g PLA solid), "
+          f"ground clearance {-GROUND:.1f} mm, MCB at {POST_TOP - GROUND:.1f} mm, "
+          f"motor/board overlap {(motors ^ board).volume():.0f}, tris {len(tris(plate))}")
