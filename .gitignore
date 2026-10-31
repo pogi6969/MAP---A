@@ -1,0 +1,15 @@
+# ---- Secrets: never commit these ----
+.env
+.env.*
+!.env.example
+*.env
+secrets.h
+!secrets.example.h
+*.pem
+*.key
+*.p12
+*.keystore
+*.jks
+service-account*.json
+google-services.json
+GoogleService-Info.plist
