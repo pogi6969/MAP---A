@@ -12,6 +12,7 @@ MAP-A: routes, travel times and fares for public transport across all 18 cities 
 - `assets/map-a-app-logo.png` – the MAP-A logo, used for the icons, in the app and on the website
 - `assets/map-a-interface-logo.png` – the MAP-A interface logo (the red pin on its own)
 - `assets/official-logo.webp` – the earlier logo of the Landmark-Anchored Research Initiative (no longer shown)
+- `hardware/sensor-cover/` – 3D model of the LED strip sensor cover (STEP, STL and source)
 
 ## Publish
 
