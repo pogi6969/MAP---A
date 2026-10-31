@@ -1,0 +1,13 @@
+{
+  "rules": {
+    "members": {
+      "$pid": {".read": "auth != null && data.child(auth.uid).val() === true"}
+    },
+    "patients": {
+      "$pid": {
+        ".read": "auth != null && root.child('members').child($pid).child(auth.uid).val() === true",
+        ".write": "auth != null && root.child('members').child($pid).child(auth.uid).val() === true"
+      }
+    }
+  }
+}
