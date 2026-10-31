@@ -23,7 +23,7 @@ POSITIONS_PER_ROW = 18    # outer position at each end = screw slot
 ROWS = 2
 
 # Cover
-THICKNESS = 8.6           # standard 5 mm LED height (flange base to dome top); the whole LED fits inside
+THICKNESS = 5.0           # cover thickness
 LED_HOLE_DIA = 5.2        # LED 5.0 mm + clearance
 FLANGE_DIA = 6.2          # LED base flange 5.8 mm + clearance
 FLANGE_DEPTH = 1.2        # LED base flange 1.0 mm + clearance
