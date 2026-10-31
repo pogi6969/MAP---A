@@ -12,7 +12,7 @@
 #include "spo2_algorithm.h"
 
 // Pins (see the wiring table in Appendix G)
-const int PIN_FAN = 25;      // IRF520 MOSFET gate, 12 V blower fan
+const int PIN_FAN = 25;      // D4184 MOSFET module, 12 V blower fan
 const int PIN_BUTTON = 27;   // chest button to GND
 const int PIN_SOUND = 26;    // KY-037 digital out ("aray!" or a loud voice)
 const int PIN_TRIG = 32;     // HC-SR04 trigger
