@@ -12,10 +12,12 @@ press-fit pins.
                and MCB all stay inside the wheel radius: only the wheels can touch
                the ground, at any tilt. The keel slides on from the side, clips the
                front/back plate edges and is locked by the 4 long MCB pins.
-  skid-steer/  2 N20s on the centre axle, 2 x 44 mm wheels, 4 printed corner skids
-               (press-fit, seated in countersinks), tips 0.5 mm off the ground.
+  supports/    the original 3D chassis (2 N20s on the centre axle) with 4 supports
+               built into the corners, tips 0.5 mm off the ground; 2 x 34 mm wheels.
+               mcb_chassis_supports.3mf = every part on one build plate. Print the
+               chassis standing on its supports, with tree supports under the plate.
 
-STLs are exported in print orientation; nothing needs supports.
+Balancer STLs are in print orientation and need no supports.
 
     pip install manifold3d numpy matplotlib && python3 mcb_chassis.py
 
@@ -50,10 +52,10 @@ WHEEL_A = (60, 8)                          # wheel dia, width
 R_K = WHEEL_A[0] / 2 - 2                   # keel radius about the axle
 KEEL_X, LIP_X = 38, 31                     # keel / edge-clip half-lengths
 BATT = (26, 13.5)                          # battery bay width (Y), depth (Z); 72.8 long
-# ---- skid steer ----
-WHEEL_B = (44, 12)
-SKIDS = [(26, -21), (26, 21)]              # corner skids, mirrored in X
-SKID_D, SKID_HOLE, SKID_GAP = 7.9, 4.6, 0.5   # body, hole (peg 4.5), tip above ground
+# ---- original + supports ----
+WHEEL_C = (34, 8)
+LEGS = [(27, -21), (27, 21)]               # corner supports, mirrored in X
+LEG_D, LEG_GAP = 8, 0.5                    # support dia, tip above ground
 
 
 def box(x0, x1, y0, y1, z0, z1):
@@ -100,7 +102,7 @@ def mount(ym):
     return m.translate([0, ym, 0]), holes.translate([0, ym, 0])
 
 
-def chassis(motor_ys, skids=()):
+def chassis(motor_ys, ground=None):
     cs = plate_cs()
     prism = Manifold.extrude(cs, 40)
     body, cut = Manifold.extrude(cs, T), []
@@ -112,11 +114,13 @@ def chassis(motor_ys, skids=()):
         for s in (-1, 1):
             body += cyl(s * x, y, T - 0.1, POST_TOP, POST_D) ^ prism
             cut.append(cyl(s * x, y, -1, POST_TOP + 1, PIN_HOLE))
-    for x, y in skids:
-        for s in (-1, 1):
-            body += cyl(s * x, y, T - 0.1, T + 4, 8) ^ prism
-            cut.append(cyl(s * x, y, -1, T + 5, SKID_HOLE)
-                       + Manifold.cylinder(1.71, 4.0, 2.29).translate([s * x, y, -0.01]))
+    if ground is not None:                 # integrated supports, flat chamfered tips
+        down, tip, r = Manifold.extrude(cs, 30).translate([0, 0, -29.9]), ground + LEG_GAP, LEG_D / 2
+        for x, y in LEGS:
+            for s in (-1, 1):
+                leg = (cyl(0, 0, tip + 1.5, 0.1, LEG_D) + Manifold.cylinder(1.5, r - 1.5, r).translate([0, 0, tip])
+                       + Manifold.cylinder(2, r, r + 2).translate([0, 0, -2]))
+                body += leg.translate([s * x, y, 0]) ^ down
     for x, y in TABHOLE:
         for s in (-1, 1):
             cut.append(cyl(s * x, y, -1, AXLE + 4, 2.69))
@@ -141,12 +145,6 @@ def keel():
         for s in (-1, 1):
             k -= cyl(s * x, y, -6, 1, PIN_HOLE)
     return k
-
-
-def skid(ground):
-    tip, r = ground + SKID_GAP, SKID_D / 2
-    return (cyl(0, 0, tip + r, 0, SKID_D) + Manifold.sphere(r).translate([0, 0, tip + r])
-            + Manifold.cylinder(1.7, r, 2.25) + cyl(0, 0, 1.69, T + 3.7, 4.5))
 
 
 def wheel(d, w, hub=7):
@@ -191,6 +189,31 @@ def write_stl(m, path):
         f.write(os.path.basename(path).encode().ljust(80, b" "))
         f.write(np.uint32(len(t)).tobytes())
         rec.tofile(f)
+
+
+def write_3mf(path, objs, items):
+    """objs: [(name, manifold)], items: [(object index from 1, x, y)] on the build plate."""
+    import zipfile
+    res = []
+    for i, (name, m) in enumerate(objs, 1):
+        b = m.bounding_box()
+        mesh = m.translate([-(b[0] + b[3]) / 2, -(b[1] + b[4]) / 2, -b[2]]).to_mesh()
+        vs = "".join(f'<vertex x="{a:.4f}" y="{b:.4f}" z="{c:.4f}"/>' for a, b, c in np.asarray(mesh.vert_properties)[:, :3])
+        ts = "".join(f'<triangle v1="{a}" v2="{b}" v3="{c}"/>' for a, b, c in np.asarray(mesh.tri_verts))
+        res.append(f'<object id="{i}" name="{name}" type="model"><mesh><vertices>{vs}</vertices>'
+                   f'<triangles>{ts}</triangles></mesh></object>')
+    build = "".join(f'<item objectid="{o}" transform="1 0 0 0 1 0 0 0 1 {x} {y} 0"/>' for o, x, y in items)
+    with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED) as z:
+        z.writestr("[Content_Types].xml", '<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.'
+                   'openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/'
+                   'vnd.openxmlformats-package.relationships+xml"/><Default Extension="model" ContentType="application/'
+                   'vnd.ms-package.3dmanufacturing-3dmodel+xml"/></Types>')
+        z.writestr("_rels/.rels", '<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.'
+                   'openxmlformats.org/package/2006/relationships"><Relationship Target="/3D/3dmodel.model" Id="rel0" '
+                   'Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel"/></Relationships>')
+        z.writestr("3D/3dmodel.model", '<?xml version="1.0" encoding="UTF-8"?><model unit="millimeter" xml:lang="en-US" '
+                   'xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02"><resources>'
+                   + "".join(res) + f"</resources><build>{build}</build></model>")
 
 
 def render(path, panels, ext, ground):
@@ -263,21 +286,21 @@ if __name__ == "__main__":
             (full, 0, 0, "side: keel inside wheel radius, only wheels touch")],
            ((-xa, xa), (-ra, ra), (ga, AXLE + ra)), ga)
 
-    # ---- skid steer: 2 N20s + 4 corner skids ----
-    gb = AXLE - WHEEL_B[0] / 2
-    ch, wh, sk = chassis([0], SKIDS), wheel(*WHEEL_B), skid(gb)
+    # ---- original + 4 integrated supports ----
+    gc = AXLE - WHEEL_C[0] / 2
+    ch, wh, pn = chassis([0], gc), wheel(*WHEEL_C), pin(pin_top - 1)
     wheels = mx(wh.rotate([0, 90, 0]).translate([XW + 1, 0, AXLE]))
-    skids = mx(sk.translate([*SKIDS[0], 0]) + sk.translate([*SKIDS[1], 0]))
-    sp = sk.rotate([180, 0, 0])
-    print("skid-steer/")
-    export(os.path.join(here, "skid-steer"), {
-        "chassis": ch, f"wheel_{WHEEL_B[0]}_x2": wh, "skid_x4": sp.translate([0, 0, -sp.bounding_box()[2]]),
-        "pin_short_x4": pin(pin_top - 1)})
-    print(f"  overlap skids/chassis {(skids ^ ch).volume():.2f}, wheels/chassis {(wheels ^ ch).volume():.2f}")
-    full = [(ch, BLUE, 1), (motors, GREY, 1), (wheels, ORANGE, 1), (skids, WHITE, 1), (board, GREEN, 0.35)]
-    xb, rb = XW + 2 + WHEEL_B[1], WHEEL_B[0] / 2 + 1
-    render(os.path.join(here, "skid-steer", "preview.png"),
-           [([(ch, BLUE, 1), (skids, WHITE, 1)], -18, -55, "chassis + 4 skids (from below)"),
-            (full, 22, -55, "2 N20s, 44 mm wheels, 4 skids, MCB"),
-            (full, 0, 0, f"side: skids {SKID_GAP} mm off the ground")],
-           ((-xb, xb), (-L - 2, L + 2), (gb, AXLE + rb)), gb)
+    out = os.path.join(here, "supports")
+    print("supports/")
+    export(out, {"chassis": ch, f"wheel_{WHEEL_C[0]}_x2": wh, "pin_x4": pn})
+    write_3mf(os.path.join(out, "mcb_chassis_supports.3mf"), [("chassis", ch), ("wheel", wh), ("pin", pn)],
+              [(1, 128, 95), (2, 80, 185), (2, 122, 185)] + [(3, 152 + 12 * i, 185) for i in range(4)])
+    print(f"  overlap wheels/chassis {(wheels ^ ch).volume():.2f}, lowest point {ch.bounding_box()[2] - gc:.2f} "
+          f"mm above ground, plate {-gc:.1f} mm")
+    full = [(ch, BLUE, 1), (motors, GREY, 1), (wheels, ORANGE, 1), (board, GREEN, 0.35)]
+    xc, rc = XW + 2 + WHEEL_C[1], WHEEL_C[0] / 2 + 1
+    render(os.path.join(out, "preview.png"),
+           [([(ch, BLUE, 1)], -18, -55, "chassis with 4 supports (from below)"),
+            (full, 22, -55, "2 N20s, 34 mm wheels, MCB"),
+            (full, 0, 0, f"side: supports {LEG_GAP} mm off the ground")],
+           ((-xc, xc), (-L - 2, L + 2), (gc, AXLE + rc)), gc)
