@@ -3,9 +3,9 @@
 
 Base for both: LineaViper-X16 main plate, long sensor arms removed (same outline,
 windows, MCB holes and motor tabs; 0.36 deg skew squared up; front = mirrored back).
-N20s snap into cradles (snap lip + face wall with shaft boss hole + rear stop; the
-M1.6 face-screw holes are optional). The MCB sits on 4 posts, held by printed
-press-fit pins.
+No motor mounts: N20s go on top of the plate with your own clamps on the original
+bracket holes (d2.69, 17.1 pitch), gearbox face at the tab edge. The MCB sits on
+4 posts, held by printed press-fit pins.
 
   balancer/    2 x 60 mm wheels. Keel under the plate carries the battery as
                counterweight, so the centre of gravity is below the axle. Keel, plate
@@ -37,13 +37,10 @@ TAB_X, TAB_Y0, TAB_Y1 = 44.8, -12.18, 13.83
 BOARD = [(34.5, -19.89), (34.5, 18.06)]    # MCB holes, mirrored in X (69.0 x 37.95)
 TABHOLE = [(38.07, -8.55), (38.07, 8.55)]  # original bracket holes d2.69
 WIN = (5.5, 20.0, -16.48, 22.52)           # windows: X in +-[5.5, 20], Y range
-# ---- N20 snap mount ----
+# ---- N20 (own clamps, motor resting on the plate) ----
 MOT_W, MOT_H, MOT_L = 12, 10, 24
-XR = 21.7                                  # motor rear, clear of the windows
-XF, XW = XR + MOT_L, XR + MOT_L + 2        # gearbox face, face wall outside
+XF = TAB_X                                 # gearbox face at the tab edge
 AXLE = T + MOT_H / 2
-CW, CT, LIP = MOT_W / 2 + 0.15, 1.6, 0.55  # cradle half gap, wall, snap lip
-SCREW_SP, SCREW_D, BOSS_D = 9, 1.8, 4.5    # N20 face
 # ---- MCB ----
 POST_D, PIN_HOLE, PIN_D = 6.5, 2.8, 3.0    # posts, pin hole, pin (press fit)
 POST_TOP, BOARD_T = T + MOT_H + 1.5, 1.6   # MCB underside, thickness
@@ -85,31 +82,10 @@ def plate_cs():
     return CrossSection([half + [(-x, y) for x, y in reversed(half)]])
 
 
-WALL = [(CW, T - 0.1), (CW + CT, T - 0.1), (CW + CT, AXLE + 3.5), (CW + 0.45, AXLE + 3.5),
-        (CW - LIP, AXLE + 2.4), (CW - LIP, AXLE + 2.0), (CW, AXLE + 1.45)]
-
-
-def mount(ym):
-    """N20 snap cradle on the +X side, motor axis along X at y = ym."""
-    walls = CrossSection([WALL, [(-y, z) for y, z in reversed(WALL)]])
-    m = (ext_x(walls, XR, XF - 1)
-         + box(XR - 1.4, XR - 0.1, -CW - CT, CW + CT, T - 0.1, T + 2.5)   # rear stop
-         + box(XF, XW, -9, 9, 0, AXLE + 8)                                 # face wall
-         + box(XR - 1.4, XW, -9, 9, 0, T))                                 # base
-    holes = (cylx(XF - 1, XW + 1, 0, AXLE, BOSS_D)
-             + cylx(XF - 1, XW + 1, -SCREW_SP / 2, AXLE, SCREW_D)
-             + cylx(XF - 1, XW + 1, SCREW_SP / 2, AXLE, SCREW_D))
-    return m.translate([0, ym, 0]), holes.translate([0, ym, 0])
-
-
-def chassis(motor_ys, ground=None):
+def chassis(ground=None):
     cs = plate_cs()
     prism = Manifold.extrude(cs, 40)
     body, cut = Manifold.extrude(cs, T), []
-    for ym in motor_ys:
-        m, h = mount(ym)
-        body += mx(m)
-        cut.append(mx(h))
     for x, y in BOARD:
         for s in (-1, 1):
             body += cyl(s * x, y, T - 0.1, POST_TOP, POST_D) ^ prism
@@ -123,7 +99,7 @@ def chassis(motor_ys, ground=None):
                 body += leg.translate([s * x, y, 0]) ^ down
     for x, y in TABHOLE:
         for s in (-1, 1):
-            cut.append(cyl(s * x, y, -1, AXLE + 4, 2.69))
+            cut.append(cyl(s * x, y, -1, T + 1, 2.69))
     x0, x1, y0, y1 = WIN
     cut += [box(x0, x1, y0, y1, -1, T + 1), box(-x1, -x0, y0, y1, -1, T + 1)]
     for c in cut:
@@ -263,9 +239,9 @@ if __name__ == "__main__":
     pin_top = POST_TOP + BOARD_T
 
     # ---- balancer ----
-    ch, k, wh = chassis([0]), keel(), wheel(*WHEEL_A)
-    wheels = mx(wh.rotate([0, 90, 0]).translate([XW + 1, 0, AXLE]))
-    motors = mx(box(XR, XF, -MOT_W / 2, MOT_W / 2, T, T + MOT_H))
+    ch, k, wh = chassis(), keel(), wheel(*WHEEL_A)
+    wheels = mx(wh.rotate([0, 90, 0]).translate([XF + 1.5, 0, AXLE]))
+    motors = mx(box(XF - MOT_L, XF, -MOT_W / 2, MOT_W / 2, T, T + MOT_H))
     print("balancer/")
     export(os.path.join(here, "balancer"), {
         "chassis": ch, "keel": k.rotate([0, -90, 0]).translate([0, 0, KEEL_X]),
@@ -279,7 +255,7 @@ if __name__ == "__main__":
     print(f"  CG {mom / tot - AXLE:+.1f} mm vs axle (25 g battery in keel, 15 g MCB, keel 100% infill), "
           f"~{tot:.0f} g; keel bottom {AXLE - R_K - (AXLE - WHEEL_A[0] / 2):.1f} mm above ground at any tilt")
     full = [(ch, BLUE, 1), (k, AMBER, 1), (motors, GREY, 1), (wheels, BLACK, 1), (board, GREEN, 0.35)]
-    ga, xa, ra = AXLE - WHEEL_A[0] / 2, XW + 2 + WHEEL_A[1], WHEEL_A[0] / 2 + 1
+    ga, xa, ra = AXLE - WHEEL_A[0] / 2, XF + 2.5 + WHEEL_A[1], WHEEL_A[0] / 2 + 1
     render(os.path.join(here, "balancer", "preview.png"),
            [([(ch, BLUE, 1), (k, AMBER, 1)], -18, -55, "chassis + keel (from below)"),
             (full, 22, -55, "balancer: N20s, 60 mm wheels, MCB"),
@@ -288,8 +264,8 @@ if __name__ == "__main__":
 
     # ---- original + 4 integrated supports ----
     gc = AXLE - WHEEL_C[0] / 2
-    ch, wh, pn = chassis([0], gc), wheel(*WHEEL_C), pin(pin_top - 1)
-    wheels = mx(wh.rotate([0, 90, 0]).translate([XW + 1, 0, AXLE]))
+    ch, wh, pn = chassis(gc), wheel(*WHEEL_C), pin(pin_top - 1)
+    wheels = mx(wh.rotate([0, 90, 0]).translate([XF + 1.5, 0, AXLE]))
     out = os.path.join(here, "supports")
     print("supports/")
     export(out, {"chassis": ch, f"wheel_{WHEEL_C[0]}_x2": wh, "pin_x4": pn})
@@ -298,7 +274,7 @@ if __name__ == "__main__":
     print(f"  overlap wheels/chassis {(wheels ^ ch).volume():.2f}, lowest point {ch.bounding_box()[2] - gc:.2f} "
           f"mm above ground, plate {-gc:.1f} mm")
     full = [(ch, BLUE, 1), (motors, GREY, 1), (wheels, ORANGE, 1), (board, GREEN, 0.35)]
-    xc, rc = XW + 2 + WHEEL_C[1], WHEEL_C[0] / 2 + 1
+    xc, rc = XF + 2.5 + WHEEL_C[1], WHEEL_C[0] / 2 + 1
     render(os.path.join(out, "preview.png"),
            [([(ch, BLUE, 1)], -18, -55, "chassis with 4 supports (from below)"),
             (full, 22, -55, "2 N20s, 34 mm wheels, MCB"),
