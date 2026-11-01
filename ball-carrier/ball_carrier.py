@@ -1,21 +1,22 @@
 #!/usr/bin/env python3
-"""LineaViper-X16 (xsx.3mf) 30-ball dump box - all 3D printed, chassis unchanged.
+"""LineaViper-X16 (xsx.3mf) 30-ball dump box - ONE-PIECE print-in-place, no assembly.
 
-A plain closed box (tray + lift-off lid, solid walls, no holes in the sides) tipped 8 deg
-nose-down over the wheelbase; its floor is the ramp. The whole front is a gate on a square
-hinge shaft that runs across the front, outside the box.
+Prints roof-down as a single job: box, gate, hinge, snap latch and the legs that peg into
+your (unchanged) xsx chassis all come off the bed together.
 
-Dump: a ratchet disc on the shaft is held by a gravity pawl under the box front. The tower
-pushes the pawl paddle back ~5 mm, the tooth drops out of the notch (release force = friction
-only), the balls push the gate open and roll off the floor edge into the tower.
-Reset: push either side lever down. The gate closes and the counterweighted pawl drops into
-the notch by itself - click, armed. The levers also show the state (up = dumped).
+  * Box: plain closed box, solid sides, tipped 8 deg nose-down; the floor is the ramp.
+    The floor bridges onto a centre rail carried by thin posts (spans <= 70 mm).
+  * Gate: the whole front, on a print-in-place hinge (cone pins, 0.4 mm gap) under the
+    floor front. Two paddles hang from the hinge below the tower rim; gate + paddles are one
+    rigid part, so pushing the paddles back swings the gate open (bell crank).
+  * Latch: a flexible finger on each gate wing snaps over a bump on the box side. It holds
+    the gate against the balls (also under braking) and lets go when the tower pushes the
+    paddles; the balls then push the gate open and roll into the tower.
+  * Reset: lift a side wing (they point up after a dump) - the gate swings shut and the
+    fingers click over the bumps. Load the balls through the front with the gate open.
 
 Physics and numbers: run the script, see DESIGN.md.
-Parts: tray, lid, gate, ratchet disc, 2 levers, shaft, latch block, pawl, pawl pin, 2 frames.
-All print without supports.
 
-Set BALL_D / N_BALLS / TOWER_H / PLATE_Z for your setup and rerun:
     pip install manifold3d numpy matplotlib && python3 ball_carrier.py
 
 Axes: X forward, Y left, Z up, origin on the floor under the motor axis. Units: mm.
@@ -35,25 +36,26 @@ BALL_D, BALL_G, N_BALLS = 40, 2.7, 30   # ping-pong balls
 TOWER_H, TOWER_D = 50, 160       # tower rim height above the floor, outside dia (preview only)
 PLATE_Z = 22                     # chassis underside above the floor (N20 under the plate, 34 mm wheels)
 ROBOT_G, ROBOT_Z = 110, 25       # chassis + motors + wheels + MCB + battery, its CG height (estimate)
-# ---- bin ----
+PUSH = 2 * 0.049 / 0.017         # N, robot push at stall: 2 x N20 1:50 (~0.5 kg.cm) on 34 mm wheels
+# ---- box ----
 TILT = 8                         # floor slope, deg (nose down)
 HW = 70                          # inside half width
-WT, RAIL_H, TIE_T = 0.8, 2.6, 1.2               # skin (2 perimeters), floor rails (> 2.1 mm ball sag), ties
-REAR_X = -24                     # bin rear (outside) X
-AHEAD, CLEAR = 16, 15            # pawl paddle ahead of the arm tips, floor edge above the tower rim
-FRONT_X = 104                    # front frame near this X (arm hole column)
+WT, FLOOR_T, ROOF_T = 0.8, 1.0, 0.8
+RAIL_H, POST_D = 2.4, 5.0        # centre rail on the floor, posts carrying it (print support for the floor)
+POSTS_U = [-10, -55, -100, -145]
+REAR_X = -24                     # box rear (outside) X
+AHEAD, CLEAR = 16, 20            # paddles ahead of the arm tips; floor edge above the tower rim
+FRONT_X = 104                    # front legs near this X (arm hole column)
 MU = 0.3                         # PLA on PLA
-# ---- hinge, ratchet, reset lever (bin frame u, w) ----
-A = (4.0, 4.0)                   # hinge shaft axis, ahead of the box front (no holes in the side walls)
-SQ = 3.0                         # square shaft
-R_CUT = 4.6                      # floor edge relief so the gate can swing
-GATE_W0 = 1.8                    # gate bottom edge
-RD, ND = 7.5, 2.2                # ratchet disc radius, notch depth
-P = (-7.0, -3.0)                 # pawl pivot: ~level with the notch face -> load passes (just) below it
-LUGS = [(30, 36), (54, 60)]      # tray bearing lugs |v|
-KNUCKLES = [(40, 50)]            # gate knuckles |v| (keyed to the shaft)
-CHEEK = (2.3, 4.3)               # latch block cheeks |v|
-DISC_V, PAWL_V = 2.0, 1.8        # ratchet disc / pawl half thickness
+GAP = 0.4                        # print-in-place clearance
+# ---- gate, hinge, latch (bin frame u, w) ----
+A2 = (-9.0, -15.2)               # hinge axis under the floor front
+KNUCKLE = (24.4, 32.0)           # gate knuckles / paddles, |v|
+LUGS = [(18.0, 24.0), (32.4, 38.0)]   # fixed lugs either side of each knuckle, |v|
+CONE_R = 2.2                     # 45 deg cone pins
+PADDLE_W = -50                   # paddle bottom
+FINGER = (-8.0, -4.0, 12.5, 28.5)     # snap finger in each wing: u0, u1, tip w, root w (length 16)
+BUMP = (-6.0, 14.5, 1.0)         # bump on the box side under the finger hole: u, w, radius
 SA, CA = np.sin(np.radians(TILT)), np.cos(np.radians(TILT))
 
 
@@ -146,48 +148,52 @@ def holes(ch):
 CH = chassis()
 HOLES = holes(CH)
 TIP = CH.bounding_box()[3]
-X_E = TIP + AHEAD + 7.0                           # floor front edge (paddle face sits 7 mm behind it)
+X_E = TIP + AHEAD + 9.6                           # floor front edge (paddle face 9.6 mm behind it)
 Z_E = TOWER_H + CLEAR
 U_R = (REAR_X - X_E) / CA + WT                    # rear wall inside face
 U0, HWO = U_R - WT, HW + WT
-LEVER_V = (HWO + 0.6, HWO + 3.6)
+GW = HWO + GAP + 1.2                              # gate half width (covers the wings)
 
 
 def world(m):
     return m.rotate([0, TILT, 0]).translate([X_E, 0, Z_E])
 
 
-def floor_z(x):                                   # bin underside at X
+def to_bin(m):
+    return m.translate([-X_E, 0, -Z_E]).rotate([0, -TILT, 0])
+
+
+def floor_z(x):                                   # box underside at X
     return Z_E + (X_E - x) * SA / CA
 
 
-def about(m, c, deg):                             # rotate about an axis along v through c=(u, w); + = front down
+def about(m, c, deg):                             # rotate about an axis along v through c=(u, w); + = gate opens
     return m.translate([-c[0], 0, -c[1]]).rotate([0, deg, 0]).translate([c[0], 0, c[1]])
 
 
-def diamond(c, v0, v1, s=SQ + 0.1):               # keyed square hole, 45 deg so it prints without support
-    return ext_cs_v(CrossSection.square([s, s], center=True).rotate(45).translate(list(c)), v0, v1)
-
-
-def cyl_a(v0, v1, d, c=A):
-    return cyl_v(c[0], c[1], v0, v1, d)
-
-
-def both(f):                                      # build at +v and mirror to -v
-    m = f(1)
+def both(m):
     return m + m.mirror([0, 1, 0])
+
+
+def cone_v(u, w, v0, d, r0, h):                   # cone along v from v0 (radius r0) in direction d (+1/-1)
+    c = Manifold.cylinder(h, r0, 0.05).rotate([-90 * d, 0, 0])
+    return c.translate([u, v0, w])
 
 
 def pile(h, n_max):
     """Drop balls one at a time into the lowest free spot (gravity tilted TILT deg in the bin
-    frame) inside the closed box, stacking on the balls already there."""
+    frame) inside the closed box, around the posts, stacking on the balls already there."""
     r, d = BALL_D / 2, BALL_D + 0.3
     U, V = (a.ravel() for a in np.meshgrid(np.arange(U_R + r + 0.3, -r - 0.6, 2.5), np.arange(-HW + r + 0.3, HW - r - 0.3, 2.5)))
-    W = np.full(len(U), 3.2 + r)
+    keep = np.ones(len(U), bool)
+    for up in POSTS_U:
+        keep &= (U - up) ** 2 + V ** 2 > (r + POST_D / 2 + 0.3) ** 2
+    U, V = U[keep], V[keep]
+    W = np.full(len(U), FLOOR_T + r) + np.where(np.abs(V) < 12, RAIL_H, 0)   # balls near the rail sit on it
     out = []
     while len(out) < n_max:
         i = np.argmin(-U * SA + W * CA)
-        if W[i] + r > h - WT:
+        if W[i] + r > h - ROOF_T:
             break
         out.append((U[i], V[i], W[i]))
         d2 = (U - U[i]) ** 2 + (V - V[i]) ** 2
@@ -197,125 +203,85 @@ def pile(h, n_max):
 
 
 DW = next(h for h in range(40, 200, 5) if len(pile(h, N_BALLS)) >= N_BALLS)   # box height
-W_SPLIT = DW - 25                                 # tray / lid joint
 
 
-# ---- printed parts (bin frame) ----
-def body_parts(frame_us):
-    outer = box(U0, 0, -HWO, HWO, 0, DW)
-    shell = outer - box(U_R, 5, -HW, HW, -5, DW - WT)
-    slab = box(U0 - 10, 20, -HWO - 10, HWO + 10, W_SPLIT, DW + 10)
-    lid = shell ^ slab
-    tray = shell - slab
-    for s in (-1, 1):                                                                      # lid locating tabs, in the
-        for u0, u1 in ((U_R, U_R + 8), (-9, -0.5)):                                        # corners balls never reach
-            tray += box(u0, u1, *sorted((s * (HW - 1), s * HW)), W_SPLIT - 3, W_SPLIT + 5)
-        tray += box(U_R, U_R + 1, *sorted((s * (HW - 8), s * HW)), W_SPLIT - 3, W_SPLIT + 5)
-    fl = CrossSection.square([-U0, 2 * HWO]).translate([U0, -HWO])
-    grid = CrossSection()                                                                  # floor: rails + ties
-    for v in np.arange(-63, 64, 18):
-        grid += CrossSection.square([-U0, 2]).translate([U0, v - 1])
-    grid += fl - fl.offset(-3, JoinType.Miter)                                             # rim
-    ties = CrossSection()
-    for u in np.arange(-4, U0, -36):
-        ties += CrossSection.square([3, 2 * HW]).translate([u - 3, -HW])
-    pads = CrossSection.square([16, 12]).translate([-20, -6])                              # latch block seat
-    for u in frame_us:
-        pads += CrossSection.square([6, 2 * HW]).translate([u - 2, -HW])                   # frame bars
-    tray += Manifold.extrude(grid ^ fl, RAIL_H) + Manifold.extrude(ties ^ fl, TIE_T) + Manifold.extrude(pads ^ fl, 3.2)
-    tray -= cyl_a(-HW, HW, 2 * R_CUT)                                                      # gate swing relief (walls intact)
-    tray -= box(-4.2, 1, -4.8, 4.8, -1, 6)                                                 # ratchet disc / block
-    for lo, hi in LUGS:                                                                    # shaft bearings
-        lug = ((cyl_a(lo, hi, 8.6) + box(-2, A[0], lo, hi, 0, A[1])) - cyl_a(lo - 1, hi + 1, 4.7)) ^ box(-5, 10, lo, hi, 0, 20)
-        tray += lug + lug.mirror([0, 1, 0])
-    for u in frame_us:
-        for v in (-40, 40):
-            tray -= box(u - 1.45, u + 1.45, v - 1.45, v + 1.45, -1, 4.5)                   # frame pegs (8 deg tilt)
-    return tray, lid
+def legs():
+    """Legs (world frame) from the box underside to the chassis plate, pegs into existing holes."""
+    arm = HOLES[3.2]
+    top, bot = arm[arm[:, 1] > 0], arm[arm[:, 1] < 0]
+    ft = top[np.argmin(abs(top[:, 0] - FRONT_X))]
+    front = [ft, bot[np.argmin(abs(bot[:, 0] - ft[0]))]]
+    zt, m = PLATE_Z + 4, Manifold()
+    for (x, y), peg, dx in [(p, 2.9, -1) for p in front] + [(p, 3.7, 1) for p in HOLES[4.0]]:
+        top_z = floor_z(x) + 3
+        m += box(x - 3, x + 3, y - 3, y + 3, zt, top_z) + box(x - 4.5, x + 4.5, y - 4.5, y + 4.5, zt, zt + 2)
+        m += cyl(x, y, zt - 3.8, zt + 0.1, peg)
+        sy = -np.sign(y)
+        for (bx, by) in ((dx * 26, 0), (0, sy * 26)):                 # braces, >= 45 deg so they print
+            p, q = np.array([x, y, zt + 12]), np.array([x + bx, y + by, floor_z(x + bx) + 3])
+            n = q - p
+            L = np.linalg.norm(n)
+            b = Manifold.cube([4, 4, L], center=True).translate([0, 0, L / 2])
+            ax = np.degrees(np.arctan2(np.hypot(n[0], n[1]), n[2]))
+            az = np.degrees(np.arctan2(n[1], n[0]))
+            m += b.rotate([0, ax, 0]).rotate([0, 0, az]).translate(list(p))
+    return m
 
 
-def gate_part():
-    m = box(0.3, 1.1, -HWO, HWO, GATE_W0, DW)                                              # 0.8 mm skin
-    m += box(1.1, 3.0, -HWO, HWO, GATE_W0, DW) - box(0, 4, -HWO + 3, HWO - 3, GATE_W0 + 3, DW - 3)   # border
-    for lo, hi in LUGS:
-        m -= both(lambda s: box(0, 4, *sorted((s * (lo - 0.5), s * (hi + 0.5))), 0, A[1] + 4.8))
-    m -= box(0, 4, -4.8, 4.8, 0, A[1] + RD + 0.3)                                          # ratchet disc + block
-    m -= both(lambda s: box(0, 9, *sorted((s * (HW - 0.5), s * (HWO + 1))), 0, A[1] + 4.8))  # clear the side walls
-    for lo, hi in KNUCKLES:                                                                # keyed knuckles
-        m += both(lambda s: cyl_a(*sorted((s * lo, s * hi)), 7.6) + box(0.3, A[0], *sorted((s * lo, s * hi)), A[1], A[1] + 3.5))
-    return m - diamond(A, -HWO, HWO)
+# ---- the print (bin frame) ----
+def box_body():
+    m = box(U0, 0, -HWO, HWO, 0, DW) - box(U_R, 5, -HW, HW, FLOOR_T, DW - ROOF_T)
+    m += box(U_R, 0, -1.5, 1.5, FLOOR_T - 0.1, FLOOR_T + RAIL_H)                            # centre rail
+    for u in POSTS_U:
+        m += cyl(u, 0, FLOOR_T, DW - ROOF_T + 0.1, POST_D)
+    lug_cs = poly([(A2[0] - 4, 0.5), (A2[0] + 4, 0.5), (A2[0] + 4, A2[1]), (A2[0] - 4, A2[1])]) \
+        + CrossSection.circle(4, 40).translate(list(A2))
+    for lo, hi in LUGS:                                                                     # fixed hinge lugs
+        lug = ext_cs_v(lug_cs, lo, hi)
+        if hi <= KNUCKLE[0]:
+            lug += cone_v(*A2, hi, +1, CONE_R, CONE_R)
+        else:
+            lug += cone_v(*A2, lo, -1, CONE_R, CONE_R)
+        m += both(lug)
+    bump = Manifold.sphere(BUMP[2], 24).translate([BUMP[0], HWO, BUMP[1]]) ^ box(-50, 50, HWO - 0.1, HWO + 5, -50, 200)
+    m += both(bump)
+    m += to_bin(legs()) ^ box(-1000, 1000, -500, 500, -500, FLOOR_T - 0.1)
+    return m
 
 
-def disc_part():
-    d = cyl_a(-DISC_V, DISC_V, 2 * RD)
-    notch = ext_v([(A[0] + 1.2, A[1] - RD - 1), (A[0] + 1.2, A[1] - RD + ND), (A[0] - 0.8, A[1] - RD + ND),
-                   (A[0] - 2.8, A[1] - RD - 1)], -DISC_V - 1, DISC_V + 1)
-    return d - notch - diamond(A, -DISC_V - 1, DISC_V + 1)
+def gate_body():
+    h = GW
+    m = box(0.4, 1.2, -h, h, -4.6, DW) + (box(1.2, 3.0, -h, h, -4.6, DW) - box(1, 4, -h + 3, h - 3, -1.6, DW - 3))
+    teardrop = CrossSection.circle(4, 40).translate(list(A2)) + poly(
+        [(A2[0] - 2.83, A2[1] + 2.83), (A2[0], A2[1] + 5.66), (A2[0] + 2.83, A2[1] + 2.83)])
+    t1 = (A2[0], A2[1] + 5.66)
+    arm = poly([t1, (3.0, t1[1] + 3.0 - t1[0]), (3.0, -4.6), (A2[0] + 4, A2[1])])           # 45 deg top edge
+    f0 = -7.0                                                                              # paddle face, world vertical
+    paddle = poly([(f0 - 4, A2[1] - 1), (f0, A2[1] - 1), (f0 + (A2[1] - 3.8 - PADDLE_W) * 0 + (-19 - PADDLE_W) * np.tan(np.radians(TILT)), PADDLE_W),
+                   (f0 - 4 + (-19 - PADDLE_W) * np.tan(np.radians(TILT)), PADDLE_W)])
+    k = ext_cs_v(teardrop + arm + paddle, *KNUCKLE)
+    for lo, hi in LUGS:                                                                    # cone sockets
+        if hi <= KNUCKLE[0]:
+            k -= cone_v(*A2, KNUCKLE[0], +1, CONE_R + 0.85 - GAP, CONE_R + 0.85 - GAP)
+        else:
+            k -= cone_v(*A2, KNUCKLE[1], -1, CONE_R + 0.85 - GAP, CONE_R + 0.85 - GAP)
+    m += both(k)
+    v0, v1 = HWO + GAP, HWO + GAP + 1.2                                                    # wings + snap fingers
+    wing = ext_v([(3.0, 47), (3.0, 6), (-30, 6), (-30, 14)], v0, v1)
+    u0, u1, wt, wr = FINGER
+    wing -= ext_v([(u0 - 0.8, wt - 0.8), (u1 + 0.8, wt - 0.8), (u1 + 0.8, wr), (u0 - 0.8, wr)], v0 - 1, v1 + 1)
+    wing += ext_v([(u0, wt), (u1, wt), (u1, wr + 0.5), (u0, wr + 0.5)], v0, v1)
+    wing -= cyl_v(BUMP[0], BUMP[1], v0 - 1, v1 + 1, 2 * BUMP[2] + 0.4)
+    r = np.array([BUMP[0] - A2[0], BUMP[1] - A2[1]])                                      # bump path once the
+    for a in np.radians(np.arange(7, 121, 2)):                                             # finger has let go
+        q = np.array([r[0] * np.cos(a) - r[1] * np.sin(a), r[0] * np.sin(a) + r[1] * np.cos(a)]) + A2
+        wing -= cyl_v(q[0], q[1], v0 - 1, v1 + 1, 2 * BUMP[2] + 0.6)
+    m += both(wing)
+    return m
 
 
-def lever_part():
-    hub = cyl_a(*LEVER_V, 11)
-    arm = ext_v([(A[0], A[1] - 3), (A[0], A[1] + 3), (-70, A[1] + 3), (-70, A[1] - 3)], *LEVER_V)
-    tab = cyl_v(-74, A[1] + 4, *LEVER_V, 14)
-    return hub + arm + tab - diamond(A, LEVER_V[0] - 1, LEVER_V[1] + 1)
-
-
-def block_part():
-    cheek = (ext_v([(A[0] - 1, A[1] + 3.5), (A[0] + 2, A[1] - 2), (P[0] + 2.5, P[1] - 3.5), (P[0] - 3.5, P[1] - 3.5),
-                    (-16, -3.0), (-16, 0), (A[0] - 4.5, 0)], *CHEEK) + cyl_a(*CHEEK, 9) + cyl_v(*P, *CHEEK, 5.6))
-    return cheek - cyl_a(-5, 5, 4.7) - cyl_v(*P, -5, 5, 3.2)                              # one cheek; tail seats on the floor
-
-
-def pawl_part():
-    """Gravity pawl: tooth in the ratchet notch, paddle hits the tower, counterweight tail behind."""
-    t0 = A[1] - RD + ND - 0.2                                                              # tooth top
-    pts = [(P[0], P[1] + 2.6), (A[0] - 1.0, -4.8), (A[0] - 0.6, -4.8), (A[0] - 0.6, t0), (A[0] + 0.8, t0),
-           (A[0] + 0.8, -7.5), (P[0] + 3.5, -7.5), (-4.9, -15.5), (-3.0, -29), (-6.5, -29),
-           (P[0] - 1.5, -10), (-30, -10.5), (-30, -3.6), (P[0] - 3, -3.6)]
-    m = ext_v(pts, -PAWL_V, PAWL_V) + cyl_v(*P, -PAWL_V, PAWL_V, 5.6) - cyl_v(*P, -5, 5, 3.2)
-    return m - ext_v([(-5.0, -14), (-4.2, -26), (-5.6, -26), (-6.2, -14)], -5, 5)          # lighten the paddle
-
-
-def shaft_part():
-    return box(-(HWO + 4), HWO + 4, -SQ / 2, SQ / 2, 0, SQ)                                # lies flat
-
-
-def pawl_pin():
-    return cyl(0, 0, 0, 2 * CHEEK[1] + 0.4, 3.0)
-
-
-def frame(feet, peg):
-    """Flat-printed support: feet with square pegs into chassis holes, beam + 2 pegs under the bin."""
-    xh = float(np.mean(feet[:, 0]))
-    zt, zs, hb = PLATE_Z + 4, floor_z(xh + 2.9), HW + WT
-    cs = poly([(-hb, zs - 4), (hb, zs - 4), (hb, zs), (-hb, zs)])
-    for _, y in feet:
-        s = np.sign(y)
-        cs += poly([(y - 5, zt), (y + 5, zt), (y + 5, zt + 4), (y - 5, zt + 4)])
-        cs += strut((y, zt + 3), (s * (hb - 6), zs - 3.5), 5) + strut((y, zt + 3), (s * 15, zs - 3.5), 5)
-    m = ext_x(cs, xh - 1.1, xh + 2.9)
-    for v in (-40, 40):
-        m += box(xh - 1.1, xh + 1.1, v - 1.15, v + 1.15, zs - 0.1, zs + 2.9)
-    for _, y in feet:
-        m += box(xh - 1.1, xh + 1.1, y - peg / 2, y + peg / 2, zt - 3.8, zt + 0.1)
-    return m, xh
-
-
-arm = HOLES[3.2]
-top, bot = arm[arm[:, 1] > 0], arm[arm[:, 1] < 0]
-ft = top[np.argmin(abs(top[:, 0] - FRONT_X))]
-FRAME_F, XF = frame(np.array([ft, bot[np.argmin(abs(bot[:, 0] - ft[0]))]]), 2.2)
-FRAME_R, XR = frame(HOLES[4.0], 2.8)
-TRAY, LID = body_parts([(x - X_E) / CA for x in (XF, XR)])
-GATE, DISC, LEVER, BLOCK, PAWL = gate_part(), disc_part(), both(lambda s: lever_part()), both(lambda s: block_part()), pawl_part()
-SHAFT_W = ext_cs_v(CrossSection.square([SQ, SQ], center=True).rotate(45).translate(list(A)), -HWO - 4, HWO + 4)
+BOX, GATE = box_body(), gate_body()
 BALLS = pile(DW, N_BALLS)
-
-
-def mech(gate_deg=0.0, pawl_deg=0.0):
-    """Moving parts in the bin frame: gate + disc + levers + shaft turn about A, pawl about P."""
-    g = sum((about(m, A, gate_deg) for m in (DISC, LEVER, SHAFT_W)), about(GATE, A, gate_deg))
-    return g, about(PAWL, P, pawl_deg)
 
 
 # ---- output ----
@@ -397,161 +363,124 @@ def centroid(m):
     return (v[:, None] * t.sum(1) / 4).sum(0) / v.sum()
 
 
-
-
-def centroid(m):
-    t = tris(m).astype(float)
-    v = np.einsum("ij,ij->i", t[:, 0], np.cross(t[:, 1], t[:, 2])) / 6
-    return (v[:, None] * t.sum(1) / 4).sum(0) / v.sum()
-
-
-def tooth_drop_deg():
-    """Pawl rotation that drops the tooth top below the disc periphery (+0.3 mm)."""
-    r = np.array([A[0] + 0.8 - P[0], A[1] - RD + ND - 0.2 - P[1]])
-    target = A[1] - RD - 0.3 - P[1]
-    return next(d for d in np.arange(0, 60, 0.1)
-                if -r[0] * np.sin(np.radians(d)) + r[1] * np.cos(np.radians(d)) < target)
-
-
-def physics(parts_w, balls_w):
+def physics(box_w, gate_w, balls_w):
     """Back-of-envelope checks, written to DESIGN.md."""
-    g, M = 9.81, N_BALLS * BALL_G / 1000                                   # SI
-    masses = [(m.volume() * 1.24e-3, centroid(m)) for m in parts_w]       # thin walls print ~solid
-    mp = sum(a for a, _ in masses)
+    g, M = 9.81, N_BALLS * BALL_G / 1000
+    mb, mg = box_w.volume() * 1.24e-3, gate_w.volume() * 1.24e-3                      # thin walls print ~solid
     cb = np.mean([c for _, c in balls_w], axis=0)
-    items = masses + [(N_BALLS * BALL_G, cb), (ROBOT_G, np.array([35.0, 0, ROBOT_Z]))]
+    items = [(mb, centroid(box_w)), (mg, centroid(gate_w)), (N_BALLS * BALL_G, cb), (ROBOT_G, np.array([35.0, 0, ROBOT_Z]))]
     mt = sum(a for a, _ in items)
     cg = sum(a * c for a, c in items) / mt
-    x_front = TIP - 5                                                     # sensor-bar skid
-    a_lat = 50 / cg[2]                                                    # wheels at +-50 mm
-    phi = np.radians(25)                                                  # ball-ball repose angle
+    x_front = TIP - 5
+    a_lat = 50 / cg[2]
+    phi = np.radians(25)
     K = (1 - np.sin(phi)) / (1 + np.sin(phi))
-    rho_b = 0.6 * BALL_G / (np.pi / 6 * BALL_D ** 3) * 1e6                # kg/m3, random packing 0.6
+    rho_b = 0.6 * BALL_G / (np.pi / 6 * BALL_D ** 3) * 1e6
     h = (max(w for u, v, w in BALLS if u > -BALL_D) + BALL_D / 2) / 1000
-    hc = (np.mean([w for u, v, w in BALLS]) - A[1]) / 1000
-    t_s = 0.5 * K * rho_b * g * h ** 2 * (2 * HW / 1000) * (h / 3 - A[1] / 1000)
-    t_d = t_s + M * g * SA * hc + M * 0.5 * g * hc
-    rf = (RD - ND / 2) / 1000                                             # notch face radius
-    f_s, f_d = t_s / rf, t_d / rf
-    e = (A[1] - RD + ND / 2 - P[1]) / 1000                                # self-locking arm
-    lt = (A[0] - P[0]) / 1000                                             # pivot -> tooth
-    lp = (P[1] + 22) / -1000 * -1 if False else 0.020                     # pivot -> paddle contact
-    rel = [(f * e + MU * f * lt) / lp for f in (f_s, f_d)]
-    push = 2 * 0.049 / 0.017                                              # 2 x N20 1:50 stall ~0.5 kg.cm, 34 mm wheel
-    pc = centroid(PAWL)
-    rg = (pc[0] - P[0], pc[2] - P[1])
-    drop = tooth_drop_deg()
-    stroke = np.hypot(3.0 - P[0], -22 - P[1]) * np.radians(drop + 2)
+    hc = np.mean([w for u, v, w in BALLS]) / 1000
+    a2 = -A2[1] / 1000                                                                     # hinge below the floor
+    t_s = 0.5 * K * rho_b * g * h ** 2 * (2 * HW / 1000) * (h / 3 + a2)                    # Rankine push on the gate
+    gc = centroid(GATE)
+    t_gate = mg / 1000 * g * ((gc[2] - A2[1]) * SA + (gc[0] - A2[0]) * CA) / 1000          # gate weight (tilted frame)
+    t_st = t_s + M * g * SA * (hc + a2) + t_gate
+    t_d = t_st + M * 0.5 * g * (hc + a2)                                                   # + 0.5 g braking
+    u0, u1, wt, wr = FINGER
+    L, b, t = wr - wt, u1 - u0, 1.2
+    k = 3 * 2.0e9 * (b / 1000 * (t / 1000) ** 3 / 12) / (L / 1000) ** 3                   # PLA E ~2 GPa (printed)
+    eng = BUMP[2] - GAP
+    f_th = k * eng / 1000 * np.tan(np.radians(45) + np.arctan(MU))
+    r_det = np.hypot(BUMP[0] - A2[0], BUMP[1] - A2[1]) / 1000
+    t_det = 2 * f_th * r_det
+    arm = (A2[1] - (-(TOWER_H + 0.0 - Z_E) + PADDLE_W) / 2 * 0 - (PADDLE_W + (TOWER_H - Z_E)) / 2) / -1000 * -1
+    w_c = ((TOWER_H - Z_E) + PADDLE_W) / 2                                                 # paddle contact, mid overlap
+    arm = (A2[1] - w_c) / 1000
+    f_rel = t_det / arm
+    strain = 3 * t * eng / (2 * L ** 2)
     v_run, rho_air = 1.5, 1.2
     area = 2 * HWO / 1000 * DW / 1000
-    drag = [0.5 * rho_air * v_run ** 2 * cd * area for cd in (1.05, 0.8)]
+    drag = 0.5 * rho_air * v_run ** 2 * 1.05 * area
     lines = [
         "# Ball carrier - design notes (generated by ball_carrier.py)", "",
-        f"Payload: {N_BALLS} x {BALL_D} mm balls = {N_BALLS * BALL_G:.0f} g. Printed parts: {mp:.0f} g "
-        f"(at 100 %, thin walls print solid). Robot estimate: {ROBOT_G} g. Total {mt:.0f} g.", "",
+        "One-piece print-in-place: box, gate, hinge, snap latch and legs print together, roof down, no supports, "
+        "no assembly. Moving parts are separated by a 0.4 mm gap.", "",
+        f"Payload: {N_BALLS} x {BALL_D} mm balls = {N_BALLS * BALL_G:.0f} g. Print: {mb + mg:.0f} g at 100 % "
+        f"(box + legs {mb:.0f} g, gate {mg:.0f} g). Robot estimate: {ROBOT_G} g. Total {mt:.0f} g.", "",
         "## Capacity",
-        f"Balls dropped one by one into the lowest free spot (gravity tilted {TILT} deg): {len(pile(DW, 999))} fit "
-        f"inside the closed {DW} mm tall box, so {N_BALLS} have margin. Inside: {-U_R:.0f} x {2 * HW} mm.", "",
+        f"Balls dropped one by one into the lowest free spot (gravity tilted {TILT} deg), around the posts: "
+        f"{len(pile(DW, 999))} fit inside the {DW} mm tall box, so {N_BALLS} have margin. Inside {-U_R:.0f} x {2 * HW} mm.", "",
         "## Stability and traction",
-        f"CG of robot + full box: x = {cg[0]:.0f} mm (drive axle at 0), z = {cg[2]:.0f} mm.",
-        f"Load on the drive wheels: {100 * (x_front - cg[0]) / x_front:.0f} % (front skid at x = {x_front:.0f}).",
+        f"CG of robot + full box: x = {cg[0]:.0f} mm (drive axle at 0), z = {cg[2]:.0f} mm; "
+        f"{100 * (x_front - cg[0]) / x_front:.0f} % on the drive wheels.",
         f"Side tip-over at a_lat = {a_lat:.2f} g -> max {np.sqrt(a_lat * 9.81 * 0.15):.2f} m/s on a 150 mm "
         f"radius curve, {np.sqrt(a_lat * 9.81 * 0.3):.2f} m/s on 300 mm.", "",
-        "## Discharge",
-        f"The whole front ({2 * HW} x {DW} mm = {2 * HW / BALL_D:.1f} D wide) swings away, so no arch can form "
-        "(arching needs a roofed outlet narrower than ~4-5 D).",
-        f"Floor {TILT} deg on 2 mm rails: a ball's rolling resistance is < 1 deg, so every ball rolls out.", "",
-        "## Latch: ratchet disc + gravity pawl",
-        f"Ball bed on the gate (Rankine K = {K:.2f}, bulk density {rho_b:.0f} kg/m3, fill {h * 1000:.0f} mm): "
-        f"{t_s * 1000:.0f} N.mm static; with down-slope weight and 0.5 g braking {t_d * 1000:.0f} N.mm.",
-        f"Force on the notch face (r = {rf * 1000:.1f} mm): {f_s:.2f} N static, {f_d:.2f} N design. Its line passes "
-        f"{e * 1000:.1f} mm above the pawl pivot, so the load presses the tooth deeper (self-locking).",
-        f"Release force at the paddle (tooth friction mu = {MU} + locking moment, paddle arm {lp * 1000:.0f} mm): "
-        f"{rel[0]:.2f}-{rel[1]:.2f} N; robot push at stall ~{push:.1f} N -> {push / rel[1]:.0f}x margin.",
-        f"Release stroke: the pawl turns {drop:.0f} deg = ~{stroke:.0f} mm at the paddle; it sticks out {AHEAD} mm "
-        "ahead of the arm tips.",
-        f"Pawl CG is {-rg[0]:.1f} mm behind and {-rg[1]:.1f} mm below the pivot: gravity holds the tooth up and "
-        f"re-arms it; a forward jerk would need {abs(rg[0] / rg[1]) if rg[1] else 99:.1f} g to lift it (unloaded).", "",
-        "## Reset",
-        "Push either side lever down (or lift the gate): the shaft turns the gate shut, the notch comes round "
-        "under the tooth and the counterweighted pawl drops in - click, armed. Lever up = dumped.", "",
-        "## Shell and aerodynamics",
-        f"Plain closed box, {WT} mm skin, solid sides (the hinge shaft runs across the front, outside the box). "
-        f"Ball pressure on the walls is only ~K.rho.g.h = {K * rho_b * g * h:.0f} Pa.",
-        f"Drag at {v_run} m/s, frontal area {area * 1e4:.0f} cm2: {drag[0]:.3f} N (box, Cd ~1.05) - "
-        f"{100 * drag[0] / push:.1f} % of the drive force. Mass and CG height matter far more for speed.", "",
-        "## Printing (no supports)",
-        "Tray floor down, lid roof down, gate inner face down, disc / levers / pawl / latch cheeks flat, "
-        "shaft and pins lying / standing, frames flat. Lid drops onto 4 corner tabs inside the tray.", "",
+        "## Gate, latch and release",
+        f"Opening moment on the gate about the hinge ({-A2[1]:.0f} mm below the floor): ball bed (Rankine K = {K:.2f}, "
+        f"{rho_b:.0f} kg/m3) {t_s * 1000:.0f} N.mm + down-slope weight + gate weight = {t_st * 1000:.0f} N.mm static, "
+        f"{t_d * 1000:.0f} N.mm with 0.5 g braking.",
+        f"Snap fingers: {L:.0f} x {b:.0f} x {t} mm, k = {k:.0f} N/m each, bump engages {eng:.1f} mm -> "
+        f"{f_th:.2f} N each at {r_det * 1000:.0f} mm = {t_det * 1000:.0f} N.mm hold "
+        f"({t_det / t_d:.1f}x the braking case). Finger strain {100 * strain:.2f} % (PLA ok < 2 %).",
+        f"Release: paddles {-(PADDLE_W - A2[1]):.0f} mm below the hinge, tower contact ~{arm * 1000:.0f} mm below it -> "
+        f"{f_rel:.1f} N push; robot at stall ~{PUSH:.1f} N ({PUSH / f_rel:.1f}x). The paddles stick out {AHEAD} mm "
+        "ahead of the arm tips; the floor edge is 9.6 mm further, over the tower.",
+        "Once the fingers let go, the balls and the gate's own weight swing it open; it stops ~110 deg open, "
+        "a chute into the tower.", "",
+        "## Reset and loading",
+        "After a dump the side wings point up: lift one and the gate swings shut, the fingers click over the bumps. "
+        "To load, open the gate, tip the robot back and pour the balls in, then close it.", "",
+        "## Printing (one job, no supports)",
+        "Roof down on the bed (smooth top). Walls vertical; the floor bridges <= 70 mm onto the centre rail, "
+        "which bridges <= 52 mm between posts. Hinge: 45 deg cone pins and teardrop knuckles. Legs and pegs "
+        "point up. Wings rise at 45 deg. Gaps 0.4 mm: if the gate is stuck after printing, flex it gently once.", "",
+        f"Drag at {v_run} m/s: {drag:.3f} N ({100 * drag / PUSH:.1f} % of the drive force) - negligible.", "",
         "## Assumptions (change at the top of ball_carrier.py)",
-        f"Balls {BALL_D} mm / {BALL_G} g; tower rim {TOWER_H} mm with an opening wider than {2 * HW} mm; "
-        f"chassis underside {PLATE_Z} mm above the floor.",
+        f"Balls {BALL_D} mm / {BALL_G} g; tower rim {TOWER_H} mm, opening wider than {2 * HW} mm; chassis underside "
+        f"{PLATE_Z} mm above the floor; robot push {PUSH:.1f} N.",
     ]
     open(os.path.join(HERE, "DESIGN.md"), "w").write("\n".join(lines) + "\n")
     print("\n".join(lines))
 
 
 if __name__ == "__main__":
-    yw, lw = world(TRAY), world(LID)
-    body, frames, blk = yw + lw, FRAME_F + FRAME_R, world(BLOCK)
+    bw, gw = world(BOX), world(GATE)
     bl = [world(Manifold.sphere(BALL_D / 2, 24).translate([u, v, w])) for u, v, w in BALLS]
     bm = sum(bl[1:], bl[0])
-    drop = tooth_drop_deg()
-    checks = {}
-    for name, (gd, pd) in {"armed": (0, 0), "released": (0, drop + 2), "dumped": (110, 0), "closing": (25, 0)}.items():
-        g, pw = (world(m) for m in mech(gd, pd))
-        if name in ("dumped", "closing"):                          # tooth rides on the disc rim
-            pw = world(about(PAWL, P, drop))
-        checks[name] = {"body/gate": (body ^ g).volume(), "block/gate": (blk ^ g).volume(),
-                        "pawl/gate": (pw ^ g).volume(), "pawl/body": (pw ^ body).volume(),
-                        "pawl/block": (pw ^ blk).volume()}
-    checks["armed"].update({"block/body": (blk ^ body).volume(), "balls/parts": (bm ^ (body + world(GATE))).volume(),
-                            "frames/body": (frames ^ body).volume(), "frames/chassis": (CH ^ frames).volume(),
-                            "lever/frames": (world(LEVER) ^ frames).volume()})
-    for k, v in checks.items():
-        print(k, {a: round(b, 2) for a, b in v.items()})
-    g0, p0 = (world(m) for m in mech(0, 0))
-    below = [(n, m.bounding_box()[3]) for n, m in (("pawl", p0), ("gate+disc+levers", g0), ("box", body), ("block", blk))
-             if (m ^ box(-500, 500, -200, 200, -1, TOWER_H)).volume() > 0]
-    print("frontmost parts below the rim:", [(n, round((m ^ box(-500, 500, -200, 200, -1, TOWER_H)).bounding_box()[3], 1))
-                                              for n, m in (("pawl", p0), ("gate+disc+levers", g0), ("box", body), ("block", blk))
-                                              if (m ^ box(-500, 500, -200, 200, -1, TOWER_H)).volume() > 0],
-          "floor edge x", round(X_E, 1))
-    physics([yw, lw, world(GATE), world(DISC), world(LEVER), world(SHAFT_W), blk, p0, frames], [(BALL_G, centroid(b)) for b in bl])
+    print("components: box", len(BOX.decompose()), "gate", len(GATE.decompose()))
+    det = both(box(-12, 0, HWO - 0.1, HWO + 3, 5, 25))                                # finger/bump zone
+    stop = None
+    for ang in (0, 3, 10, 30, 60, 90, 100, 110, 120, 130):
+        o = (about(GATE, A2, ang) ^ BOX)
+        o_ex = (o - det).volume()
+        print(f"gate {ang:3d} deg: overlap {o.volume():.2f} (outside latch zone {o_ex:.2f})")
+        if o_ex > 0.5 and stop is None:
+            stop = ang
+    print("balls/parts", round((bm ^ (bw + gw)).volume(), 2), "box/chassis", round((bw ^ CH).volume(), 2),
+          "gate/chassis closed/open", round((gw ^ CH).volume(), 2), round((world(about(GATE, A2, 110)) ^ CH).volume(), 2))
+    low = box(-500, 500, -300, 300, -1, TOWER_H)
+    print("frontmost below the rim: box", round((bw ^ low).bounding_box()[3], 1), "gate", round((gw ^ low).bounding_box()[3], 1),
+          "floor edge", round(X_E, 1))
+    physics(bw, gw, [(BALL_G, centroid(b)) for b in bl])
 
-    flat = lambda m: m.rotate([90, 0, 0])                          # v -> z
-    parts = {"tray": TRAY, "lid": LID.rotate([180, 0, 0]), "gate": GATE.rotate([0, -90, 0]), "ratchet_disc": flat(DISC),
-             "lever_x2": flat(lever_part()), "shaft": shaft_part(), "latch_cheek_x2": flat(block_part()), "pawl": flat(PAWL),
-             "pawl_pin": pawl_pin(), "frame_front": FRAME_F.rotate([0, -90, 0]).rotate([0, 0, 90]),
-             "frame_rear": FRAME_R.rotate([0, -90, 0]).rotate([0, 0, 90])}
-    for name, m in parts.items():
-        m = m.translate([0, 0, -m.bounding_box()[2]])
-        parts[name] = m
-        write_stl(m, os.path.join(HERE, name + ".stl"))
-        b = m.bounding_box()
-        print(f"  {name}.stl: {b[3]-b[0]:.1f} x {b[4]-b[1]:.1f} x {b[5]-b[2]:.1f} mm, {m.volume()/1000:.1f} cm3")
-    write_3mf(os.path.join(HERE, "plate1_tray.3mf"), [("tray", parts["tray"])], [(1, 128, 128)])
-    write_3mf(os.path.join(HERE, "plate2_lid.3mf"), [("lid", parts["lid"])], [(1, 128, 128)])
-    names = ["gate", "frame_front", "frame_rear", "shaft", "lever_x2", "ratchet_disc", "latch_cheek_x2", "pawl", "pawl_pin"]
-    write_3mf(os.path.join(HERE, "plate3_parts.3mf"), [(n, parts[n]) for n in names],
-              [(1, 70, 75), (2, 128, 175), (3, 128, 227), (4, 128, 248), (5, 190, 30), (5, 190, 55), (6, 160, 85),
-               (7, 190, 85), (7, 220, 85), (8, 220, 115), (9, 160, 115)])
+    part = (BOX + GATE).rotate([180, 0, 0])
+    part = part.translate([0, 0, -part.bounding_box()[2]])
+    write_stl(part, os.path.join(HERE, "ball_box_one_piece.stl"))
+    write_3mf(os.path.join(HERE, "ball_box_one_piece.3mf"), [("ball_box", part)], [(1, 128, 128)])
+    b = part.bounding_box()
+    print(f"  ball_box_one_piece: {b[3]-b[0]:.1f} x {b[4]-b[1]:.1f} x {b[5]-b[2]:.1f} mm, {part.volume()/1000:.1f} cm3")
 
     xb = TIP + AHEAD
     tr = TOWER_D / 2
     tower = (Manifold.cylinder(TOWER_H, tr) - Manifold.cylinder(TOWER_H, tr - 3).translate([0, 0, 2]))
     wheel = Manifold.cylinder(8, 17).rotate([90, 0, 0])
     wheels = wheel.translate([0, 54.3, PLATE_Z - 5]) + wheel.translate([0, -46.3, PLATE_Z - 5])
-    BLUE, SHELL, ACCENT, GREY, WHITE, BLACK, PURPLE = ((0.0, 0.47, 0.84), (0.25, 0.28, 0.33), (0.95, 0.35, 0.1),
-                                                       (0.45, 0.45, 0.5), (0.97, 0.97, 0.97), (0.2, 0.2, 0.2),
-                                                       (0.55, 0.15, 0.6))
-    base = [(CH, BLUE, 1), (frames, GREY, 1), (wheels, BLACK, 1), (blk, GREY, 1)]
-    gd, pd = (world(m) for m in mech(110, 0))
-    pd = world(about(PAWL, P, drop))
-    full = ((-35, xb + TOWER_D), (-95, 95), (0, Z_E + DW + 50))
+    BLUE, SHELL, ACCENT, GREY, BLACK = ((0.0, 0.47, 0.84), (0.25, 0.28, 0.33), (0.95, 0.35, 0.1),
+                                       (0.45, 0.45, 0.5), (0.2, 0.2, 0.2))
+    gopen = world(about(GATE, A2, 110))
+    full = ((-35, xb + TOWER_D), (-95, 95), (0, Z_E + DW + 40))
+    pb = part.bounding_box()
     render(os.path.join(HERE, "preview.png"), [
-        (base + [(yw, SHELL, 1), (lw, SHELL, 1), (g0, ACCENT, 1), (p0, PURPLE, 1)], 22, -60, f"closed {N_BALLS}-ball box", full),
-        (base + [(yw, SHELL, 1), (lw, SHELL, 1), (g0, ACCENT, 1), (p0, PURPLE, 1), (tower.translate([xb + tr, 0, 0]), GREY, 0.35)],
-         0, -90, "armed, pawl touches the tower", full),
-        (base + [(yw, SHELL, 1), (lw, SHELL, 1), (gd, ACCENT, 1), (pd, PURPLE, 1), (tower.translate([xb - 5 + tr, 0, 0]), GREY, 0.35)],
-         0, -90, "dumped: gate open, lever up (push down to reset)", full)])
+        ([(CH, BLUE, 1), (wheels, BLACK, 1), (bw, SHELL, 1), (gw, ACCENT, 1)], 22, -60, f"one-piece {N_BALLS}-ball box", full),
+        ([(CH, BLUE, 1), (wheels, BLACK, 1), (bw, SHELL, 1), (gopen, ACCENT, 1), (tower.translate([xb - 3 + tr, 0, 0]), GREY, 0.35)],
+         0, -90, "tower pushes the paddles: gate swings open", full),
+        ([(BOX.rotate([180, 0, 0]).translate([0, 0, -pb[2]]), SHELL, 1), (GATE.rotate([180, 0, 0]).translate([0, 0, -pb[2]]), ACCENT, 1)],
+         25, -125, "prints as one piece, roof down", ((pb[0] - 5, pb[3] + 5), (pb[1] - 5, pb[4] + 5), (0, pb[5] + 5)))])
