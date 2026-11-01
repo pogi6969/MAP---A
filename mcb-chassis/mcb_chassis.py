@@ -12,7 +12,8 @@ press-fit pins.
                and MCB all stay inside the wheel radius: only the wheels can touch
                the ground, at any tilt. The keel slides on from the side, clips the
                front/back plate edges and is locked by the 4 long MCB pins.
-  skid-steer/  4 x 44 mm wheels, 4 N20s in corner housings outside the MCB posts.
+  skid-steer/  2 N20s on the centre axle, 2 x 44 mm wheels, 4 printed corner skids
+               (press-fit, seated in countersinks), tips 0.5 mm off the ground.
 
 STLs are exported in print orientation; nothing needs supports.
 
@@ -51,7 +52,8 @@ KEEL_X, LIP_X = 38, 31                     # keel / edge-clip half-lengths
 BATT = (26, 13.5)                          # battery bay width (Y), depth (Z); 72.8 long
 # ---- skid steer ----
 WHEEL_B = (44, 12)
-SKID_Y = (29.7, -31.5)                     # motor axes, just outside the MCB posts
+SKIDS = [(26, -21), (26, 21)]              # corner skids, mirrored in X
+SKID_D, SKID_HOLE, SKID_GAP = 7.9, 4.6, 0.5   # body, hole (peg 4.5), tip above ground
 
 
 def box(x0, x1, y0, y1, z0, z1):
@@ -98,7 +100,7 @@ def mount(ym):
     return m.translate([0, ym, 0]), holes.translate([0, ym, 0])
 
 
-def chassis(motor_ys):
+def chassis(motor_ys, skids=()):
     cs = plate_cs()
     prism = Manifold.extrude(cs, 40)
     body, cut = Manifold.extrude(cs, T), []
@@ -110,6 +112,11 @@ def chassis(motor_ys):
         for s in (-1, 1):
             body += cyl(s * x, y, T - 0.1, POST_TOP, POST_D) ^ prism
             cut.append(cyl(s * x, y, -1, POST_TOP + 1, PIN_HOLE))
+    for x, y in skids:
+        for s in (-1, 1):
+            body += cyl(s * x, y, T - 0.1, T + 4, 8) ^ prism
+            cut.append(cyl(s * x, y, -1, T + 5, SKID_HOLE)
+                       + Manifold.cylinder(1.71, 4.0, 2.29).translate([s * x, y, -0.01]))
     for x, y in TABHOLE:
         for s in (-1, 1):
             cut.append(cyl(s * x, y, -1, AXLE + 4, 2.69))
@@ -134,6 +141,12 @@ def keel():
         for s in (-1, 1):
             k -= cyl(s * x, y, -6, 1, PIN_HOLE)
     return k
+
+
+def skid(ground):
+    tip, r = ground + SKID_GAP, SKID_D / 2
+    return (cyl(0, 0, tip + r, 0, SKID_D) + Manifold.sphere(r).translate([0, 0, tip + r])
+            + Manifold.cylinder(1.7, r, 2.25) + cyl(0, 0, 1.69, T + 3.7, 4.5))
 
 
 def wheel(d, w, hub=7):
@@ -219,8 +232,9 @@ def export(folder, parts):
 
 if __name__ == "__main__":
     here = os.path.dirname(os.path.abspath(__file__))
-    BLUE, GREY, BLACK, GREEN, AMBER, ORANGE = ((0.0, 0.47, 0.84), (0.78, 0.78, 0.78), (0.22, 0.22, 0.22),
-                                               (0.1, 0.55, 0.25), (0.95, 0.65, 0.1), (1.0, 0.45, 0.2))
+    BLUE, GREY, BLACK, GREEN, AMBER, ORANGE, WHITE = (
+        (0.0, 0.47, 0.84), (0.78, 0.78, 0.78), (0.22, 0.22, 0.22), (0.1, 0.55, 0.25),
+        (0.95, 0.65, 0.1), (1.0, 0.45, 0.2), (0.95, 0.95, 0.95))
     yc = (BOARD[0][1] + BOARD[1][1]) / 2
     board = box(-37.5, 37.5, yc - 22, yc + 22, POST_TOP, POST_TOP + BOARD_T)
     pin_top = POST_TOP + BOARD_T
@@ -249,20 +263,21 @@ if __name__ == "__main__":
             (full, 0, 0, "side: keel inside wheel radius, only wheels touch")],
            ((-xa, xa), (-ra, ra), (ga, AXLE + ra)), ga)
 
-    # ---- skid steer ----
-    ch = chassis(SKID_Y)
-    wh = wheel(*WHEEL_B)
-    wheels = sum((mx(wh.rotate([0, 90, 0]).translate([XW + 1, y, AXLE])) for y in SKID_Y[1:]),
-                 mx(wh.rotate([0, 90, 0]).translate([XW + 1, SKID_Y[0], AXLE])))
-    motors = sum((mx(box(XR, XF, y - 6, y + 6, T, T + MOT_H)) for y in SKID_Y[1:]),
-                 mx(box(XR, XF, SKID_Y[0] - 6, SKID_Y[0] + 6, T, T + MOT_H)))
+    # ---- skid steer: 2 N20s + 4 corner skids ----
+    gb = AXLE - WHEEL_B[0] / 2
+    ch, wh, sk = chassis([0], SKIDS), wheel(*WHEEL_B), skid(gb)
+    wheels = mx(wh.rotate([0, 90, 0]).translate([XW + 1, 0, AXLE]))
+    skids = mx(sk.translate([*SKIDS[0], 0]) + sk.translate([*SKIDS[1], 0]))
+    sp = sk.rotate([180, 0, 0])
     print("skid-steer/")
     export(os.path.join(here, "skid-steer"), {
-        "chassis": ch, f"wheel_{WHEEL_B[0]}_x4": wh, "pin_short_x4": pin(pin_top - 1)})
-    full = [(ch, BLUE, 1), (motors, GREY, 1), (wheels, ORANGE, 1), (board, GREEN, 0.35)]
-    gb, xb, rb = AXLE - WHEEL_B[0] / 2, XW + 2 + WHEEL_B[1], WHEEL_B[0] / 2 + 1
+        "chassis": ch, f"wheel_{WHEEL_B[0]}_x2": wh, "skid_x4": sp.translate([0, 0, -sp.bounding_box()[2]]),
+        "pin_short_x4": pin(pin_top - 1)})
+    print(f"  overlap skids/chassis {(skids ^ ch).volume():.2f}, wheels/chassis {(wheels ^ ch).volume():.2f}")
+    full = [(ch, BLUE, 1), (motors, GREY, 1), (wheels, ORANGE, 1), (skids, WHITE, 1), (board, GREEN, 0.35)]
+    xb, rb = XW + 2 + WHEEL_B[1], WHEEL_B[0] / 2 + 1
     render(os.path.join(here, "skid-steer", "preview.png"),
-           [([(ch, BLUE, 1)], 30, -55, "chassis (4 N20 housings)"),
-            (full, 22, -55, "skid steer: 4 N20s, 44 mm wheels, MCB"),
-            (full, 90, -90, "top")],
-           ((-xb, xb), (SKID_Y[1] - rb, SKID_Y[0] + rb), (gb, AXLE + rb)), gb)
+           [([(ch, BLUE, 1), (skids, WHITE, 1)], -18, -55, "chassis + 4 skids (from below)"),
+            (full, 22, -55, "2 N20s, 44 mm wheels, 4 skids, MCB"),
+            (full, 0, 0, f"side: skids {SKID_GAP} mm off the ground")],
+           ((-xb, xb), (-L - 2, L + 2), (gb, AXLE + rb)), gb)
