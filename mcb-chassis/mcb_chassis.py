@@ -13,7 +13,7 @@ bracket holes (d2.69, 17.1 pitch), gearbox face at the tab edge. The MCB sits on
                the ground, at any tilt. The keel slides on from the side, clips the
                front/back plate edges and is locked by the 4 long MCB pins.
   supports/    the original 3D chassis (2 N20s on the centre axle) with 4 supports
-               built into the corners, tips 0.5 mm off the ground; 2 x 34 mm wheels.
+               built into the corners, 3.75 mm long (tips 4.25 mm off the ground); 2 x 34 mm wheels.
                mcb_chassis_supports.3mf = every part on one build plate. Print the
                chassis standing on its supports, with tree supports under the plate.
 
@@ -52,7 +52,7 @@ BATT = (26, 13.5)                          # battery bay width (Y), depth (Z); 7
 # ---- original + supports ----
 WHEEL_C = (34, 8)
 LEGS = [(27, -21), (27, 21)]               # corner supports, mirrored in X
-LEG_D, LEG_GAP = 8, 0.5                    # support dia, tip above ground
+LEG_D, LEG_LEN = 8, 3.75                   # support dia, length below the plate
 
 
 def box(x0, x1, y0, y1, z0, z1):
@@ -82,7 +82,7 @@ def plate_cs():
     return CrossSection([half + [(-x, y) for x, y in reversed(half)]])
 
 
-def chassis(ground=None):
+def chassis(legs=False):
     cs = plate_cs()
     prism = Manifold.extrude(cs, 40)
     body, cut = Manifold.extrude(cs, T), []
@@ -90,8 +90,8 @@ def chassis(ground=None):
         for s in (-1, 1):
             body += cyl(s * x, y, T - 0.1, POST_TOP, POST_D) ^ prism
             cut.append(cyl(s * x, y, -1, POST_TOP + 1, PIN_HOLE))
-    if ground is not None:                 # integrated supports, flat chamfered tips
-        down, tip, r = Manifold.extrude(cs, 30).translate([0, 0, -29.9]), ground + LEG_GAP, LEG_D / 2
+    if legs:                               # integrated supports, flat chamfered tips
+        down, tip, r = Manifold.extrude(cs, 30).translate([0, 0, -29.9]), -LEG_LEN, LEG_D / 2
         for x, y in LEGS:
             for s in (-1, 1):
                 leg = (cyl(0, 0, tip + 1.5, 0.1, LEG_D) + Manifold.cylinder(1.5, r - 1.5, r).translate([0, 0, tip])
@@ -264,7 +264,7 @@ if __name__ == "__main__":
 
     # ---- original + 4 integrated supports ----
     gc = AXLE - WHEEL_C[0] / 2
-    ch, wh, pn = chassis(gc), wheel(*WHEEL_C), pin(pin_top - 1)
+    ch, wh, pn = chassis(True), wheel(*WHEEL_C), pin(pin_top - 1)
     wheels = mx(wh.rotate([0, 90, 0]).translate([XF + 1.5, 0, AXLE]))
     out = os.path.join(here, "supports")
     print("supports/")
@@ -278,5 +278,5 @@ if __name__ == "__main__":
     render(os.path.join(out, "preview.png"),
            [([(ch, BLUE, 1)], -18, -55, "chassis with 4 supports (from below)"),
             (full, 22, -55, "2 N20s, 34 mm wheels, MCB"),
-            (full, 0, 0, f"side: supports {LEG_GAP} mm off the ground")],
+            (full, 0, 0, f"side: supports {ch.bounding_box()[2] - gc:.2f} mm off the ground")],
            ((-xc, xc), (-L - 2, L + 2), (gc, AXLE + rc)), gc)
