@@ -1,22 +1,27 @@
 #!/usr/bin/env python3
-"""LineaViper-X16 (xsx.3mf) ball box: 30 balls, dumped on contact, all 3D printed.
+"""LineaViper-X16 (xsx.3mf) 30-ball dump bin - all 3D printed, chassis unchanged.
 
-Like the cardboard prototype: an open box on top of the robot with a ramp inside that slopes
-down to a hole at the front. A trapdoor closes the hole. A trigger blade under the box sticks
-out 9 mm ahead of the arm tips. When the robot drives into the tower the blade is pushed
-back; after 3.7 mm its tongue slides out from under the trapdoor, the trapdoor swings down and
-the balls pour down the ramp, through the hole, into the tower. A V-detent keeps the blade
-armed while driving; to re-arm, close the trapdoor and push the blade forward.
+Engineering choices (numbers are printed when you run this, see DESIGN.md):
+  * Low, tilted bin over the wheelbase: a plain tray tipped 8 deg nose-down; its floor is
+    the ramp, so the payload sits as low and as far back as the chassis allows.
+  * Open-face discharge: the whole front wall is a fold-down gate (full width x full
+    height). No hole, so the balls cannot arch and jam.
+  * Gravity powered, contact released: the balls push the gate forward; a spur on the gate
+    rests on the trigger tongue. The tower pushes the blade back 12 mm, the tongue slides
+    out from under the spur (release force = friction only, ~mu x spur load), the gate
+    falls forward into the tower and the balls roll off the floor edge after it.
+  * Diamond-truss walls: triangulated (stiff), 45 deg edges print without supports,
+    13 mm inscribed opening so a 40 mm ball cannot poke through a 1.2 mm wall.
+  * Floor = rails (2 mm wide, 18 mm pitch) the balls roll along, ties underneath.
 
-Your xsx chassis is unchanged: the box sits on two flat-printed frames whose square pegs go
-into existing holes (front frame: one arm hole per arm; rear frame: the two 4 mm body holes).
-Parts: box, ramp (drops in, wedged by the tapered walls), trapdoor, trigger, hinge pin,
-2 frames. All print without supports. Walls are slotted to save weight.
+Parts: bin, gate, trigger, 2 hinge pins, 2 frames (pegs go into existing chassis holes).
+All print without supports.
 
 Set BALL_D / N_BALLS / TOWER_H / PLATE_Z for your setup and rerun:
     pip install manifold3d numpy matplotlib && python3 ball_carrier.py
 
 Axes: X forward, Y left, Z up, origin on the floor under the motor axis. Units: mm.
+Bin frame: u along the floor (0 = floor front edge, + forward), v = Y, w normal to the floor.
 """
 import os
 import re
@@ -28,57 +33,22 @@ set_circular_segments(40)
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 # ---- your setup ----
-BALL_D, N_BALLS = 40, 30         # ping-pong balls
-TOWER_H, TOWER_D = 50, 140       # tower rim height above the floor, outside dia (preview only)
+BALL_D, BALL_G, N_BALLS = 40, 2.7, 30   # ping-pong balls
+TOWER_H, TOWER_D = 50, 160       # tower rim height above the floor, outside dia (preview only)
 PLATE_Z = 22                     # chassis underside above the floor (N20 under the plate, 34 mm wheels)
-# ---- box: u = X - X_O (0 = rear edge of the hole), v = Y, w = Z - Z_O (0 = box underside) ----
-HW_R, HW_O = 70, 45              # inside half-widths: box, hole
-OUT_L, TAPER_L = 60, 50          # hole length, tapered walls behind it
-U_R = -180                       # rear wall inside face
-RAMP = 10                        # ramp slope, deg
-WT, BAND_T, RAMP_T, FLAP_T = 1.0, 3.2, 1.6, 1.6
-FLAP_Z = BAND_T - 0.1            # trapdoor underside, rests on the trigger tongue
-HINGE = (OUT_L - 3.5, FLAP_Z + 3)                 # trapdoor hinge axis (u, w)
-Z0R = BAND_T + RAMP_T            # ramp top at the hole edge (= trapdoor top)
-CLEAR, AHEAD = 6, 9              # box above the tower rim, blade ahead of the arm tips
-OV, TRAVEL, PD, U_HUMP = 4, 8, 22, -30            # tongue overlap, slot travel, blade depth, detent
+ROBOT_G, ROBOT_Z = 110, 25       # chassis + motors + wheels + MCB + battery, its CG height (estimate)
+# ---- bin ----
+TILT = 8                         # floor slope, deg (nose down)
+HW = 70                          # inside half width
+WT, RAIL_H, TIE_T = 1.2, 3.2, 1.6
+REAR_X = -24                     # bin rear (outside) X
+AHEAD, LIP, CLEAR = 16, 3, 6     # blade ahead of the arm tips, floor edge ahead of the blade, edge above rim
+TRAVEL, PD = 12, 22              # trigger stroke to release, blade depth below the floor edge
+HINGE = (3.3, 3.0)               # gate hinge axis (u, w)
+FOOT_U = 11.0                    # spur foot (rests on the tongue tip)
 FRONT_X = 104                    # front frame near this X (arm hole column)
-TR = np.tan(np.radians(RAMP))
-
-
-def hw(u):
-    return HW_O if u >= 0 else HW_R if u <= -TAPER_L else HW_O + (HW_R - HW_O) * -u / TAPER_L
-
-
-def floor_w(u):                  # what a ball rests on: ramp, or the trapdoor ribs
-    return Z0R + -u * TR if u < 0 else FLAP_Z + FLAP_T + 3
-
-
-def pile(h, n_max):
-    """Drop balls one by one into the lowest free spot (rolls down the ramp, stacks on others).
-    Returns ball centres (u, v, w), all of them below the rim."""
-    r, c, d = BALL_D / 2, np.cos(np.radians(RAMP)), BALL_D + 0.3
-    U, V = (a.ravel() for a in np.meshgrid(np.arange(U_R + r, OUT_L - r, 2.5), np.arange(-HW_R + r, HW_R - r, 2.5)))
-    ok = np.array([abs(v) + r + 0.3 <= min(hw(u - r), hw(u), hw(u + r)) for u, v in zip(U, V)])
-    U, V = U[ok], V[ok]
-    W = np.array([max(floor_w(x) + (r if x >= 0 else r / c) for x in (u - r, u, u + r)) for u in U])
-    out = []
-    while len(out) < n_max:
-        i = np.argmin(W)
-        if W[i] + r > h:
-            break
-        out.append((U[i], V[i], W[i]))
-        d2 = (U - U[i]) ** 2 + (V - V[i]) ** 2
-        near = d2 < d * d
-        W[near] = np.maximum(W[near], W[i] + np.sqrt(d * d - d2[near]))
-    return out
-
-
-H = next(h for h in range(60, 200, 5) if len(pile(h, N_BALLS)) >= N_BALLS)   # wall height for N_BALLS
-
-
-def cyl(x, y, z0, z1, d):
-    return Manifold.cylinder(z1 - z0, d / 2).translate([x, y, z0])
+MU = 0.3                         # PLA on PLA
+SA, CA = np.sin(np.radians(TILT)), np.cos(np.radians(TILT))
 
 
 def box(x0, x1, y0, y1, z0, z1):
@@ -110,6 +80,29 @@ def cyl_v(u, w, v0, v1, d):
     return Manifold.cylinder(v1 - v0, d / 2).rotate([90, 0, 0]).translate([u, v1, w])
 
 
+def ext_cs_v(cs, v0, v1):        # (u, w) cross-section extruded along v
+    return Manifold.extrude(cs, v1 - v0).rotate([90, 0, 0]).translate([0, v1, 0])
+
+
+def ext_cs_u(cs, u0, u1):        # (v, w) cross-section extruded along u
+    return ext_x(cs, u0, u1)
+
+
+def cyl(x, y, z0, z1, d):
+    return Manifold.cylinder(z1 - z0, d / 2).translate([x, y, z0])
+
+
+def diamonds(u0, u1, w0, w1, a=9.0, s=2.4):
+    """Diamond-truss holes (half-diagonal a, strut s) whose full shape fits in [u0,u1]x[w0,w1]."""
+    p, out = 2 * a + s * np.sqrt(2), CrossSection()
+    hole = CrossSection.square([a * np.sqrt(2)] * 2, center=True).rotate(45)
+    for k, (cu, cw) in enumerate([(0, 0), (p / 2, p / 2)]):
+        for x in np.arange(u0 + a + cu, u1 - a + 1e-6, p):
+            for y in np.arange(w0 + a + cw, w1 - a + 1e-6, p):
+                out += hole.translate([x, y])
+    return out
+
+
 # ---- your chassis ----
 def chassis():
     t = zipfile.ZipFile(os.path.join(HERE, "xsx.3mf")).read("3D/Objects/object_2.model").decode()
@@ -134,94 +127,99 @@ def holes(ch):
 
 CH = chassis()
 HOLES = holes(CH)
-X_O = CH.bounding_box()[3] + AHEAD + 4            # rear edge of the hole
-Z_O = TOWER_H + CLEAR                             # box underside
-INNER = poly([(U_R, -HW_R), (-TAPER_L, -HW_R), (0, -HW_O), (OUT_L, -HW_O), (OUT_L, HW_O), (0, HW_O),
-              (-TAPER_L, HW_R), (U_R, HW_R)])
-BACK = CrossSection.square([1000, 1000]).translate([-1000, -500])   # u <= 0
+X_E = CH.bounding_box()[3] + AHEAD + LIP          # floor front edge
+Z_E = TOWER_H + CLEAR
+U_R = (REAR_X - X_E) / CA + WT                    # rear wall inside face
 
 
 def world(m):
-    return m.translate([X_O, 0, Z_O])
+    return m.rotate([0, TILT, 0]).translate([X_E, 0, Z_E])
 
 
-# ---- printed parts (box frame u, v, w) ----
-def box_part(frame_us):
-    ring = INNER.offset(WT, JoinType.Miter) - INNER
-    m = Manifold.extrude(ring, H)
-    pts = np.asarray(INNER.to_polygons()[0])
-    posts = CrossSection()
-    for a, b in zip(pts, np.roll(pts, -1, axis=0)):                            # posts every <= 45 mm
-        for t in np.linspace(0, 1, int(np.ceil(np.linalg.norm(b - a) / 45)) + 1):
-            posts += CrossSection.square([5, 5]).translate(a + t * (b - a) - 2.5)
-    posts += CrossSection.square([16, 2 * HW_O + 10]).translate([HINGE[0] - 8, -HW_O - 5])   # hinge stays solid
-    slots = Manifold.extrude(ring - posts, 12)
-    for w0 in np.arange(4, H - 14, 15):                                         # rails: 12 mm slots, 3 mm bars
-        m -= slots.translate([0, 0, w0])
-    region = INNER ^ BACK                                                       # floor frame
-    thin = region - region.offset(-5, JoinType.Miter)
-    for v in (-56, -28, 28, 56):
-        thin += CrossSection.square([-U_R, 6]).translate([U_R, v - 3])
-    thick = CrossSection.square([60, 14]).translate([-60, -7]) + CrossSection.square([6, 200]).translate([-6, -100])
-    for u in frame_us:                                                          # trigger band, hole edge, frame bars
-        thick += CrossSection.square([8, 2 * HW_R]).translate([u - 3, -HW_R])
-    m += Manifold.extrude(thin ^ region, 2) + Manifold.extrude(thick ^ region, BAND_T)
-    for u in (-20, -55, -95, -135, -170):                                       # ramp posts
-        for v in (-56, -28, 28, 56):
-            if abs(v) + 4 < min(hw(u - 3), hw(u + 3)):
-                m += cyl(u, v, 1.9, BAND_T + -(u + 3) * TR - 0.2, 6)
-    m -= box(-44 - TRAVEL, 1, -4.2, 4.2, 1.2, BAND_T + 1)                       # tongue recess
-    m -= box(-22 - TRAVEL - 1, 1, -1.7, 1.7, -1, BAND_T + 1)                    # blade slot
-    hump = [(U_HUMP - 1, 1.19), (U_HUMP + 1, 1.19), (U_HUMP, 1.8)]
-    m += ext_v(hump, 1.7, 4.2) + ext_v(hump, -4.2, -1.7)
-    m -= cyl_v(*HINGE, -HW_O - WT - 1, HW_O + WT + 1, 3.3)                      # hinge pin
+def floor_z(x):                                   # bin underside at X
+    return Z_E + (X_E - x) * SA / CA
+
+
+def pile(h, n_max):
+    """Drop balls one at a time into the lowest free spot (gravity tilted TILT deg in the bin
+    frame), stacking on the balls already there; only balls entirely below the rim count."""
+    r, d = BALL_D / 2, BALL_D + 0.3
+    U, V = (a.ravel() for a in np.meshgrid(np.arange(U_R + r + 0.3, -r - 0.3, 2.5), np.arange(-HW + r + 0.3, HW - r - 0.3, 2.5)))
+    W = np.full(len(U), RAIL_H + r)
+    out = []
+    while len(out) < n_max:
+        i = np.argmin(-U * SA + W * CA)
+        if W[i] + r > h:
+            break
+        out.append((U[i], V[i], W[i]))
+        d2 = (U - U[i]) ** 2 + (V - V[i]) ** 2
+        near = d2 < d * d
+        W[near] = np.maximum(W[near], W[i] + np.sqrt(d * d - d2[near]))
+    return out
+
+
+DW = next(h for h in range(40, 200, 5) if len(pile(h, N_BALLS)) >= N_BALLS)   # wall height
+
+
+# ---- printed parts (bin frame) ----
+def bin_part(frame_us):
+    L = -U_R
+    m = box(U_R - WT, 0, -HW - WT, HW + WT, 0, DW) - box(U_R, 1, -HW, HW, 0, DW + 1)      # walls
+    side = diamonds(U_R + 4, -12, 7, DW - 5)
+    m -= ext_cs_v(side, HW - 1, HW + WT + 1) + ext_cs_v(side, -HW - WT - 1, -HW + 1)
+    m -= ext_cs_u(diamonds(-HW + 6, HW - 6, 7, DW - 5), U_R - WT - 1, U_R + 1)
+    for s in (-1, 1):                                                                      # hinge ears
+        m += box(-1, HINGE[0] + 4, *sorted((s * HW, s * (HW + WT))), 0, HINGE[1] + 4)
+    fl = CrossSection.square([L, 2 * HW]).translate([U_R, -HW])
+    grid = CrossSection()                                                                  # floor: rails + ties
+    for v in np.arange(-63, 64, 18):
+        grid += CrossSection.square([L, 2]).translate([U_R, v - 1])
+    grid += (fl - fl.offset(-4, JoinType.Miter))                                           # rim
+    grid += CrossSection.square([62, 14]).translate([-62, -7])                             # trigger band
+    for u in frame_us:
+        grid += CrossSection.square([8, 2 * HW]).translate([u - 3, -HW])                   # frame bars
+    ties = CrossSection()
+    for u in np.arange(-4, U_R, -36):
+        ties += CrossSection.square([3, 2 * HW]).translate([u - 3, -HW])
+    m += Manifold.extrude(grid ^ fl, RAIL_H) + Manifold.extrude(ties ^ fl, TIE_T)
+    m -= box(-44 - TRAVEL, 1, -4.2, 4.2, 1.2, RAIL_H + 1)                                 # tongue recess
+    m -= box(-21 - TRAVEL - 1, 1, -1.7, 1.7, -1, RAIL_H + 1)                              # blade slot
+    m -= cyl_v(*HINGE, -HW - WT - 1, HW + WT + 1, 3.3)                                    # hinge pins
     for u in frame_us:
         for v in (-40, 40):
-            m -= box(u - 1.25, u + 1.25, v - 1.25, v + 1.25, -1, BAND_T + 1)    # frame pegs
+            m -= box(u - 1.45, u + 1.45, v - 1.45, v + 1.45, -1, RAIL_H + 1)               # frame pegs (8 deg tilt)
     return m
 
 
-def ramp_flat():
-    out = INNER.offset(-0.5, JoinType.Miter) ^ BACK.translate([-0.5, 0])
-    out -= CrossSection.square([12, 12]).translate([-12, -6])                   # clear of the tongue
-    holes = CrossSection()                                                      # slats every 14 mm, ties every 30
-    for k in range(-5, 5):
-        for u0 in np.arange(-4, U_R, -30):
-            holes += CrossSection.square([27, 11]).translate([u0 - 27, 14 * k + 1.5])
-    out -= holes ^ out.offset(-4, JoinType.Miter)
-    return Manifold.extrude(out.scale([1 / np.cos(np.radians(RAMP)), 1]), RAMP_T)
+def gate_part():
+    h = HW - 0.4
+    pnl = box(0.3, 1.9, -h, h, 1.9, DW)
+    pnl -= ext_cs_u(diamonds(-h + 8, h - 8, 12, DW - 5), 0, 3)
+    pnl -= box(0, 3, -6, 6, 0, 3.6)                                                        # tongue passes under
+    for s in (-1, 1):                                                                      # knuckles
+        pnl += cyl_v(*HINGE, *sorted((s * (h - 5.6), s * h)), 6)
+    spur = box(1.5, FOOT_U, -5, 5, 3.6, 6.2) + box(FOOT_U - 2, FOOT_U, -5, 5, RAIL_H - 0.1, 6.2)
+    spur += ext_v([(1.5, 6.1), (6, 6.1), (1.5, 14)], -5, 5)                               # gusset
+    return pnl + spur - cyl_v(*HINGE, -HW, HW, 3.5)
 
 
-def ramp():
-    return ramp_flat().rotate([0, RAMP, 0]).translate([0, 0, BAND_T])
+def gate_open(deg):
+    return gate_part().translate([-HINGE[0], 0, -HINGE[1]]).rotate([0, deg, 0]).translate([HINGE[0], 0, HINGE[1]])
 
 
-def trapdoor():
-    h = HW_O - 0.4
-    m = box(0.3, HINGE[0], -h, h, FLAP_Z, FLAP_Z + FLAP_T) + cyl_v(*HINGE, -h, h, 6)
-    for u0 in (7, 25):
-        for v0 in (-40, -18, 4, 26):
-            m -= box(u0, u0 + 14, v0, v0 + 14, 0, 10)
-    for v in (-22, 22):
-        m += box(4, HINGE[0] - 3, v - 0.8, v + 0.8, FLAP_Z + FLAP_T - 0.1, FLAP_Z + FLAP_T + 3)
-    return m - cyl_v(*HINGE, -HW_O, HW_O, 3.5)
-
-
-def trigger():
-    blade = ext_v([(-22, -PD), (-4, -PD), (-4, 1.7), (-22, 1.7)], -1.5, 1.5)
-    m = box(-44, OV, -4, 4, 1.2, FLAP_Z) + blade
-    return m - ext_v([(U_HUMP - 1.3, 1.19), (U_HUMP + 1.3, 1.19), (U_HUMP, 1.9)], -5, 5)
+def trigger_part(pushed=0.0):
+    blade = ext_v([(-21, -PD), (-LIP, -PD), (-LIP, 1.7), (-21, 1.7)], -1.5, 1.5)
+    return (box(-44, FOOT_U + 0.5, -4, 4, 1.2, RAIL_H - 0.1) + blade).translate([-pushed, 0, 0])
 
 
 def pin():
-    cs = CrossSection.circle(1.6) ^ CrossSection.square([4, 2.9]).translate([-2, -1.3])   # flat side down
-    return ext_x(cs, 0, 2 * (HW_O + WT) + 1).translate([0, 0, 1.3])
+    return cyl(0, 0, 0, 1.2, 6) + cyl(0, 0, 1.1, 1.2 + WT + 5.4, 3.0)
 
 
 def frame(feet, peg):
-    """Flat-printed support: feet with square pegs into chassis holes, beam + 2 pegs under the box."""
+    """Flat-printed support: feet with square pegs into chassis holes, beam + 2 pegs under the bin."""
     xh = float(np.mean(feet[:, 0]))
-    zt, zs, hb = PLATE_Z + 4, Z_O, HW_R + WT
+    zt, zs, hb = PLATE_Z + 4, floor_z(xh + 2.9), HW + WT
     cs = poly([(-hb, zs - 4), (hb, zs - 4), (hb, zs), (-hb, zs)])
     for _, y in feet:
         s = np.sign(y)
@@ -240,11 +238,9 @@ top, bot = arm[arm[:, 1] > 0], arm[arm[:, 1] < 0]
 ft = top[np.argmin(abs(top[:, 0] - FRONT_X))]
 FRAME_F, XF = frame(np.array([ft, bot[np.argmin(abs(bot[:, 0] - ft[0]))]]), 2.2)
 FRAME_R, XR = frame(HOLES[4.0], 2.8)
-BOX = box_part([XF - X_O, XR - X_O])
-
-
-def balls():
-    return [world(Manifold.sphere(BALL_D / 2, 24).translate([u, v, w])) for u, v, w in pile(H, N_BALLS)]
+BIN = bin_part([(x - X_E) / CA for x in (XF, XR)])
+GATE, TRIGGER = gate_part(), trigger_part()
+BALLS = pile(DW, N_BALLS)
 
 
 # ---- output ----
@@ -320,48 +316,113 @@ def render(path, panels):
 
 
 
+def centroid(m):
+    t = tris(m).astype(float)
+    v = np.einsum("ij,ij->i", t[:, 0], np.cross(t[:, 1], t[:, 2])) / 6
+    return (v[:, None] * t.sum(1) / 4).sum(0) / v.sum()
+
+
+def physics(parts_w, balls_w):
+    """Back-of-envelope checks, written to DESIGN.md."""
+    g, M = 9.81, N_BALLS * BALL_G / 1000                                   # SI
+    masses = [(m.volume() * 1.24e-3, centroid(m)) for m in parts_w]       # thin walls print ~solid
+    mp = sum(a for a, _ in masses)
+    cb = np.mean([c for _, c in balls_w], axis=0)
+    items = masses + [(N_BALLS * BALL_G, cb), (ROBOT_G, np.array([35.0, 0, ROBOT_Z]))]
+    mt = sum(a for a, _ in items)
+    cg = sum(a * c for a, c in items) / mt
+    x_front = CH.bounding_box()[3] - 5                                   # sensor-bar skid
+    a_lat = 50 / cg[2]                                                    # wheels at +-50 mm
+    # gate load: Rankine lateral pressure of the ball bed + down-slope weight + 0.5 g braking
+    phi = np.radians(25)                                                  # ball-ball repose angle
+    K = (1 - np.sin(phi)) / (1 + np.sin(phi))
+    rho_b = 0.6 * BALL_G / (np.pi / 6 * BALL_D ** 3) * 1e6                # kg/m3, random packing 0.6
+    h = (max(w for u, v, w in BALLS if u > -BALL_D) + BALL_D / 2) / 1000
+    hc = (np.mean([w for u, v, w in BALLS]) - HINGE[1]) / 1000
+    t_s = 0.5 * K * rho_b * g * h ** 2 * (2 * HW / 1000) * (h / 3 - HINGE[1] / 1000)
+    t_d = t_s + M * g * SA * hc + M * 0.5 * g * hc
+    arm = (FOOT_U - 1 - HINGE[0]) / 1000
+    n_s, n_d = t_s / arm, t_d / arm
+    sig = 6 * n_d * (FOOT_U / 1000) / (0.008 * 0.0019 ** 2) / 1e6
+    push = 2 * 0.049 / 0.017                                              # 2 x N20 1:50 stall ~0.5 kg.cm, 34 mm wheel
+    lines = [
+        "# Ball carrier - design notes (generated by ball_carrier.py)", "",
+        f"Payload: {N_BALLS} x {BALL_D} mm balls = {N_BALLS * BALL_G:.0f} g. Printed parts: {mp:.0f} g "
+        f"(at 100 %, thin walls print solid). Robot estimate: {ROBOT_G} g. Total {mt:.0f} g.", "",
+        "## Capacity",
+        f"Balls dropped one by one into the lowest free spot (gravity tilted {TILT} deg): {len(pile(DW, 999))} fit "
+        f"fully below a {DW} mm wall, so {N_BALLS} have margin. Bin inside: {-U_R:.0f} x {2 * HW} mm.", "",
+        "## Stability and traction",
+        f"CG of robot + full bin: x = {cg[0]:.0f} mm (drive axle at 0), z = {cg[2]:.0f} mm.",
+        f"Load on the drive wheels: {100 * (x_front - cg[0]) / x_front:.0f} % (front skid at x = {x_front:.0f}).",
+        f"Side tip-over at a_lat = {a_lat:.2f} g -> max {np.sqrt(a_lat * 9.81 * 0.15):.2f} m/s on a 150 mm "
+        f"radius curve, {np.sqrt(a_lat * 9.81 * 0.3):.2f} m/s on 300 mm.", "",
+        "## Discharge",
+        f"Open face: the whole front ({2 * HW} x {DW} mm = {2 * HW / BALL_D:.1f} D wide, open to the top) "
+        "falls away, so no arch can form (arching needs a roofed outlet narrower than ~4-5 D).",
+        f"Floor {TILT} deg on 2 mm rails: rolling resistance of a ball is < 1 deg, so every ball rolls out; "
+        "the pile above collapses as the front empties (repose ~25 deg).", "",
+        "## Gate and trigger",
+        f"Ball bed on the gate (Rankine K = {K:.2f}, bulk density {rho_b:.0f} kg/m3, fill {h * 1000:.0f} mm): "
+        f"{t_s * 1000:.0f} N.mm static; with down-slope weight and 0.5 g braking {t_d * 1000:.0f} N.mm.",
+        f"Spur foot on the tongue ({arm * 1000:.1f} mm from the hinge): {n_s:.2f} N static, {n_d:.2f} N design.",
+        f"Release force = mu x load = {MU * n_s:.2f}-{MU * n_d:.2f} N; robot push at stall ~{push:.1f} N "
+        f"-> {push / (MU * n_d):.0f}x margin. Stroke {TRAVEL} mm; blade sticks out {AHEAD} mm ahead of the arm tips.",
+        f"Trigger stays put while driving: friction {MU * n_s:.2f} N vs its inertia at 1 g "
+        f"{TRIGGER.volume() * 1.24e-3 * 9.81e-3:.3f} N.",
+        f"Tongue bending at design load: {sig:.1f} MPa (PLA ~50 MPa).", "",
+        "## Printing",
+        "Diamond-truss walls: 45 deg edges need no supports, triangulated for stiffness, 13 mm inscribed "
+        f"opening so a {BALL_D} mm ball sinks {BALL_D / 2 - np.sqrt((BALL_D / 2) ** 2 - 6.35 ** 2):.1f} mm < {WT} mm wall.",
+        "Bin prints floor down, gate inner face down, frames flat, trigger tongue down, pins standing.", "",
+        "## Assumptions (change at the top of ball_carrier.py)",
+        f"Balls {BALL_D} mm / {BALL_G} g; tower rim {TOWER_H} mm with an opening wider than {2 * HW} mm; "
+        f"chassis underside {PLATE_Z} mm above the floor.",
+    ]
+    open(os.path.join(HERE, "DESIGN.md"), "w").write("\n".join(lines) + "\n")
+    print("\n".join(lines))
+
 
 if __name__ == "__main__":
-    bw, rw, tw, fw = world(BOX), world(ramp()), world(trapdoor()), world(trigger())
-    bl, n_sites = balls(), len(pile(H, 999))
-    bm = sum(bl[1:], bl[0])
+    bw, gw, tw = world(BIN), world(GATE), world(TRIGGER)
     frames = FRAME_F + FRAME_R
-    pairs = {"box/ramp": bw ^ rw, "box/trapdoor": bw ^ tw, "box/trigger": bw ^ fw, "box/frames": bw ^ frames,
-             "ramp/trigger": rw ^ fw, "trapdoor/trigger": tw ^ fw, "balls/parts": bm ^ (bw + rw + tw),
-             "frames/chassis": CH ^ frames}
+    bl = [world(Manifold.sphere(BALL_D / 2, 24).translate([u, v, w])) for u, v, w in BALLS]
+    bm = sum(bl[1:], bl[0])
+    pairs = {"bin/gate": bw ^ gw, "bin/trigger": bw ^ tw, "gate/trigger": gw ^ tw, "bin/frames": bw ^ frames,
+             "balls/parts": bm ^ (bw + gw), "frames/chassis": CH ^ frames,
+             "open gate/bin": world(gate_open(110)) ^ bw, "open gate/pushed trigger": world(gate_open(110)) ^ world(trigger_part(TRAVEL))}
     print("overlaps", {k: round(v.volume(), 2) for k, v in pairs.items()})
-    xb = X_O - 4
-    bb = bw.bounding_box()
-    print(f"walls {H} mm: {len(bl)} balls in, {n_sites} fit below the rim; "
-          f"box x={bb[0]:.0f}..{bb[3]:.0f}, y=+-{bb[4]:.0f}, z={bb[2]:.0f}..{bb[5]:.0f}; "
-          f"hole {2 * HW_O} x {OUT_L} at x={X_O:.0f}; blade face x={xb:.1f} "
-          f"({xb - CH.bounding_box()[3]:.1f} ahead of the arm tips), z={fw.bounding_box()[2]:.0f}..{Z_O:.0f}")
-    parts = {"box": BOX, "ramp": ramp_flat(), "trapdoor": trapdoor(), "trigger": trigger().rotate([180, 0, 0]),
-             "hinge_pin": pin(), "frame_front": FRAME_F.rotate([0, -90, 0]).rotate([0, 0, 90]),
-             "frame_rear": FRAME_R.rotate([0, -90, 0]).rotate([0, 0, 90])}
-    tot = 0
-    for name, m in parts.items():
-        write_stl(m, os.path.join(HERE, name + ".stl"))
-        b, tot = m.bounding_box(), tot + m.volume()
-        print(f"  {name}.stl: {b[3]-b[0]:.1f} x {b[4]-b[1]:.1f} x {b[5]-b[2]:.1f} mm, {m.volume()/1000:.1f} cm3")
-    print(f"  total {tot/1000:.1f} cm3 = {tot*1.24e-3:.0f} g PLA at 100% infill; balls {N_BALLS * 2.7:.0f} g")
-    write_3mf(os.path.join(HERE, "plate1_box.3mf"), [("box", parts["box"])], [(1, 128, 128)])
-    names = ["ramp", "trapdoor", "trigger", "hinge_pin", "frame_front", "frame_rear"]
-    write_3mf(os.path.join(HERE, "plate2_parts.3mf"), [(n, parts[n]) for n in names],
-              [(1, 97, 72), (2, 225, 50), (3, 225, 120), (4, 205, 240), (5, 100, 170), (6, 100, 215)])
+    physics([bw, gw, tw, frames], [(BALL_G, centroid(b)) for b in bl])
 
+    parts = {"bin": BIN, "gate": GATE.rotate([0, -90, 0]), "trigger": TRIGGER.rotate([180, 0, 0]), "hinge_pin_x2": pin(),
+             "frame_front": FRAME_F.rotate([0, -90, 0]).rotate([0, 0, 90]),
+             "frame_rear": FRAME_R.rotate([0, -90, 0]).rotate([0, 0, 90])}
+    for name, m in parts.items():
+        m = m.translate([0, 0, -m.bounding_box()[2]])
+        parts[name] = m
+        write_stl(m, os.path.join(HERE, name + ".stl"))
+        b = m.bounding_box()
+        print(f"  {name}.stl: {b[3]-b[0]:.1f} x {b[4]-b[1]:.1f} x {b[5]-b[2]:.1f} mm, {m.volume()/1000:.1f} cm3")
+    write_3mf(os.path.join(HERE, "plate1_bin.3mf"), [("bin", parts["bin"])], [(1, 128, 128)])
+    names = ["gate", "trigger", "hinge_pin_x2", "frame_front", "frame_rear"]
+    write_3mf(os.path.join(HERE, "plate2_parts.3mf"), [(n, parts[n]) for n in names],
+              [(1, 70, 75), (2, 200, 40), (3, 200, 100), (3, 220, 100), (4, 128, 175), (5, 128, 227)])
+
+    xb = X_E - LIP
     tr = TOWER_D / 2
-    tower = (Manifold.cylinder(TOWER_H, tr) - Manifold.cylinder(TOWER_H, tr - 3).translate([0, 0, 2])).translate([xb + tr, 0, 0])
+    tower = (Manifold.cylinder(TOWER_H, tr) - Manifold.cylinder(TOWER_H, tr - 3).translate([0, 0, 2]))
     wheel = Manifold.cylinder(8, 17).rotate([90, 0, 0])
     wheels = wheel.translate([0, 54.3, PLATE_Z - 5]) + wheel.translate([0, -46.3, PLATE_Z - 5])
-    BLUE, AMBER, RED, GREY, WHITE, BLACK, TAN = ((0.0, 0.47, 0.84), (0.95, 0.65, 0.1), (0.85, 0.2, 0.2),
-                                                 (0.45, 0.45, 0.5), (0.97, 0.97, 0.97), (0.2, 0.2, 0.2),
-                                                 (0.8, 0.55, 0.2))
-    robot = [(CH, BLUE, 1), (frames, GREY, 1), (wheels, BLACK, 1), (rw, TAN, 1), (tw + fw, RED, 1),
-             (bm, WHITE, 1), (bw, AMBER, 0.45)]
-    full = ((-30, xb + TOWER_D + 5), (-90, 90), (0, Z_O + H + 10))
+    BLUE, AMBER, RED, GREY, WHITE, BLACK, PURPLE = ((0.0, 0.47, 0.84), (0.95, 0.65, 0.1), (0.85, 0.2, 0.2),
+                                                    (0.45, 0.45, 0.5), (0.97, 0.97, 0.97), (0.2, 0.2, 0.2),
+                                                    (0.55, 0.15, 0.6))
+    robot = [(CH, BLUE, 1), (frames, GREY, 1), (wheels, BLACK, 1), (gw, RED, 1), (tw, PURPLE, 1),
+             (bm, WHITE, 1), (bw, AMBER, 1)]
+    dump = [(CH, BLUE, 1), (frames, GREY, 1), (wheels, BLACK, 1), (bw, AMBER, 1),
+            (world(gate_open(110)), RED, 1), (world(trigger_part(TRAVEL)), PURPLE, 1),
+            (tower.translate([xb - TRAVEL + tr, 0, 0]), GREY, 0.35)]
+    full = ((-35, xb + TOWER_D), (-90, 90), (0, Z_E + DW + 40))
     render(os.path.join(HERE, "preview.png"), [
-        (robot, 22, -60, f"xsx + {N_BALLS}-ball box", full),
-        (robot + [(tower, GREY, 0.3)], 0, -90, f"side: blade touches the tower ({TOWER_H} mm rim)", full),
-        ([(bw, AMBER, 1), (rw, TAN, 1), (tw, RED, 1), (fw, (0.6, 0.1, 0.6), 1)], -30, -55,
-         "hole, trapdoor + trigger (from below)", ((X_O - 90, X_O + 70), (-75, 75), (Z_O - 25, Z_O + 40)))])
+        (robot, 22, -60, f"xsx + {N_BALLS}-ball dump bin", full),
+        (robot + [(tower.translate([xb + tr, 0, 0]), GREY, 0.35)], 0, -90, "side: blade touches the tower", full),
+        (dump, 0, -90, f"pushed {TRAVEL} mm: gate falls, balls roll out", full)])
