@@ -13,9 +13,9 @@ bracket holes (d2.69, 17.1 pitch), gearbox face at the tab edge. The MCB sits on
                the ground, at any tilt. The keel slides on from the side, clips the
                front/back plate edges and is locked by the 4 long MCB pins.
   supports/    just the chassis: the original plate (all original holes, no posts, no pins)
-               with front + back support rails, 3.75 mm deep (4.25 mm off the ground on 34 mm
-               wheels). Exported upside down - top face on the bed, rails up - so nothing
-               overhangs and it needs no supports.
+               with 4 round corner supports, 3.75 mm long (4.25 mm off the ground on 34 mm
+               wheels). Exported upside down - top face on the bed, supports up - so nothing
+               overhangs and it needs no slicer supports.
 
 Balancer STLs are in print orientation and need no supports.
 
@@ -52,7 +52,8 @@ KEEL_X, LIP_X = 38, 31                     # keel / edge-clip half-lengths
 BATT = (26, 13.5)                          # battery bay width (Y), depth (Z); 72.8 long
 # ---- original + supports ----
 WHEEL_C = (34, 8)
-LEG_LEN = 3.75                             # support rails: depth below the plate
+LEGS = [(27, -21), (27, 21)]               # corner supports, mirrored in X
+LEG_D, LEG_LEN = 8, 3.75                   # support dia, length below the plate
 
 
 def box(x0, x1, y0, y1, z0, z1):
@@ -93,13 +94,13 @@ def chassis(legs=False, posts=True):
                 cut.append(cyl(s * x, y, -1, POST_TOP + 1, PIN_HOLE))
             else:
                 cut.append(cyl(s * x, y, -10, T + 1, BOARD_HOLE))                     # original board holes
-    if legs:                               # front + back support rails, 45 deg sides: the plate bridges
-        down = Manifold.extrude(cs, 30).translate([0, 0, -29.9])     # rail to rail, nothing hangs free
-        h, top = LEG_LEN, LEG_LEN + 1.0                              # 1 mm flat foot, widening at 45 deg
-        for s in (-1, 1):
-            yc = s * (L - top)
-            body += ext_x(CrossSection([[(yc - 1, -h), (yc + 1, -h), (yc + top, 0.1), (yc - top, 0.1)]]),
-                          -60, 60) ^ down
+    if legs:                               # 4 round corner supports, chamfered tips
+        down, tip, r = Manifold.extrude(cs, 30).translate([0, 0, -29.9]), -LEG_LEN, LEG_D / 2
+        for x, y in LEGS:
+            for s in (-1, 1):
+                leg = (cyl(0, 0, tip + 1.5, 0.1, LEG_D) + Manifold.cylinder(1.5, r - 1.5, r).translate([0, 0, tip])
+                       + Manifold.cylinder(2, r, r + 2).translate([0, 0, -2]))
+                body += leg.translate([s * x, y, 0]) ^ down
     for x, y in TABHOLE:
         for s in (-1, 1):
             cut.append(cyl(s * x, y, -1, T + 1, 2.69))
@@ -280,7 +281,7 @@ if __name__ == "__main__":
     full = [(ch, BLUE, 1), (motors, GREY, 1), (wheels, ORANGE, 1)]
     xc, rc = XF + 2.5 + WHEEL_C[1], WHEEL_C[0] / 2 + 1
     render(os.path.join(out, "preview.png"),
-           [([(inv.translate([0, 0, gc]), BLUE, 1)], 30, -55, "print: upside down, rails up"),
+           [([(inv.translate([0, 0, gc]), BLUE, 1)], 30, -55, "print: upside down, supports up"),
             (full, 22, -55, "on the robot: 2 N20s, 34 mm wheels"),
             (full, 0, 0, f"side: supports {ch.bounding_box()[2] - gc:.2f} mm off the ground")],
            ((-xc, xc), (-L - 2, L + 2), (gc, AXLE + rc)), gc)
