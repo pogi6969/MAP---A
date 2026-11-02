@@ -12,10 +12,11 @@ bracket holes (d2.69, 17.1 pitch), gearbox face at the tab edge. The MCB sits on
                and MCB all stay inside the wheel radius: only the wheels can touch
                the ground, at any tilt. The keel slides on from the side, clips the
                front/back plate edges and is locked by the 4 long MCB pins.
-  supports/    the original 3D chassis (2 N20s on the centre axle) with 4 supports
+  supports/    the original 3D chassis (2 N20s on the centre axle) with front + back support rails
                built into the corners, 3.75 mm long (tips 4.25 mm off the ground); 2 x 34 mm wheels.
-               mcb_chassis_supports.3mf = every part on one build plate. Print the
-               chassis standing on its supports, with tree supports under the plate.
+               (45 deg sides) under the front and back edges. mcb_chassis_supports.3mf = every
+               part on one build plate. The chassis prints standing on its rails, no supports:
+               the plate bridges rail to rail, the motor tabs reach the rails.
 
 Balancer STLs are in print orientation and need no supports.
 
@@ -51,8 +52,8 @@ KEEL_X, LIP_X = 38, 31                     # keel / edge-clip half-lengths
 BATT = (26, 13.5)                          # battery bay width (Y), depth (Z); 72.8 long
 # ---- original + supports ----
 WHEEL_C = (34, 8)
-LEGS = [(27, -21), (27, 21)]               # corner supports, mirrored in X
-LEG_D, LEG_LEN = 8, 3.75                   # support dia, length below the plate
+LEG_LEN = 3.75                             # support rails: depth below the plate
+RAIL_TAB = (-18.5, 18.5)                   # motor tabs widened to reach the rails (so they bridge)
 
 
 def box(x0, x1, y0, y1, z0, z1):
@@ -76,32 +77,32 @@ def mx(m):
     return m + m.mirror([1, 0, 0])
 
 
-def plate_cs():
-    half = [(W - CX, -L), (W, -L + CY), (W, TAB_Y0), (TAB_X, TAB_Y0), (TAB_X, TAB_Y1),
-            (W, TAB_Y1), (W, L - CY), (W - CX, L)]
+def plate_cs(tab=(TAB_Y0, TAB_Y1)):
+    half = [(W - CX, -L), (W, -L + CY), (W, tab[0]), (TAB_X, tab[0]), (TAB_X, tab[1]),
+            (W, tab[1]), (W, L - CY), (W - CX, L)]
     return CrossSection([half + [(-x, y) for x, y in reversed(half)]])
 
 
 def chassis(legs=False):
-    cs = plate_cs()
+    cs = plate_cs(RAIL_TAB if legs else (TAB_Y0, TAB_Y1))
     prism = Manifold.extrude(cs, 40)
     body, cut = Manifold.extrude(cs, T), []
     for x, y in BOARD:
         for s in (-1, 1):
             body += cyl(s * x, y, T - 0.1, POST_TOP, POST_D) ^ prism
             cut.append(cyl(s * x, y, -1, POST_TOP + 1, PIN_HOLE))
-    if legs:                               # integrated supports, flat chamfered tips
-        down, tip, r = Manifold.extrude(cs, 30).translate([0, 0, -29.9]), -LEG_LEN, LEG_D / 2
-        for x, y in LEGS:
-            for s in (-1, 1):
-                leg = (cyl(0, 0, tip + 1.5, 0.1, LEG_D) + Manifold.cylinder(1.5, r - 1.5, r).translate([0, 0, tip])
-                       + Manifold.cylinder(2, r, r + 2).translate([0, 0, -2]))
-                body += leg.translate([s * x, y, 0]) ^ down
+    if legs:                               # front + back support rails, 45 deg sides: the plate bridges
+        down = Manifold.extrude(cs, 30).translate([0, 0, -29.9])     # rail to rail, nothing hangs free
+        h, top = LEG_LEN, LEG_LEN + 1.0                              # 1 mm flat foot, widening at 45 deg
+        for s in (-1, 1):
+            yc = s * (L - top)
+            body += ext_x(CrossSection([[(yc - 1, -h), (yc + 1, -h), (yc + top, 0.1), (yc - top, 0.1)]]),
+                          -60, 60) ^ down
     for x, y in TABHOLE:
         for s in (-1, 1):
             cut.append(cyl(s * x, y, -1, T + 1, 2.69))
     x0, x1, y0, y1 = WIN
-    cut += [box(x0, x1, y0, y1, -1, T + 1), box(-x1, -x0, y0, y1, -1, T + 1)]
+    cut += [box(x0, x1, y0, y1, -10, T + 1), box(-x1, -x0, y0, y1, -10, T + 1)]
     for c in cut:
         body -= c
     return body
@@ -276,7 +277,7 @@ if __name__ == "__main__":
     full = [(ch, BLUE, 1), (motors, GREY, 1), (wheels, ORANGE, 1), (board, GREEN, 0.35)]
     xc, rc = XF + 2.5 + WHEEL_C[1], WHEEL_C[0] / 2 + 1
     render(os.path.join(out, "preview.png"),
-           [([(ch, BLUE, 1)], -18, -55, "chassis with 4 supports (from below)"),
+           [([(ch, BLUE, 1)], -18, -55, "chassis with front + back support rails (from below)"),
             (full, 22, -55, "2 N20s, 34 mm wheels, MCB"),
             (full, 0, 0, f"side: supports {ch.bounding_box()[2] - gc:.2f} mm off the ground")],
            ((-xc, xc), (-L - 2, L + 2), (gc, AXLE + rc)), gc)
