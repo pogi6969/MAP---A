@@ -12,11 +12,10 @@ bracket holes (d2.69, 17.1 pitch), gearbox face at the tab edge. The MCB sits on
                and MCB all stay inside the wheel radius: only the wheels can touch
                the ground, at any tilt. The keel slides on from the side, clips the
                front/back plate edges and is locked by the 4 long MCB pins.
-  supports/    the original 3D chassis (2 N20s on the centre axle) with front + back support rails
-               built into the corners, 3.75 mm long (tips 4.25 mm off the ground); 2 x 34 mm wheels.
-               (45 deg sides) under the front and back edges. mcb_chassis_supports.3mf = every
-               part on one build plate. The chassis prints standing on its rails, no supports:
-               the plate bridges rail to rail, the motor tabs reach the rails.
+  supports/    just the chassis: the original plate (all original holes, no posts, no pins)
+               with front + back support rails, 3.75 mm deep (4.25 mm off the ground on 34 mm
+               wheels). Exported upside down - top face on the bed, rails up - so nothing
+               overhangs and it needs no supports.
 
 Balancer STLs are in print orientation and need no supports.
 
@@ -36,6 +35,7 @@ W, L = 39.73, 25.68                        # body half-width (X), half-length (Y
 CX, CY = 7.73, 6.24                        # corner chamfer
 TAB_X, TAB_Y0, TAB_Y1 = 44.8, -12.18, 13.83
 BOARD = [(34.5, -19.89), (34.5, 18.06)]    # MCB holes, mirrored in X (69.0 x 37.95)
+BOARD_HOLE = 3.49                          # original MCB hole size
 TABHOLE = [(38.07, -8.55), (38.07, 8.55)]  # original bracket holes d2.69
 WIN = (5.5, 20.0, -16.48, 22.52)           # windows: X in +-[5.5, 20], Y range
 # ---- N20 (own clamps, motor resting on the plate) ----
@@ -53,7 +53,6 @@ BATT = (26, 13.5)                          # battery bay width (Y), depth (Z); 7
 # ---- original + supports ----
 WHEEL_C = (34, 8)
 LEG_LEN = 3.75                             # support rails: depth below the plate
-RAIL_TAB = (-18.5, 18.5)                   # motor tabs widened to reach the rails (so they bridge)
 
 
 def box(x0, x1, y0, y1, z0, z1):
@@ -83,14 +82,17 @@ def plate_cs(tab=(TAB_Y0, TAB_Y1)):
     return CrossSection([half + [(-x, y) for x, y in reversed(half)]])
 
 
-def chassis(legs=False):
-    cs = plate_cs(RAIL_TAB if legs else (TAB_Y0, TAB_Y1))
+def chassis(legs=False, posts=True):
+    cs = plate_cs()
     prism = Manifold.extrude(cs, 40)
     body, cut = Manifold.extrude(cs, T), []
     for x, y in BOARD:
         for s in (-1, 1):
-            body += cyl(s * x, y, T - 0.1, POST_TOP, POST_D) ^ prism
-            cut.append(cyl(s * x, y, -1, POST_TOP + 1, PIN_HOLE))
+            if posts:
+                body += cyl(s * x, y, T - 0.1, POST_TOP, POST_D) ^ prism
+                cut.append(cyl(s * x, y, -1, POST_TOP + 1, PIN_HOLE))
+            else:
+                cut.append(cyl(s * x, y, -10, T + 1, BOARD_HOLE))                     # original board holes
     if legs:                               # front + back support rails, 45 deg sides: the plate bridges
         down = Manifold.extrude(cs, 30).translate([0, 0, -29.9])     # rail to rail, nothing hangs free
         h, top = LEG_LEN, LEG_LEN + 1.0                              # 1 mm flat foot, widening at 45 deg
@@ -263,21 +265,22 @@ if __name__ == "__main__":
             (full, 0, 0, "side: keel inside wheel radius, only wheels touch")],
            ((-xa, xa), (-ra, ra), (ga, AXLE + ra)), ga)
 
-    # ---- original + 4 integrated supports ----
+    # ---- plain chassis + support rails, printed upside down ----
     gc = AXLE - WHEEL_C[0] / 2
-    ch, wh, pn = chassis(True), wheel(*WHEEL_C), pin(pin_top - 1)
+    ch, wh = chassis(True, posts=False), wheel(*WHEEL_C)
     wheels = mx(wh.rotate([0, 90, 0]).translate([XF + 1.5, 0, AXLE]))
     out = os.path.join(here, "supports")
     print("supports/")
-    export(out, {"chassis": ch, f"wheel_{WHEEL_C[0]}_x2": wh, "pin_x4": pn})
-    write_3mf(os.path.join(out, "mcb_chassis_supports.3mf"), [("chassis", ch), ("wheel", wh), ("pin", pn)],
-              [(1, 128, 95), (2, 80, 185), (2, 122, 185)] + [(3, 152 + 12 * i, 185) for i in range(4)])
+    inv = ch.rotate([180, 0, 0])
+    inv = inv.translate([0, 0, -inv.bounding_box()[2]])                        # top face on the bed, rails up
+    export(out, {"chassis": inv})
+    write_3mf(os.path.join(out, "mcb_chassis_supports.3mf"), [("chassis", inv)], [(1, 128, 128)])
     print(f"  overlap wheels/chassis {(wheels ^ ch).volume():.2f}, lowest point {ch.bounding_box()[2] - gc:.2f} "
           f"mm above ground, plate {-gc:.1f} mm")
-    full = [(ch, BLUE, 1), (motors, GREY, 1), (wheels, ORANGE, 1), (board, GREEN, 0.35)]
+    full = [(ch, BLUE, 1), (motors, GREY, 1), (wheels, ORANGE, 1)]
     xc, rc = XF + 2.5 + WHEEL_C[1], WHEEL_C[0] / 2 + 1
     render(os.path.join(out, "preview.png"),
-           [([(ch, BLUE, 1)], -18, -55, "chassis with front + back support rails (from below)"),
-            (full, 22, -55, "2 N20s, 34 mm wheels, MCB"),
+           [([(inv.translate([0, 0, gc]), BLUE, 1)], 30, -55, "print: upside down, rails up"),
+            (full, 22, -55, "on the robot: 2 N20s, 34 mm wheels"),
             (full, 0, 0, f"side: supports {ch.bounding_box()[2] - gc:.2f} mm off the ground")],
            ((-xc, xc), (-L - 2, L + 2), (gc, AXLE + rc)), gc)
