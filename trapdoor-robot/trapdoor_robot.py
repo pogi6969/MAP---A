@@ -106,21 +106,22 @@ def door():
 
 
 # ---------------- chassis (world frame) ----------------
-def chassis():
+def chassis(one=False):          # one=True: bumper + posts fused on (no slot / post holes)
     body = CrossSection.square([XF + 45, 2 * AO]).translate([-45, -AO])
     arm = CrossSection.square([SKID_X + 8 - XF, AO - AI]).translate([XF, AI])
     m = Manifold.extrude(body + arm + arm.mirror([0, 1]), PT).translate([0, 0, ZP])
     z0, z1 = ZP - 1, ZP + PT + 1
     cut = [both(box(-20, 20, AI - 1, AO + 1, z0, z1)),                              # wheel wells
-           box(-12, 12, -25, 25, z0, z1),                                           # wiring window
-           box(XF - 6.7, XF - 3.3, -BUMP_W / 2 - 0.2, BUMP_W / 2 + 0.2, z0, z1)]     # bumper rib slot
+           box(-12, 12, -25, 25, z0, z1)]                                           # wiring window
+    if not one:
+        cut += [box(XF - 6.7, XF - 3.3, -BUMP_W / 2 - 0.2, BUMP_W / 2 + 0.2, z0, z1)]  # bumper rib slot
+        cut += [both(box(px - 2.2, px + 2.2, py - 2.2, py + 2.2, z0, z1)) for px, py in POSTS]
     cut += [both(cyl(sx, 73, z0, z1, 3.2)) for sx in (-9.75, 9.75)]                 # your N20 brackets (19.5)
     cut += [both(cyl(x, 34.5, z0, z1, 3.4)) for x in (-39.9, -1.9)]                 # MCB (xsx pattern)
-    cut += [both(box(px - 2.2, px + 2.2, py - 2.2, py + 2.2, z0, z1)) for px, py in POSTS]
     cut += [both(box(XC - 30, XC - 24, 70 - 1.6, 70 + 1.6, z0, z1))]                # sensor bar slots
     for c in cut:
         m -= c
-    skid = (cyl(0, 0, 3, ZP + 0.1, 10) + Manifold.sphere(5, 24).translate([0, 0, 5])) ^ box(-6, 6, -6, 6, 0, 99)
+    skid = (cyl(0, 0, 3, ZP + 0.1, 10) + Manifold.sphere(5, 24).translate([0, 0, 4.4])) ^ box(-6, 6, -6, 6, 0, 99)
     return m + both(skid.translate([SKID_X, 84, 0]))
 
 
@@ -192,18 +193,17 @@ if __name__ == '__main__':
 
     # ---- print-ready STLs ----
     write_stl(HOP + DOOR, 'hopper_door.stl')                                        # as built, door on the bed
-    write_stl(floor0(CH.rotate([180, 0, 0])), 'chassis.stl')                        # upside down, skids up
-    B, P = floor0(BUMP.rotate([90, 0, 0])), floor0(POST.rotate([0, 90, 0]))         # bumper on its side, posts lying
-    bx = B.bounding_box()[3] + 8
-    write_stl(B + sum((P.translate([bx, 12 * i, 0]) for i in range(4)), Manifold()), 'bumper_posts.stl')
+    ONE = chassis(True) + BUMP + POSTW                                              # chassis + bumper + 4 posts, one piece
+    print('chassis one piece components', len(ONE.decompose()))
+    write_stl(ONE, 'chassis.stl')                                                   # upright, skids on the bed
 
     # ---- G-code ----
     info, ps = {}, shutil.which('prusa-slicer')
     if ps:
         for g in glob.glob(os.path.join(HERE, '*.gcode')):
             os.remove(g)
-        for name in ('hopper_door', 'chassis', 'bumper_posts'):
-            subprocess.run([ps, '--export-gcode', '--load', os.path.join(HERE, 'cr6se_petg.ini'), '--center', '122.5,117.5',
+        for name, ini in (('hopper_door', 'cr6se_petg.ini'), ('chassis', 'cr6se_petg_supports.ini')):
+            subprocess.run([ps, '--export-gcode', '--load', os.path.join(HERE, ini), '--center', '122.5,117.5',
                             '--output', HERE, os.path.join(HERE, name + '.stl')], check=True, capture_output=True)
             g = glob.glob(os.path.join(HERE, name + '_PETG_*.gcode'))[0]
             with open(g, 'rb') as f:
@@ -216,12 +216,12 @@ if __name__ == '__main__':
 
     # ---- mass, CG, loads ----
     vh, vd, vb, vp = HOP0.volume(), DOOR.volume(), BUMP.volume(), POST.volume()
-    g_hd, g_bp = gr('hopper_door', vh + vd), gr('bumper_posts', vb + 4 * vp)
+    vc = CH.volume()
+    g_hd, g_c = gr('hopper_door', vh + vd), gr('chassis', vc + vb + 4 * vp) / (vc + vb + 4 * vp)
     bc = np.mean(balls[:N_BALLS], axis=0) + [0, 0, ZF]
     BAT_X = 30.0
     items = [(g_hd * vh / (vh + vd), centroid(up(HOP0))), (g_hd * vd / (vh + vd), centroid(up(DOOR))),
-             (gr('chassis', CH.volume()), centroid(CH)), (g_bp * vb / (vb + 4 * vp), centroid(BUMP)),
-             (g_bp * 4 * vp / (vb + 4 * vp), centroid(POSTW)),
+             (g_c * vc, centroid(CH)), (g_c * vb, centroid(BUMP)), (g_c * 4 * vp, centroid(POSTW)),
              (24, (0, 0, 17)), (20, (0, 0, 17)), (30, (-21, 0, 35)), (95, (BAT_X, 0, 40)), (20, (XC - 27, 0, 12)),
              (N_BALLS * BALL_G, bc)]
     M = sum(m for m, _ in items)
@@ -273,13 +273,12 @@ if __name__ == '__main__':
 
 ![preview](preview.png)
 
-CR-6 SE, PETG, 0.2 mm, **supports off** (G-code ready, profile `cr6se_petg.ini`).
+Two prints. CR-6 SE, PETG, 0.2 mm, G-code ready.
 
 | file | print as | PETG | time | G-code |
 |---|---|---|---|---|
-{row('hopper_door', 'as is: open top up, door on the bed (hinge prints in place)')}
-{row('chassis', 'as is: upside down, skids up')}
-{row('bumper_posts', 'as is: bumper on its side + 4 posts lying')}
+{row('hopper_door', 'carrier: hopper + trapdoor, open top up, door on the bed (hinge prints in place), supports off')}
+{row('chassis', 'chassis + bumper + 4 posts in one piece, upright on the skids, organic supports under the plate')}
 
 ## How it works
 1. Robot drives at the tower's 150 mm face. Arms + skids pass beside the tower (5 mm each side); hopper floor is 10 mm above the tower top.
@@ -290,8 +289,8 @@ CR-6 SE, PETG, 0.2 mm, **supports off** (G-code ready, profile `cr6se_petg.ini`)
 
 ## After printing / assembly
 * Snap off the thin fin under the hopper's front wall (support for that wall). Work the door a few times.
-* 4 posts: square tenons into the chassis and hopper bracket holes (drop of CA glue).
-* Bumper: rib into the chassis front slot (glue).
+* Remove the supports under the chassis plate.
+* Set the carrier on the 4 posts: square tenons into the bracket holes (drop of CA glue).
 * Your N20 brackets: 2 × M3 each (19.5 mm holes, axle at x = 0). MCB on the xsx hole pattern. Sensor bar on the front slots.
 * Battery centre ~{BAT_X:.0f} mm in front of the axle.
 
