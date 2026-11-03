@@ -75,6 +75,10 @@ class MainActivity : AppCompatActivity() {
             domStorageEnabled = true
             setGeolocationEnabled(true)
             mediaPlaybackRequiresUserGesture = true
+            allowFileAccess = false
+            allowContentAccess = false
+            mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_NEVER_ALLOW
+            safeBrowsingEnabled = true
             userAgentString = "$userAgentString MAPA-App/Android"
         }
 
@@ -86,6 +90,9 @@ class MainActivity : AppCompatActivity() {
             override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
                 val url = request.url
                 if (url.host == APP_HOST) return false
+                /* Only ordinary web links, phone numbers, e-mail and maps leave the app;
+                   intent: and other schemes that could start arbitrary apps are dropped. */
+                if (url.scheme !in setOf("https", "http", "tel", "mailto", "geo", "sms")) return true
                 try {
                     startActivity(Intent(Intent.ACTION_VIEW, url))
                 } catch (_: ActivityNotFoundException) {

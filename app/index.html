@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'self'; form-action 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover">
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="icon" href="../icons/mapa-icon.ico" sizes="48x48">
@@ -5354,7 +5355,7 @@ function fmtMin(m){
   return r ? h+" hr "+r+" min" : h+" hr";
 }
 function fmtKm(k){ return k<1 ? Math.round(k*1000)+" m" : (k<10?k.toFixed(1):Math.round(k))+" km"; }
-function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;"); }
 function stars(r){ const f=Math.round(r); return "".slice(0,f)+"".slice(0,5-f); }
 /* The departure the planner works from. Empty input means now. While
    guidance is running the clock is always now, because the trip has begun. */
@@ -5922,8 +5923,8 @@ function drawPlaces(){
       dashArray:p.approx?"2 2":null,
       /* hollow, dashed ring = seeded position, not yet checked against OSM */
       ...(p.approx?{color:pColor(p),weight:2.5}:{})}).addTo(map);
-    if (town) mk.bindTooltip(p.name,{permanent:true,direction:"right",offset:[9,0],className:"town-label"});
-    else mk.bindTooltip(p.name,{direction:"top",offset:[0,-6],className:"town-label"});
+    if (town) mk.bindTooltip(esc(p.name),{permanent:true,direction:"right",offset:[9,0],className:"town-label"});
+    else mk.bindTooltip(esc(p.name),{direction:"top",offset:[0,-6],className:"town-label"});
     mk.on("click",()=>openPlace(id));
     /* An approximate pin is a guess, and the person reading the map usually
        knows the town better than the guess does. Long-press one and drag. */
@@ -6025,7 +6026,7 @@ function edDrawOverlay(){
   edLine=L.polyline(edRoad.geo,{renderer:canvasR,color:"#1A73E8",weight:7,opacity:.55,lineCap:"round"}).addTo(map);
   [[edRoad.a,"start"],[edRoad.b,"end"]].forEach(function(p){
     edMarkers.push(L.circleMarker(anchorLL(p[0]),{renderer:canvasR,radius:6,color:"#1A73E8",weight:3,
-      fillColor:"#FFFFFF",fillOpacity:1}).bindTooltip(P[p[0]].name+" ("+p[1]+")").addTo(map));
+      fillColor:"#FFFFFF",fillOpacity:1}).bindTooltip(esc(P[p[0]].name)+" ("+p[1]+")").addTo(map));
   });
   (edRoad.via||[]).forEach(function(pt,i){
     const m=L.circleMarker(pt,{renderer:canvasR,radius:7,color:"#FFFFFF",weight:2,
@@ -6921,7 +6922,7 @@ function openExternal(it){
   extPins[it.id]=it;
   map.flyTo(it.ll,Math.max(map.getZoom(),15),{duration:.6});
   L.circleMarker(it.ll,{renderer:canvasR,radius:6,color:"#fff",weight:2,fillColor:"#EA4335",fillOpacity:1})
-    .addTo(map).bindTooltip(it.name,{permanent:false,direction:"top"});
+    .addTo(map).bindTooltip(esc(it.name),{permanent:false,direction:"top"});
   let h='<div class="ph" style="background:#5F6368"><span class="ph-e"></span><div><div class="ph-n">'+
     esc(it.name)+'</div><div class="ph-s">'+esc(it.sub||"From OpenStreetMap")+"</div></div></div>";
   h+='<div class="actions" style="margin-top:12px"><button class="btn btn-p" id="pDir">Directions</button>'+
