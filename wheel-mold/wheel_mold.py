@@ -73,14 +73,12 @@ if __name__ == '__main__':
         print(tag, dims(D, W), '| hub in mold overlap', v(Hm ^ M), '| tyre', round(Ty.volume() / 1000, 2), 'cm3',
               '| parts', len(H.decompose()), len(M.decompose()), len(Ty.decompose()))
         stl(H, f'hub_{tag}.stl'); stl(M, f'mold_{tag}.stl')
-        pitch = D + 6
-        stl(sum((H.translate([(i % 2) * pitch, (i // 2) * pitch, 0]) for i in range(4)), Manifold()), f'hub_{tag}_x4.stl')
-        for nm, extra in ((f'hub_{tag}_x4', ['--fill-density', '100%', '--fill-pattern', 'rectilinear', '--perimeters', '4']), (f'mold_{tag}', ['--fill-density', '20%', '--perimeters', '3'])):
+        for nm, extra in ((f'hub_{tag}', ['--fill-density', '25%', '--perimeters', '3']), (f'mold_{tag}', ['--fill-density', '15%', '--perimeters', '2'])):
             old = glob.glob(os.path.join(HERE, nm + '_PETG_*.gcode'))
             if not (os.environ.get('NOSLICE') and old):                       # NOSLICE=1: reuse existing G-code
                 for g in old:
                     os.remove(g)
-                subprocess.run(['prusa-slicer', '--export-gcode', '--load', os.path.join(HERE, 'cr6se_petg.ini'), *extra, '--center', '122.5,117.5',
+                subprocess.run(['prusa-slicer', '--export-gcode', '--load', os.path.join(HERE, 'cr6se_petg_fast.ini'), *extra, '--center', '122.5,117.5',
                                 '--output', HERE, os.path.join(HERE, nm + '.stl')], check=True, capture_output=True)
             g = glob.glob(os.path.join(HERE, nm + '_PETG_*.gcode'))[0]
             info[nm] = (float(re.search(r'filament used \[g\] = ([\d.]+)', open(g).read()[-300000:]).group(1)), re.search(r'_PETG_(.+)\.gcode', g).group(1))
@@ -135,7 +133,7 @@ if __name__ == '__main__':
                 (Ty.translate([0, 0, FLOOR]), '#7cc0e0', None)], D, W)
     plt.tight_layout(rect=(0, 0, 1, 0.985)); plt.savefig(os.path.join(HERE, 'preview.png'), dpi=95)
 
-    tab = '\n'.join(f"| {D:.0f} × {W:.0f} | `hub_{t}_x4` {info[f'hub_{t}_x4'][0]:.0f} g, {info[f'hub_{t}_x4'][1]} | `mold_{t}` {info[f'mold_{t}'][0]:.0f} g, {info[f'mold_{t}'][1]} | "
+    tab = '\n'.join(f"| {D:.0f} × {W:.0f} | `hub_{t}` {info[f'hub_{t}'][0]:.0f} g, {info[f'hub_{t}'][1]} | `mold_{t}` {info[f'mold_{t}'][0]:.0f} g, {info[f'mold_{t}'][1]} | "
                     f"{tyre(D, W).volume() / 1000:.1f} cm³ |" for D, W, t, *_ in rows)
     open(os.path.join(HERE, 'README.md'), 'w').write(f"""# Silicone sumo wheel — hub + one-piece mold
 
@@ -144,7 +142,7 @@ if __name__ == '__main__':
 Like the MakerPH photo: printed cup hub (flange ring flush with the tyre face, deep cup), silicone tyre cast on it.
 One-piece open mold like your `mold_onepiece_62.4mm`: cup = tyre OD, centre D-key holds the hub, spill tray, 2 push-out holes.
 
-| wheel Ø × width | 4 hubs (PETG, 100 % infill) | mold (PETG) | silicone per wheel |
+| wheel Ø × width | hub (fast PETG, 0.32 mm) | mold (fast PETG, 0.32 mm) | silicone per wheel |
 |---|---|---|---|
 {tab}
 
@@ -152,7 +150,7 @@ One-piece open mold like your `mold_onepiece_62.4mm`: cup = tyre OD, centre D-ke
 
 **Casting**
 1. Thin mold release on the mold cup and floor (not on the hub).
-2. Push the hub onto the centre key, cup facing up. Put a coin/nut in the cup so it can't float.
+2. Push the hub onto the centre key, cup facing up. Put a coin or nut in the cup (needed: the hub is not solid and would float).
 3. Mix silicone (Shore 20–30 A, platinum or tin cure), degas if you can, pour slowly into the ring gap
    up to the hub's top face. Spill goes into the tray.
 4. Cure, then push the wheel out through the 2 holes under the hub. Trim the top edge if needed.
