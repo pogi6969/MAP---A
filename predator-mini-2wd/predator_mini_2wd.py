@@ -251,8 +251,9 @@ if __name__ == '__main__':
         if not (os.environ.get('NOSLICE') and old):
             for g in old:
                 os.remove(g)
-            dens = ['--fill-density', '100%', '--fill-pattern', 'rectilinear'] if nm == 'base' else ['--fill-density', '40%']   # solid base = weight
-            subprocess.run(['prusa-slicer', '--export-gcode', '--load', os.path.join(HERE, 'cr6se_petg.ini'), *dens,
+            ini, dens = (('cr6se_petg_fast.ini', ['--fill-density', '20%', '--fill-pattern', 'gyroid']) if nm in ('base', 'lid')   # fast: 0.32 mm
+                         else ('cr6se_petg.ini', ['--fill-density', '40%']))
+            subprocess.run(['prusa-slicer', '--export-gcode', '--load', os.path.join(HERE, ini), *dens,
                             '--perimeters', '3', '--center', '122.5,117.5', '--output', HERE, os.path.join(HERE, nm + '.stl')],
                            check=True, capture_output=True)
         g = glob.glob(os.path.join(HERE, nm + '_PETG_*.gcode'))[0]
@@ -451,7 +452,7 @@ if __name__ == '__main__':
               f'  front opponent   {FW[0]:.0f} × {FW[1]:.0f}, tilt {FW[2]:.0f}°', f'  side ×2          {SW[0]} × {SW[1]}',
               f'  rear             {RW[0]} × {RW[1]} + {RSEAT[0]:.0f}×{RSEAT[1]:.0f} seat', f'  line slots ×2    {LS[0]:.0f} × {LS[1]:.0f} (floor)',
               '  roof             13×13 ×2, 30×10 ×2,', '                   5×10 ×2, Ø4', '',
-              'PRINT  CR-6 SE · PETG · base 100 %, rest 40 %'] + [f'  {n:<18s}{g:4.0f} g  {t}' for n, (g, t) in prints]
+              'PRINT  CR-6 SE · PETG · fast 0.32 mm, 20 %'] + [f'  {n:<18s}{g:4.0f} g  {t}' for n, (g, t) in prints]
         L2 = ['WEIGHT → 500 g', f'  printed parts          {bud["printed"]:4.0f} g'] + \
              [f'  {k[:22]:<22s} {m:4.0f} g' for k, (m, _) in bud['comps'].items()] + \
              [f'  LEAD (glue in)         {bud["ballast"]:4.0f} g', f'    front {bud["front"]:.0f} · on motors {bud["top"]:.0f} · rear {bud["rear"]:.0f} g',
