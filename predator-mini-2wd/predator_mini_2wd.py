@@ -42,12 +42,13 @@ MOUNT = [(-14.0, 14.0)]                    # Matador module bolts (L + R), M3
 GM, GZ, GBL = 1.5, 12, 0.2                 # gear module, teeth, backlash
 GC = GM * GZ / 2 * 2 + 0.3                 # centre distance (+0.3 print clearance)
 Y1, Y2 = -GC / 2, GC / 2                   # gear 1 (on the servo) / gear 2 (on an M3 pin)
-ZS = 66.0                                  # wing pivot height
-XT = AX + 5.0                              # SG90 top face (shaft points forward)
+ZS = 50.0                                  # arm pivot height (gears just clear the lid)
+XT = AX + 3.0                              # SG90 top face (shaft points forward); flags at x ~ 9, clear of the side IR
 XWF = XT - 6.8                             # wall front face = servo tab plane
 GX0 = XT + 0.8                             # gear back face (gear presses onto the spline)
-WL, WB, WP = 85.0, 50.0, 1.6               # wing length, width, thickness
-OPEN = 120.0                               # opening angle (30 deg below horizontal)
+RA1, RA2 = 42.0, 92.0                      # flag sheet from / to (distance along the arm from the pivot)
+HF, SP = 38.5, 1.2                         # flag sheet height (hangs down when open), thickness
+OPEN = 90.0                                # arms horizontal, flags hang beside the robot
 
 
 def box(x0, x1, y0, y1, z0, z1):
@@ -146,11 +147,11 @@ def gear_hub(servo_side, phase):              # local: axis z, wing slot toward 
     return g
 
 
-def wing_local():
-    w = box(-WL, -9.6, -WP / 2, WP / 2, 5.0, 5.0 + WB)
-    w -= box(-WL - 1, -WL + 8, -2, 2, 5.0 + WB - 8, 5.0 + WB + 1) - cyly(-WL + 8, 5.0 + WB - 8, -3, 3, 16)   # round tip
-    w += box(-9.65, -3.8, -0.8, 0.8, 5.6, 14.0)                                       # root tab -> hub slot
-    return w - cyly(-6.7, 9.8, -10, 10, 2.0)
+def arm_local():                          # arm bar along local -x, flag sheet on the outboard side (local -y)
+    a = box(-RA2, -9.6, -2.0, 2.0, 5.0, 10.0)                                         # arm bar 4 x 5
+    a += box(-9.65, -3.8, -0.8, 0.8, 5.6, 14.0)                                       # root tab -> hub slot
+    a += box(-RA2, -RA1, -2.0 - HF, -1.0, 5.0, 5.0 + SP)                              # flag sheet (faces front / back)
+    return a - cyly(-6.7, 9.8, -10, 10, 2.0)
 
 
 def place(local, y):
@@ -168,7 +169,7 @@ def mesh_phase():
 
 PH2 = mesh_phase()
 HUB1, HUB2 = place(gear_hub(True, 0.0), Y1), place(gear_hub(False, PH2), Y2)
-WING1, WING2 = place(wing_local(), Y1), place(wing_local().mirror([0, 1, 0]), Y2)
+WING1, WING2 = place(arm_local(), Y1), place(arm_local().mirror([0, 1, 0]), Y2)
 
 
 def turn(m, y, deg):
@@ -179,25 +180,25 @@ def wings(theta=0.0):                     # theta = servo turn; wing 1 -> -y, wi
     return turn(HUB1 + WING1, Y1, theta) + turn(HUB2 + WING2, Y2, -theta)
 
 
-def frame():
+def frame():                             # SG90 lies on its side, body toward -y, shaft forward at (Y1, ZS)
     zb = ZL + 3
-    m = box(-20, XT - 1, -20, 20, ZL, zb)                                             # base plate on the lid
-    m += box(XWF - 2.5, XWF, -19, 15.5, zb - 0.01, ZS + 13)                           # servo wall
-    m -= box(XWF - 3, XWF + 1, Y1 - 6.1, Y1 + 6.1, ZS - 16.8, ZS + 6.1)               # SG90 body opening
-    for hz in (ZS - 19.15, ZS + 8.45):
-        m -= cylx(Y1, hz, XWF - 3, XWF + 1, 1.8)                                      # tab screws
-    m += box(XWF - 0.01, GX0 - 0.3, Y2 - 3.5, Y2 + 3.5, zb - 0.01, ZS + 3.5)          # gear-2 pin pillar
+    m = box(-20, GX0 - 0.3, -34, 18, ZL, zb)                                          # base plate on the lid
+    m += box(XWF - 2.5, XWF, -32, 15, zb - 0.01, ZS + 9)                              # servo wall
+    m -= box(XWF - 3, XWF + 1, Y1 - 16.8, Y1 + 6.1, ZS - 6.1, ZS + 6.1)               # SG90 body opening
+    for hy in (Y1 - 19.15, Y1 + 8.45):
+        m -= cylx(hy, ZS, XWF - 3, XWF + 1, 1.8)                                      # tab screws
+    m += box(XWF - 0.01, GX0 - 0.3, Y2 - 3.5, Y2 + 3.5, ZL, ZS + 3.5)                 # gear-2 pin pillar
     m -= cylx(Y2, ZS, XWF - 3, GX0, 2.6)                                              # M3 pin
-    for y0, y1 in ((-19, -17), (13.5, 15.5)):
-        m += xz([(XWF - 2.49, zb - 0.01), (-19.5, zb - 0.01), (XWF - 2.49, zb + 20)], y0, y1)   # gussets
+    for y0, y1 in ((-32, -30), (13, 15)):
+        m += xz([(XWF - 2.49, zb - 0.01), (-19.5, zb - 0.01), (XWF - 2.49, ZS + 8)], y0, y1)   # gussets
     for mx, my in MOUNT:
         m -= both(cyl(mx, my, ZL - 1, zb + 1, 3.4))
     return m
 
 
-def servo_dummy():                       # SG90, shaft forward along +x at (Y1, ZS)
-    return (box(XT - 22.7, XT, Y1 - 5.9, Y1 + 5.9, ZS - 16.6, ZS + 5.9)
-            + box(XWF, XWF + 2.5, Y1 - 5.9, Y1 + 5.9, ZS - 21.45, ZS + 10.75))
+def servo_dummy():                       # SG90 body + tabs (tab plane = wall front face)
+    return (box(XT - 22.7, XT, Y1 - 16.6, Y1 + 5.9, ZS - 5.9, ZS + 5.9)
+            + box(XWF, XWF + 2.5, Y1 - 21.45, Y1 + 10.75, ZS - 5.9, ZS + 5.9))
 
 
 BASE, LID, FRAME, SERVO = base(), lid(), frame(), servo_dummy()
@@ -238,7 +239,7 @@ if __name__ == '__main__':
 
     stl(BASE, 'base.stl'); stl(floor0(LID), 'lid.stl')
     g1 = floor0(gear_hub(True, 0.0)); g2 = floor0(gear_hub(False, PH2))
-    w1 = floor0(wing_local().rotate([90, 0, 0])); w2 = floor0(wing_local().mirror([0, 1, 0]).rotate([90, 0, 0]))
+    w1 = floor0(arm_local()); w2 = floor0(arm_local().mirror([0, 1, 0]))                     # arms + sheets print flat
     fr = floor0(FRAME)
     fb = fr.bounding_box()
     plate = fr + g1.translate([fb[3] + 6, 0, 0]) + g2.translate([fb[3] + 6, 24, 0])
@@ -402,7 +403,7 @@ if __name__ == '__main__':
             render(fig.add_subplot(gs[0, 1], projection='3d'), [(BASE, BODYC), (LID, LIDC), (WHEELS, (0.1, 0.1, 0.1))], '3D view', lim=70)
         # ---------- SIDE ----------
         ax = fig.add_subplot(gs[1, 0]); ax.set_title('SIDE VIEW — left', fontsize=11, weight='bold', loc='left')
-        ztop = (ZS + WL) if fl else ZL
+        ztop = (ZS + RA2) if fl else ZL
         draw(ax, BASE + LID, 'side', z=1)
         ax.add_patch(Circle((AX, AZ), WD / 2, fc='#3a3a3a', ec='k', lw=0.8, zorder=2, alpha=0.35))
         rect(ax, SWX0, SWZ0, SW[0], SW[1], '#7cc4ff', SENS, lw=1.4, z=6)
@@ -412,7 +413,7 @@ if __name__ == '__main__':
         rect(ax, XR, RWZ0, 2, RW[1], '#7cc4ff', SENS, ls='--', z=6)
         if fl:
             draw(ax, FRAME + SERVO, 'side', fc='#7aa7e6', ec='#1f4e99', z=4); draw(ax, wings(0), 'side', fc=WINGC, ec='#444', z=5)
-            label(ax, (XT + 30, ZS + 50), f'wings {WL:.0f} × {WB:.0f} (up at start)', (TIP + 4, ZS + 60), '#444')
+            label(ax, (GX0 + 8, ZS + 70), f'flag sheets {RA2 - RA1:.0f} × {HF} on {RA2:.0f} mm arms\n(upright at the start)', (TIP + 6, ZS + 60), '#444')
             dim(ax, (XR - 30, 0), (XR - 30, ZL), f'{ZL:.1f}')
         ax.plot([X0 + 20, X1 - 20], [0, 0], color='#666', lw=1.4)
         dim(ax, (XR - 14, 0), (XR - 14, ztop), f'{ztop:.1f}')
@@ -492,7 +493,8 @@ if __name__ == '__main__':
 * **Small N20s compensated:** CG just ahead of the axle → {100 * rb['wheel']:.0f} % of the 500 g on the drive wheels; wedge tip skims at {ZF0} mm;
   wider Ø{WD:.0f} × {WW:.0f} silicone wheels (make them with `wheel-mold`, set the size to 34 × 12); lead low in the body.
 * **Flags (Matador style):** SG90 lying behind a wall, two 12-tooth gears (module 1.5) make the wings turn in opposite directions.
-  Wings {WL:.0f} × {WB:.0f} mm stand up inside the footprint at the start ({ZS + WL:.0f} mm tall), open {OPEN:.0f}° to {o[4] - o[1]:.0f} mm wide.
+  Flag sheets {RA2 - RA1:.0f} × {HF} mm on {RA2:.0f} mm arms: upright inside the footprint at the start ({ZS + RA2:.0f} mm tall); the servo turns
+  {OPEN:.0f}°, the arms go out flat to the sides and the sheets hang beside the robot ({o[4] - o[1]:.0f} mm wide, bottom {o[2]:.0f} mm off the floor).
   Bolt the module to the lid with 2 × M3; same lid for both robots.
 
 | file | g | time |
