@@ -251,7 +251,7 @@ if __name__ == '__main__':
         if not (os.environ.get('NOSLICE') and old):
             for g in old:
                 os.remove(g)
-            ini, dens = (('cr6se_petg_fast.ini', ['--fill-density', '20%', '--fill-pattern', 'gyroid']) if nm in ('base', 'lid')   # fast: 0.32 mm
+            ini, dens = (('cr6se_petg_fast.ini', ['--fill-density', '20%', '--fill-pattern', 'gyroid']) if nm in ('base', 'lid', 'matador_flags')   # fast: 0.32 mm
                          else ('cr6se_petg.ini', ['--fill-density', '40%']))
             subprocess.run(['prusa-slicer', '--export-gcode', '--load', os.path.join(HERE, ini), *dens,
                             '--perimeters', '3', '--center', '122.5,117.5', '--output', HERE, os.path.join(HERE, nm + '.stl')],

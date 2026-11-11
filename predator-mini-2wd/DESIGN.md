@@ -16,12 +16,12 @@
 |---|---|---|
 | `base.stl` | 69 | 3h11m |
 | `lid.stl` | 10 | 28m |
-| `matador_flags.stl` | 32 | 2h57m |
+| `matador_flags.stl` | 29 | 1h23m |
 
 | | regular | with flags |
 |---|---|---|
-| printed | 79 g | 111 g |
-| lead: front / on motors / behind motors | 95 / 101 / 83 g | 95 / 60 / 83 g |
+| printed | 79 g | 109 g |
+| lead: front / on motors / behind motors | 95 / 101 / 83 g | 95 / 62 / 83 g |
 | on the drive wheels | 91 % | 90 % |
 
 **Matador assembly:** press gear 1 onto the SG90 spline + horn screw; gear 2 on an M3 × 16 into the pillar; servo into the wall
