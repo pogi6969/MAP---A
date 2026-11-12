@@ -22,7 +22,8 @@ SENS = [(XC + R - 6, 0.0, 0.0),                                           # 5 IR
         (XC + 0.707 * (R - 6), 0.707 * (R - 6), 45.0), (XC + 0.707 * (R - 6), -0.707 * (R - 6), -45.0),
         (XC + 2, R - 12, 90.0), (XC + 2, -(R - 12), -90.0)]
 BX0, BY = -38.6, 24.6                     # board rails: y of the board holes (4 mm in from the 57.2 edge), rails along x
-ZR = 26.0                                 # rail underside (board sits on top, above the motors)
+ZR = 26.0                                 # tray underside (board sits on top, above the motors)
+PILX, PILY = (BX0 + 47.6 - 40.0, BX0 + 47.6 + 24.0), 20.0
 
 
 def box(x0, x1, y0, y1, z0, z1):
@@ -61,16 +62,21 @@ def chassis():
     m += both(h)
     for x, y, a in SENS:
         m += sensor_block().rotate([0, 0, a]).translate([x, y, ZP + PT - 0.01])
-    for px in (-30.0, 40.0):                                           # pillars + 2 slotted rails for the MOTION 2350 Pro
-        m += both(cyl(px, BY, ZP, ZR, 8) - cyl(px, BY, ZR - 8, ZR + 1, 2.6))   # M3 pilot: rails screw on top
+    for px in PILX:                                                    # 4 pillars for the board tray
+        m += both(cyl(px, PILY, ZP, ZR, 8) - cyl(px, PILY, ZR - 8, ZR + 1, 2.6))   # M3 pilot: tray screws on top
     return m
 
 
-def rail():                               # printed flat, 2 needed; board M3 anywhere along the slot
-    r = box(BX0, BX0 + 95.2, BY - 4, BY + 4, ZR, ZR + 3) - box(BX0 + 2, BX0 + 93.2, BY - 1.7, BY + 1.7, ZR - 1, ZR + 4)
-    r += cyl(-30.0, BY, ZR, ZR + 3, 8) + cyl(40.0, BY, ZR, ZR + 3, 8)
-    r -= box(BX0 + 2, BX0 + 93.2, BY - 1.7, BY + 1.7, ZR - 1, ZR + 4)
-    return r - cyl(-30.0, BY, ZR - 1, ZR + 4, 3.4) - cyl(40.0, BY, ZR - 1, ZR + 4, 3.4)
+def tray():                               # MOTION 2350 Pro tray: LEGO 8 mm grid of holes (board holes are LEGO-pitch)
+    bc = BX0 + 47.6
+    t = box(bc - 49, bc + 49, -30, 30, ZR, ZR + 3)
+    for i in range(12):
+        for j in range(-3, 4):
+            t -= cyl(bc - 44 + 8 * i, 8.0 * j, ZR - 1, ZR + 4, 4.9)    # M3 screw or Technic pin; 88 x 48 corners included
+    for px in PILX:
+        for s_ in (-1, 1):
+            t -= cyl(px, s_ * PILY, ZR - 1, ZR + 4, 3.4) + cyl(px, s_ * PILY, ZR + 1.5, ZR + 4, 6.2)   # tray screws
+    return t
 
 
 def _rest(m):
@@ -94,7 +100,7 @@ def skid():                               # push-in skid: dome touches 0.4 mm ab
 
 
 CH, SK = _rest(chassis()), skid()
-RAIL = rail()
+RAIL = tray()
 WHEELS = both(cyly(0, AZ, MY1 + OW + 1.0, MY1 + OW + 1.0 + WW, WD))
 MOTORS = both(box(-MW / 2, MW / 2, MY0, MY1, AZ - MH / 2, AZ + MH / 2))
 
@@ -118,7 +124,7 @@ if __name__ == '__main__':
     c0 = floor0(CH)
     sk = floor0(SK.rotate([180, 0, 0]))
     rl = floor0(RAIL)
-    plate = c0 + sk.translate([c0.bounding_box()[3] + 5, 0, 0]) + sk.translate([c0.bounding_box()[3] + 5, 12, 0]) + rl.translate([0, c0.bounding_box()[4] + 5, 0]) + rl.translate([0, c0.bounding_box()[4] + 17, 0])
+    plate = c0 + sk.translate([c0.bounding_box()[3] + 5, 0, 0]) + sk.translate([c0.bounding_box()[3] + 5, 12, 0]) + rl.translate([0, c0.bounding_box()[4] + 5, 0])
     stl(plate, 'micromouse_motion2350_chassis.stl')
     for g in glob.glob(os.path.join(HERE, '*.gcode')):
         os.remove(g)
@@ -131,7 +137,7 @@ if __name__ == '__main__':
     fig = plt.figure(figsize=(13, 6))
     for k, (el, az) in enumerate(((35, -130), (60, -60))):
         ax = fig.add_subplot(1, 2, k + 1, projection='3d'); TT, CC = [], []
-        items = [(CH + both(RAIL), (0.15, 0.35, 0.85)), (WHEELS, (0.85, 0.15, 0.2)), (MOTORS, (0.75, 0.75, 0.75)),
+        items = [(CH + RAIL, (0.15, 0.35, 0.85)), (WHEELS, (0.85, 0.15, 0.2)), (MOTORS, (0.75, 0.75, 0.75)),
                  (SK.translate([XC + R - 9, 0, 0]) + SK.translate([XB + 5, 0, 0]), (0.2, 0.2, 0.2))]
         for m, col in items:
             me = m.to_mesh(); V = np.asarray(me.vert_properties)[:, :3]; T = V[np.asarray(me.tri_verts)]
