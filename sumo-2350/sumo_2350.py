@@ -39,7 +39,6 @@ def chassis():
     m += both(h)
     m -= both(box(AX - 18, AX + 18, WY0, WY1, -1, AZ) + cyly(AX, AZ, WY0, WY1, 37))                  # wheel wells
     for x, y in HOLES: m -= both(cyl(x, y, ZBD - 8, ZBD + 1, 2.6))                                   # board screws M3
-    for y in (-25, 25): m -= box(XW - 4, TIP + 1, y - 11, y + 11, 6, 18)                             # 2 sensor windows through the wedge
     m -= box(XR - 1, XR + 3, -8, 8, ZBD + 0.5, H + 1)                                                # USB / wire notch at the back
     return m
 
