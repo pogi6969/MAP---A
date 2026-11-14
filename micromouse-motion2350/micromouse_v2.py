@@ -21,8 +21,11 @@ OW = 2.5
 SENS = [(XC + R - 6, 0.0, 0.0),                                           # 5 IR pairs: front, +-45, +-90 deg
         (XC + 0.707 * (R - 6), 0.707 * (R - 6), 45.0), (XC + 0.707 * (R - 6), -0.707 * (R - 6), -45.0),
         (XC + 2, R - 12, 90.0), (XC + 2, -(R - 12), -90.0)]
+if os.environ.get('NOSENS'):
+    SENS = []                             # plain chassis version
+NAME = 'micromouse_motion2350_plain' if os.environ.get('NOSENS') else 'micromouse_motion2350_chassis'
 BX0, BY = -38.6, 24.6                     # board rails: y of the board holes (4 mm in from the 57.2 edge), rails along x
-ZR = 26.0                                 # tray underside (board sits on top, above the motors)
+ZR = 28.0                                 # tray underside (board sits on top, above the motors)
 PILX, PILY = (BX0 + 47.6 - 40.0, BX0 + 47.6 + 24.0), 20.0
 
 
@@ -119,18 +122,23 @@ def floor0(m):
 if __name__ == '__main__':
     asm = CH + WHEELS
     b = asm.bounding_box()
+    beams = Manifold()
+    for x, y, a in SENS:                  # IR beam paths (cone 15 deg, 80 mm) must be free
+        beams += Manifold.cylinder(80, 3.0, 3.0 + 80 * 0.27).rotate([0, 90, 0]).rotate([0, 0, a]).translate([x, y, ZP + PT + 7.5])
+    print('tray^beams', round((RAIL ^ beams).volume(), 2), 'chassis^beams', round((CH ^ beams).volume(), 2),
+          'tray gap above sensor blocks', ZR - (ZP + PT + 13) if SENS else '-')
     print('size', round(b[3] - b[0], 1), 'x', round(b[4] - b[1], 1), 'x', round(b[5], 1), '| wheels^ch', round((WHEELS ^ CH).volume(), 2),
           'motors^ch', round((MOTORS ^ CH).volume(), 2), 'parts', len(CH.decompose()))
     c0 = floor0(CH)
     sk = floor0(SK.rotate([180, 0, 0]))
     rl = floor0(RAIL)
     plate = c0 + sk.translate([c0.bounding_box()[3] + 5, 0, 0]) + sk.translate([c0.bounding_box()[3] + 5, 12, 0]) + rl.translate([0, c0.bounding_box()[4] + 5, 0])
-    stl(plate, 'micromouse_motion2350_chassis.stl')
-    for g in glob.glob(os.path.join(HERE, '*.gcode')):
+    stl(plate, NAME + '.stl')
+    for g in glob.glob(os.path.join(HERE, NAME + '*.gcode')):
         os.remove(g)
     subprocess.run(['prusa-slicer', '--export-gcode', '--load', os.path.join(HERE, 'cr6se_petg_fast.ini'), '--fill-density', '15%', '--fill-pattern', 'lightning', '--perimeters', '2', '--top-solid-layers', '3', '--bottom-solid-layers', '2',
-                    '--center', '122.5,117.5', '--output', HERE, os.path.join(HERE, 'micromouse_motion2350_chassis.stl')], check=True, capture_output=True)
-    print(glob.glob(os.path.join(HERE, '*.gcode')))
+                    '--center', '122.5,117.5', '--output', HERE, os.path.join(HERE, NAME + '.stl')], check=True, capture_output=True)
+    print(glob.glob(os.path.join(HERE, NAME + '*.gcode')))
     import matplotlib; matplotlib.use('Agg'); import matplotlib.pyplot as plt
     from mpl_toolkits.mplot3d.art3d import Poly3DCollection
     L = np.array([0.4, -0.5, 0.8]) / np.linalg.norm([0.4, -0.5, 0.8])
