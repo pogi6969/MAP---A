@@ -8134,6 +8134,36 @@ function showRoutes(){
     b.addEventListener("click",()=>openService(SERVICES.find(x=>x.id===b.dataset.svc)));
   });
 }
+/* Save this area offline: stores the background map tiles for the area on screen (this zoom and
+   two levels closer) in the browser, where the service worker serves them when there is no signal.
+   The app itself, the route feed and the fares are already kept by the service worker. */
+async function saveAreaOffline(){
+  if (!("caches" in window) || !map){ toast("This browser cannot store an offline area."); return; }
+  const layers=[]; map.eachLayer(function(l){ if (l instanceof L.TileLayer) layers.push(l); });
+  if (!layers.length){ toast("The drawn map needs no download: it already works without signal."); return; }
+  const bnd=map.getBounds(), z0=Math.floor(map.getZoom()), urls=[], CAP=600;
+  for (let z=z0; z<=Math.min(z0+2,17) && urls.length<CAP; z++){
+    const a=map.project(bnd.getNorthWest(),z).divideBy(256).floor(), b=map.project(bnd.getSouthEast(),z).divideBy(256).floor();
+    for (const l of layers){
+      if (z>(l.options.maxZoom||19)) continue;
+      const keep=l._tileZoom; l._tileZoom=z;
+      for (let x=a.x; x<=b.x; x++) for (let y=a.y; y<=b.y; y++){ if (urls.length<CAP) urls.push(l.getTileUrl({x:x,y:y,z:z})); }
+      l._tileZoom=keep;
+    }
+  }
+  if (navigator.storage&&navigator.storage.persist) navigator.storage.persist().catch(function(){});
+  toast("Saving "+urls.length+" map tiles for this area\u2026",4000);
+  const cache=await caches.open("mapa-offline-tiles"); let ok=0, i=0;
+  async function worker(){
+    while (i<urls.length){
+      const u=urls[i++];
+      try{ const r=await fetch(u,{mode:"no-cors"}); if (r.ok||r.type==="opaque"){ await cache.put(u,r); ok++; } }catch(e){}
+    }
+  }
+  await Promise.all([worker(),worker(),worker(),worker(),worker(),worker()]);
+  toast(ok ? "Offline area saved: "+ok+" of "+urls.length+" map tiles. Routes and fares already work without signal."
+           : "Could not save the area. Check the connection and try again.",5000);
+}
 function showMore(){
   let h='<div style="padding:8px 0 10px"><div style="font-size:18px;font-weight:500">More</div></div>';
   const items=[
@@ -8172,8 +8202,7 @@ function showMore(){
         toast("Fetching every street in this view from OpenStreetMap…",3000); }
       if (a==="sv"){ showImageryKeys(); }
       if (a==="measure"){ closeSheet(); toggleMeasure(); }
-      if (a==="offline"){ toast("Packing streets, the route feed and fares for Albay…",2000);
-        setTimeout(()=>toast("Offline area saved · 12.4 MB. Trip planning keeps working without signal."),2200); }
+      if (a==="offline"){ closeSheet(); saveAreaOffline(); }
       if (a==="about") showAbout();
       if (a==="new") showWhatsNew();
     });

@@ -1,7 +1,8 @@
 /* MAP-A service worker: keeps a copy of the app and the website so the installed app opens without a signal.
    Pages come from the network when online, so updates show at once, and from the copy when offline.
    Bump VERSION after changing the icons or the manifest. */
-var VERSION = "map-a-v6";
+var VERSION = "map-a-v7";
+var TILES = "mapa-offline-tiles";   /* filled by Save this area offline; kept across versions */
 var PRECACHE = ["app/", "./", "manifest.webmanifest", "favicon.ico", "icons/mapa-icon.ico", "icons/mapa-icon-32.png", "icons/icon-192.png", "icons/apple-touch-icon.png"];
 
 self.addEventListener("install", function (event) {
@@ -69,6 +70,14 @@ self.addEventListener("fetch", function (event) {
     return;
   }
   var host = new URL(req.url);
+  if (host.origin !== self.location.origin && req.destination === "image") {
+    /* Map tiles: the network first, the saved offline area when there is no signal. */
+    event.respondWith(fetch(req).catch(function () {
+      return caches.open(TILES).then(function (cache) { return cache.match(req.url); })
+        .then(function (hit) { return hit || Response.error(); });
+    }));
+    return;
+  }
   if (host.origin === self.location.origin || host.hostname === "fonts.googleapis.com" || host.hostname === "fonts.gstatic.com") {
     event.respondWith(asset(event));
   }
