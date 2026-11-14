@@ -1733,12 +1733,12 @@ const APP_LOGO="data:image/webp;base64,UklGRoYmAABXRUJQVlA4WAoAAAAQAAAAfwEAfwEAQ
     box.appendChild(img);
   } else box.style.display="none";
 })();
-/* The screen is held for a full five seconds whether the map is ready or
+/* The screen is held for at least 1.5 seconds whether the map is ready or
    not, so the title card is actually read rather than glimpsed. The bar
    creeps toward whatever stage the boot has reached and is paced to arrive
    at the same moment, instead of snapping to 100% and then waiting. A hard
    failsafe still removes the splash if something throws. */
-const SPLASH_MIN=5000, splashT0=Date.now();
+const SPLASH_MIN=1500, splashT0=Date.now();
 let splashPct=8, splashTarget=8, splashReady=false;
 function splashStep(pct,label){
   const step=document.getElementById("spStep");
@@ -1756,7 +1756,7 @@ function splashDone(){
   const el=document.getElementById("splash");
   if (!el||el.classList.contains("gone")) return;
   const left=SPLASH_MIN-(Date.now()-splashT0);
-  if (left>0){ setTimeout(splashDone,left); return; }   /* hold the full five seconds */
+  if (left>0){ setTimeout(splashDone,left); return; }   /* hold the minimum time */
   splashReady=true;
   splashStep(100,"Ready");
   setTimeout(function(){ el.classList.add("gone"); startCredits(); setTimeout(function(){ el.remove(); },600); },300);
@@ -9612,7 +9612,7 @@ function boot(){
     /* ---- now try to upgrade to real tiles; failure changes nothing on screen ---- */
     setTimeout(function(){ try{ setBasemap("streets",0,true); }catch(e){} },350);
     splashStep(82,"Matching corridors to OpenStreetMap\u2026");
-    splashDone();      /* waits out the remainder of the five seconds itself */
+    splashDone();      /* waits out the remainder of the minimum time itself */
     setTimeout(function(){ try{ alignNetwork(false); }catch(e){} },1200);
     setTimeout(function(){ try{ verifySweep(); }catch(e){} },4500);
   }catch(e){
