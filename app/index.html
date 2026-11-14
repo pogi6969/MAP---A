@@ -9624,7 +9624,18 @@ function boot(){
     drawPlaces();
     labelDensity();
     map.on("zoomend",function(){ labelDensity(); });
-    map.fitBounds([[12.99,123.40],[13.50,124.18]],
+    /* Bicol Region coverage: opened from the admin page after sign-in. Search and the view take in
+       the whole region; the route feed, fares and hospital list are still those of Albay. */
+    let REGION_BICOL=false;
+    try{ REGION_BICOL=/[?&]region=bicol\b/.test(location.search)&&localStorage.getItem("mapaAdmin")==="ef21e489c062c01ea6ccbc12d7e3ea8a5536ecdd66197ab7c9f71a04682bb797"; }catch(e){}
+    if (REGION_BICOL){
+      CFG.bbox=[122.0,14.75,124.6,11.65];
+      const tag=document.createElement("div");
+      tag.textContent="Bicol Region";
+      tag.style.cssText="position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--navh) + var(--safe-b) + 10px);z-index:1003;background:var(--green);color:#fff;font-size:12px;font-weight:500;padding:5px 12px;border-radius:14px;pointer-events:none";
+      document.body.appendChild(tag);
+    }
+    map.fitBounds(REGION_BICOL?[[11.75,122.2],[14.6,124.5]]:[[12.99,123.40],[13.50,124.18]],
        /* the button rail stands on the right edge and Rapu-Rapu's label runs
           east of its own marker, so the east side needs the room */
        {paddingTopLeft:[22,22],paddingBottomRight:[72,30]});

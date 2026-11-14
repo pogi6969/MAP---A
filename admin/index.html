@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><title>MAP-A Admin</title>
+<link rel="icon" href="../favicon.ico">
+<style>
+body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f4f5f7;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:#1f2328}
+main{width:min(360px,calc(100% - 32px));background:#fff;border:1px solid #e2e5ea;border-radius:14px;padding:24px}
+h1{font-size:20px;margin:0 0 4px}p{font-size:14px;color:#5b6470;margin:0 0 16px;line-height:1.45}
+label{font-size:13px;font-weight:600;display:block;margin-bottom:6px}
+input{width:100%;box-sizing:border-box;font-size:16px;padding:11px 12px;border:1px solid #c9ced6;border-radius:9px}
+button,a.btn{display:block;width:100%;box-sizing:border-box;margin-top:12px;font-size:15px;font-weight:600;padding:12px;border:0;border-radius:9px;background:#0a8f4d;color:#fff;text-align:center;text-decoration:none;cursor:pointer}
+button.sec{background:#fff;color:#1f2328;border:1px solid #c9ced6}
+#msg{color:#b3261e;font-size:13px;min-height:18px;margin-top:8px}
+[hidden]{display:none!important}
+</style></head><body><main>
+<h1>MAP-A Admin</h1>
+<form id="f"><p>Sign in to open the Bicol Region coverage.</p>
+<label for="pw">Passcode</label><input id="pw" type="password" autocomplete="current-password" required>
+<div id="msg" role="alert"></div><button type="submit">Sign in</button></form>
+<div id="in" hidden><p>Signed in on this device.</p>
+<a class="btn" href="../app/?region=bicol">Open Bicol Region map</a>
+<a class="btn" href="../app/" style="background:#fff;color:#1f2328;border:1px solid #c9ced6">Open Albay map</a>
+<button class="sec" id="out" type="button">Sign out</button></div>
+</main><script>
+const H="ef21e489c062c01ea6ccbc12d7e3ea8a5536ecdd66197ab7c9f71a04682bb797";
+const show=function(on){ document.getElementById("f").hidden=on; document.getElementById("in").hidden=!on; };
+try{ show(localStorage.getItem("mapaAdmin")===H); }catch(e){}
+document.getElementById("f").addEventListener("submit",async function(ev){
+  ev.preventDefault();
+  const d=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(document.getElementById("pw").value));
+  const hex=Array.from(new Uint8Array(d)).map(function(b){ return b.toString(16).padStart(2,"0"); }).join("");
+  if (hex===H){ localStorage.setItem("mapaAdmin",H); show(true); }
+  else document.getElementById("msg").textContent="Wrong passcode.";
+});
+document.getElementById("out").addEventListener("click",function(){ localStorage.removeItem("mapaAdmin"); show(false); });
+</script></body></html>
