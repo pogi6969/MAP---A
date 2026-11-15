@@ -4,7 +4,7 @@ from sumo_2350 import *
 import matplotlib; matplotlib.use('Agg'); import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon as Poly, Patch
 MOT = both(box(AX - 6, AX + 6, MY0, MY1, AZ - 5, AZ + 5))
-parts = [(CH, '#b0b4ba', 'chassis'), (CAPS, '#f2994a', 'saddle caps (2 × M3 each)'), (MOT, '#f2c94c', '2 × N20'), (WHEELS, '#333333', 'wheels Ø34 × 12'), (BOARD, '#7b2d8e', 'MOTION 2350 Pro 95.2 × 57.2')]
+parts = [(CH, '#b0b4ba', 'chassis'), (CAPS, '#f2994a', 'holder caps (2 × M3 each)'), (MOT, '#f2c94c', '2 × N20'), (WHEELS, '#333333', 'wheels Ø34 × 12'), (BOARD, '#7b2d8e', 'MOTION 2350 Pro 95.2 × 57.2')]
 def proj(m, v):
     mm, f = {'top': (m, lambda q: q), 'side': (m.rotate([90, 0, 0]), lambda q: np.c_[q[:, 0], -q[:, 1]]),
              'front': (m.rotate([0, -90, 0]), lambda q: np.c_[q[:, 1], -q[:, 0]])}[v]
@@ -33,8 +33,8 @@ ax.set_xlim(XR - 15, TIP + 15); ax.set_ylim(-5, 55)
 ax = fig.add_subplot(gs[1, 0]); ax.set_title('FRONT VIEW', loc='left', weight='bold'); draw(ax, 'front')
 ax.plot([-55, 55], [0, 0], color='#555'); ax.set_xlim(-60, 60); ax.set_ylim(-5, 50)
 ax = fig.add_subplot(gs[1, 1]); ax.axis('off')
-ax.text(0, 0.95, '\n'.join(['PRINT  CR-6 SE · PETG · 0.32 mm · no supports · 3h58m', '  sumo_2350_chassis_and_caps.stl (1 plate)', '',
-        'ASSEMBLY', '  N20: drop into cradle, shaft in slot,', '       saddle cap on top, 2 × M3 × 10 per motor', '  wheels: N20 34 × 12 hub + mold (wheel-mold-v2)',
+ax.text(0, 0.95, '\n'.join(['PRINT  CR-6 SE · PETG · 0.32 mm · no supports · 4h12m', '  sumo_2350_chassis_and_caps.stl (1 plate)', '',
+        'ASSEMBLY', '  N20: drop into holder, shaft in slot,', '       cap on top, 2 × M3 × 12 per motor', '  sensors: 2 windows in the front slope', '  wheels: N20 34 × 12 hub + mold (wheel-mold-v2)',
         '  board: drop in, 4 × M3 into the ledges', '  USB / wires: notch in the back wall']), family='DejaVu Sans Mono', fontsize=11, va='top', transform=ax.transAxes)
 ax.legend(handles=[Patch(fc=c, ec='k', label=l) for _, c, l in parts] + [Patch(fc='white', ec='r', label='board screw hole')], loc='lower left', fontsize=10, frameon=False)
 fig.savefig(os.path.join(HERE, 'diagram.png'), dpi=110)

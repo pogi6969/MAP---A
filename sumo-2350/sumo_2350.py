@@ -1,22 +1,24 @@
 #!/usr/bin/env python3
-"""Sumo chassis like the grey printed one (box, wedge front, motors at the back in saddle clamps: ribbed cradle +
-half-round strap cap with 2 x M3 flanges, copied from the photo), sized so the
-Cytron MOTION 2350 Pro (95.2 x 57.2) drops in on top: it sits on front + rear ledges inside the walls, 4 x M3.
-Assumed board holes 88 x 48 mm. 2 x N20, wheels 34 x 12 inside the walls. x forward, y left, z up, floor 0."""
+"""Copy of the grey printed sumo chassis: box, front = blade lip + sloped face with 2 square sensor windows + steep upper
+face, 2 screw holes on the front top; motor holders like the photo: block against the rear wall with 2 screw holes on
+top, rounded front, N20 lying across (split at the motor axis: lower half printed in the chassis, upper half = cap,
+2 x M3 x 12 each). Cytron MOTION 2350 Pro (95.2 x 57.2) drops in on ledges, 4 x M3 (assumed 88 x 48).
+Wheels 34 x 12 inside the walls. x forward, y left, z up."""
 import os, glob, subprocess
 import numpy as np
 from manifold3d import CrossSection, Manifold, set_circular_segments
 set_circular_segments(48)
 HERE = os.path.dirname(os.path.abspath(__file__))
 S, XR, XW = 50.0, -17.4, 45.2
-ZF0, ZF1, H, ZBD = 0.6, 3.6, 40.0, 36.0          # floor, wall top, board underside
-WH, WA = 26.0, 32.0
-TIP = XW + (WH - ZF0) / np.tan(np.radians(WA))
+ZF0, ZF1, H, ZBD = 0.6, 3.6, 40.0, 36.0                       # floor, floor top, wall top, board underside
+WH, WA, UA = 24.0, 38.0, 70.0                                 # lower slope top, slope angle, upper face angle
+UP = (H - WH) / np.tan(np.radians(UA)); TIP = XW + 3 + UP + (WH - ZF0 - 1) / np.tan(np.radians(WA)) + 2
 AX, AZ, WD, WW = 6.0, 17.0, 34.0, 12.0
-MY0, MY1, OW = 5.0, 29.5, 3.0
-CY0, CY1, FX, SX, CR = 7.0, 17.0, 15.5, 12.5, 9.2   # cap strip y, flange half-width, screw x offset, cap radius
+MY0, MY1, OW, HL = 5.0, 29.5, 3.0, 15.0                       # motor y range, end plate, holder length
+HX0, HX1, HR = XR + 2.2, AX + 9, 9.0                          # holder rear (at rear wall), front, round radius
+SX, SYS = (XR + 2.2 + AX - 6.2) / 2, (MY0 + 3.5, MY0 + 11.5)  # cap screws
 WY0, WY1 = 33.0, 47.0
-BX0, BX1 = XR + 2.2, XW - 3.2                    # board x range (57.2)
+BX0, BX1 = XR + 2.2, XW - 3.2                                 # board x range (57.2)
 HOLES = [(BX0 + 4.6, 44.0), (BX1 - 4.6, 44.0)]
 
 
@@ -30,34 +32,38 @@ def xz(pts, y0, y1):
     return Manifold.extrude(CrossSection([p.tolist()]), y1 - y0).rotate([90, 0, 0]).translate([0, y1, 0])
 
 
+def holder(z0, z1):
+    p = box(HX0, AX, MY0, MY0 + HL, ZF0, AZ + HR) + cyly(AX, AZ, MY0, MY0 + HL, 2 * HR) + box(AX, HX1, MY0, MY0 + HL, ZF0, AZ)
+    return p ^ box(HX0 - 1, HX1 + 1, MY0 - 1, MY0 + HL + 1, z0, z1)
+
+
 def chassis():
     m = box(XR, XW, -S, S, ZF0, ZF1) + both(box(XR, XW, S - 2, S, ZF0, H)) + box(XR, XR + 2, -S, S, ZF0, H) + box(XW - 3, XW, -S, S, ZF0, H)
-    m += xz([(XW - 0.01, ZF0), (TIP, ZF0), (XW - 0.01, WH)], -S, S)                                  # wedge
-    m += xz([(XR + 1.9, ZBD - 9), (XR + 1.9, ZBD), (XR + 11, ZBD)], -S + 1, S - 1)                   # rear board ledge (45 deg)
+    m += xz([(XW - 0.01, ZF0), (TIP, ZF0), (TIP, ZF0 + 1), (TIP - 2, ZF0 + 1), (XW + 3 + UP, WH), (XW + 3, H), (XW - 0.01, H)], -S, S)  # front
+    m += xz([(XR + 1.9, ZBD - 9), (XR + 1.9, ZBD), (XR + 11, ZBD)], -S + 1, S - 1)                   # rear board ledge
     m += xz([(XW - 2.9, ZBD - 9), (XW - 2.9, ZBD), (XW - 12, ZBD)], -S + 1, S - 1)                   # front board ledge
-    h = box(AX - FX, AX + FX, CY0, CY1, ZF0, AZ) + box(AX - 8.2, AX + 8.2, 21, 24, ZF0, AZ)                # cradle pad + rib
-    h += box(AX - 8.2, AX + 8.2, MY0, MY1, ZF0, AZ) - box(AX - 6.2, AX + 6.2, MY0 - 1, MY1 + 1, ZF0 - 1, AZ + 1)  # side rails
-    h += box(AX - 9, AX + 9, MY1, MY1 + OW, ZF0, AZ + 8)                                                 # gearbox end plate
+    h = holder(ZF0, AZ) + box(AX - 8.2, AX + 8.2, MY0 + HL, MY1, ZF0, AZ) + box(AX - 9, AX + 9, MY1, MY1 + OW, ZF0, AZ + 8)
     h -= box(AX - 6.2, AX + 6.2, MY0 - 1, MY1, AZ - 5.2, AZ + 9)                                         # motor seat
-    h -= cyly(AX, AZ, MY1 - 1, MY1 + OW + 1, 4.4) + box(AX - 2.2, AX + 2.2, MY1 - 1, MY1 + OW + 1, AZ, AZ + 9)  # shaft slot (drop-in)
-    for dx in (-4.5, 4.5): h -= cyly(AX + dx, AZ, MY1 - 1, MY1 + OW + 1, 1.8)
-    for dx in (-SX, SX): h -= cyl(AX + dx, (CY0 + CY1) / 2, AZ - 12, AZ + 1, 2.6)                       # M3 pilots for the cap
+    h -= cyly(AX, AZ, MY1 - 1, MY1 + OW + 1, 4.4) + box(AX - 2.2, AX + 2.2, MY1 - 1, MY1 + OW + 1, AZ, AZ + 9)  # shaft slot
+    for dx in (-4.5, 4.5): h -= cyly(AX + dx, AZ, MY1 - 1, MY1 + OW + 1, 1.8)                           # gearbox M1.6
+    for sy in SYS: h -= cyl(SX, sy, AZ - 12, AZ + 1, 2.6)                                               # cap screw pilots
     m += both(h)
     m -= both(box(AX - 18, AX + 18, WY0, WY1, -1, AZ) + cyly(AX, AZ, WY0, WY1, 37))                  # wheel wells
+    for yc in (-25, 25): m -= box(XW - 4, TIP + 1, yc - 6, yc + 6, 7, 17)                              # sensor windows
+    for yc in (-40, 40): m -= cyl(XW, yc, H - 10, H + 1, 2.6)                                         # front top screw holes
     for x, y in HOLES: m -= both(cyl(x, y, ZBD - 8, ZBD + 1, 2.6))                                   # board screws M3
-    m -= box(XR - 1, XR + 3, -8, 8, ZBD + 0.5, H + 1)                                                # USB / wire notch at the back
+    m -= box(XR - 1, XR + 3, -8, 8, ZBD + 0.5, H + 1)                                                # USB notch
     return m
 
 
-def cap():                                     # half-round strap cap, built in place (flange face at z = AZ)
-    c = cyly(AX, AZ, CY0, CY1, 2 * CR) ^ box(AX - CR, AX + CR, CY0, CY1, AZ, AZ + CR)
-    c = c + box(AX - FX, AX + FX, CY0, CY1, AZ, AZ + 3) - box(AX - 6.2, AX + 6.2, CY0 - 1, CY1 + 1, AZ - 1, AZ + 4.9)
-    for dx in (-SX, SX): c -= cyl(AX + dx, (CY0 + CY1) / 2, AZ - 1, AZ + 4, 3.4)
+def cap():                                                    # upper half of the holder, print split face down
+    c = holder(AZ, AZ + HR + 1) - box(AX - 6.2, AX + 6.2, MY0 - 1, MY0 + HL + 1, AZ - 1, AZ + 4.9)
+    for sy in SYS: c -= cyl(SX, sy, AZ - 1, AZ + HR + 1, 3.4)
     return c
 
 
 CH = chassis(); CAPS = both(cap())
-CAPS_FLAT = Manifold.compose([cap().mirror([0, 0, 1]).translate([TIP + 20 - AX, dy - (CY0 + CY1) / 2, AZ]) for dy in (-12, 12)])
+CAPS_FLAT = Manifold.compose([cap().translate([TIP + 12 - HX0, dy - MY0 - HL / 2, -AZ + ZF0]) for dy in (-12, 12)])
 BOARD = box(BX0, BX1, -47.6, 47.6, ZBD, ZBD + 1.6)
 WHEELS = both(cyly(AX, AZ, WY0 + 1, WY0 + 1 + WW, WD))
 if __name__ == '__main__':
@@ -82,5 +88,5 @@ if __name__ == '__main__':
             TT.append(T); CC.append(np.clip(np.outer(0.4 + 0.6 * np.abs(n @ L), col), 0, 1))
         ax.add_collection3d(Poly3DCollection(np.concatenate(TT), facecolors=np.concatenate(CC), edgecolors='none'))
         ax.set_xlim(-35, 105); ax.set_ylim(-70, 70); ax.set_zlim(-50, 90); ax.set_box_aspect((1, 1, 1), zoom=1.4); ax.view_init(35, -50); ax.axis('off')
-        ax.set_title(('Chassis + saddle caps (orange)', 'With MOTION 2350 Pro (purple) and wheels')[k])
+        ax.set_title(('Chassis + caps (orange)', 'With MOTION 2350 Pro (purple) and wheels')[k])
     plt.tight_layout(); plt.savefig(os.path.join(HERE, 'preview.png'), dpi=100)
