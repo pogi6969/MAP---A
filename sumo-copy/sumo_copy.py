@@ -3,7 +3,8 @@
 wall + 45 deg blade tapering to 77 wide, 2 screw holes on the front top, 2 angled tabs inside, rear wall stubs with a
 48 wide opening to the tail; tail 61 wide = floor with a wire slot + 2 slit-ring N20 clamps sitting on the floor
 (OD 18.5, bore 12.3 = motor hole, 2 ears, 2 x M2 pinch screws) + rear bar with 2 screw holes; side walls end in wheel
-arcs. No sensor windows. Wheels up to 32 x 12 in the rear notches. x forward, y left, z up."""
+arcs. Cytron MOTION 2350 Pro (95.2 x 57.2) on 4 posts above the walls and wheels, 4 x M3 (assumed 88 x 48).
+No sensor windows. Wheels up to 32 x 12 in the rear notches. x forward, y left, z up."""
 import os, glob, subprocess
 import numpy as np
 from manifold3d import Manifold, set_circular_segments
@@ -17,6 +18,7 @@ AX, AZ = XB - 2.4 - RO / 2, ZF1 + RO / 2 - 0.3     # motor / wheel axis
 WD, WW, RA = 32.0, 12.0, 17.5                      # wheel dia, width, wheel arc radius
 TW, GW = 30.5, 24.0                                # tail half width, rear opening half width
 XBAR = AX - 13.5                                   # rear bar back face
+ZB, PX = 28.5, (5.0, 53.0)                         # board underside, post x (88 x 48 hole pattern, y +-44)
 
 
 def box(x0, x1, y0, y1, z0, z1): return Manifold.cube([x1 - x0, y1 - y0, z1 - z0]).translate([x0, y0, z0])
@@ -40,16 +42,18 @@ def chassis():
     for y in (RY0 + 3, RY1 - 3): k += cylx(AX - 8, AX + 4, y, (AZ + RO / 2 + H) / 2 + 0.2, 2.2)       # M2 pinch screws
     m -= both(k + cyl(AX - 10.2, TW - 4, H - 10, H + 1, 2.6) + cyl(XF - 3.25, S - 6, H - 10, H + 1, 2.6))  # top holes
     m -= box(AX - 6.5, AX + 2, -7, 7, -1, ZF1 + 1)                                                    # wire slot
+    for x in PX: m += both(cyl(x, 44, H - 1 if x < XF else ZF0, ZB, 7) - cyl(x, 44, ZB - 10, ZB + 1, 2.6))  # board posts M3
     return m
 
 
 CH = chassis()
 WHEELS = both(cyly(AX, AZ, 38, 38 + WW, WD))
+BOARD = box(PX[0] - 4.6, PX[1] + 4.6, -47.6, 47.6, ZB, ZB + 1.6)
 MOT = both(cyly(AX, AZ, 13, 28, 12) + box(AX - 6, AX + 6, 28, 37.5, AZ - 5, AZ + 5))
 if __name__ == '__main__':
     b = CH.bounding_box()
     print('size', round(b[3] - b[0], 1), round(b[4] - b[1], 1), round(b[5], 1), 'parts', len(CH.decompose()),
-          'wheels^ch', round((WHEELS ^ CH).volume(), 2), 'mot^ch', round((MOT ^ CH).volume(), 2))
+          'wheels^ch', round((WHEELS ^ CH).volume(), 2), 'mot^ch', round((MOT ^ CH).volume(), 2), 'board^ch', round((BOARD ^ CH).volume(), 2), 'board^wheels', round((BOARD ^ WHEELS).volume(), 2))
     me = CH.to_mesh(); V = np.asarray(me.vert_properties)[:, :3]; T = V[np.asarray(me.tri_verts)].astype('<f4')
     r = np.zeros(len(T), dtype=[('n', '<f4', 3), ('v', '<f4', (3, 3)), ('a', '<u2')]); r['v'] = T
     open(os.path.join(HERE, 'sumo_copy.stl'), 'wb').write(b'\0' * 80 + np.uint32(len(T)).tobytes() + r.tobytes())
@@ -62,7 +66,7 @@ if __name__ == '__main__':
     L = np.array([0.4, -0.5, 0.8]) / np.linalg.norm([0.4, -0.5, 0.8]); fig = plt.figure(figsize=(13, 6))
     G = (0.7, 0.72, 0.75)
     for k, (items, view, title) in enumerate((([(CH, G)], (35, -130), 'Chassis (rear view)'),
-                                              ([(CH, G), (WHEELS, (0.1, 0.1, 0.1)), (MOT, (0.95, 0.75, 0.2))], (35, -50), 'With N20s + 32 x 12 wheels'))):
+                                              ([(CH, G), (WHEELS, (0.1, 0.1, 0.1)), (MOT, (0.95, 0.75, 0.2)), (BOARD, (0.5, 0.2, 0.6))], (35, -50), 'With N20s, 32 x 12 wheels, MOTION 2350 Pro'))):
         ax = fig.add_subplot(1, 2, k + 1, projection='3d'); TT, CC = [], []
         for mm, col in items:
             me = mm.to_mesh(); V = np.asarray(me.vert_properties)[:, :3]; T = V[np.asarray(me.tri_verts)]
