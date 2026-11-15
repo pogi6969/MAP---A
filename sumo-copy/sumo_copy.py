@@ -58,7 +58,9 @@ if __name__ == '__main__':
     r = np.zeros(len(T), dtype=[('n', '<f4', 3), ('v', '<f4', (3, 3)), ('a', '<u2')]); r['v'] = T
     open(os.path.join(HERE, 'sumo_copy.stl'), 'wb').write(b'\0' * 80 + np.uint32(len(T)).tobytes() + r.tobytes())
     for g in glob.glob(os.path.join(HERE, '*.gcode')): os.remove(g)
-    subprocess.run(['prusa-slicer', '--export-gcode', '--load', os.path.join(HERE, 'cr6se_petg_fast.ini'), '--layer-height', '0.36', '--fill-density', '5%', '--fill-pattern', 'lightning', '--top-solid-layers', '2', '--bottom-solid-layers', '2',
+    subprocess.run(['prusa-slicer', '--export-gcode', '--load', os.path.join(HERE, 'cr6se_petg_fast.ini'), '--layer-height', '0.4', '--fill-density', '3%', '--fill-pattern', 'lightning', '--top-solid-layers', '2', '--bottom-solid-layers', '2',
+                    '--extrusion-width', '0.5', '--external-perimeter-extrusion-width', '0.5', '--perimeter-extrusion-width', '0.5', '--infill-extrusion-width', '0.5',
+                    '--solid-infill-extrusion-width', '0.5', '--top-infill-extrusion-width', '0.5', '--external-perimeter-speed', '100',
                     '--perimeters', '1', '--center', '122.5,117.5', '--output', HERE, os.path.join(HERE, 'sumo_copy.stl')], check=True, capture_output=True)
     print(glob.glob(os.path.join(HERE, '*.gcode')))
     import matplotlib; matplotlib.use('Agg'); import matplotlib.pyplot as plt
