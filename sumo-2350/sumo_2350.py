@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Sumo chassis from the photo: box, front = blade lip + short low slope + steep upper face with 1 centre sensor window,
-1 sensor window in each side wall near the front, 4 screw holes on the top corners, triangular gussets on the side
+"""Sumo chassis from the photo: box, front = blade lip + short low slope + steep upper face, no sensor windows,
+4 screw holes on the top corners, triangular gussets on the side
 walls carrying the Cytron MOTION 2350 Pro (95.2 x 57.2, 4 x M3, assumed 88 x 48). Motor holders like the photo: block
 against the rear wall with 2 screw holes on top, rounded front, N20 lying across, gearbox end plate by the wheel
 (split at the motor axis: lower half in the chassis, upper half = cap, 2 x M3 x 12). Wheels 34 x 12 inside. x fwd, z up."""
@@ -53,8 +53,6 @@ def chassis():
     for sy in SYS: h -= cyl(SX, sy, AZ - 12, AZ + 1, 2.6)                                               # cap screw pilots
     m += both(h)
     m -= both(box(AX - 18, AX + 18, WY0, WY1, -1, AZ) + cyly(AX, AZ, WY0, WY1, 37))                  # wheel wells
-    m -= box(XW - 4, TIP + 1, -7, 7, 18, 30)                                                         # front sensor window
-    m -= both(box(26, 40, S - 3, S + 1, 12, 26))                                                     # side sensor windows
     for x in (XR - 0.5, XW): m -= both(cyl(x, 42, H - 10, H + 1, 2.6))                               # top corner screw holes
     m -= box(XR - 4, XR + 3, -8, 8, ZBD + 0.5, H + 1)                                                # USB notch
     return m
