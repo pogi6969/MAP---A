@@ -58,8 +58,8 @@ if __name__ == '__main__':
     r = np.zeros(len(T), dtype=[('n', '<f4', 3), ('v', '<f4', (3, 3)), ('a', '<u2')]); r['v'] = T
     open(os.path.join(HERE, 'sumo_copy.stl'), 'wb').write(b'\0' * 80 + np.uint32(len(T)).tobytes() + r.tobytes())
     for g in glob.glob(os.path.join(HERE, '*.gcode')): os.remove(g)
-    subprocess.run(['prusa-slicer', '--export-gcode', '--load', os.path.join(HERE, 'cr6se_petg_fast.ini'), '--fill-density', '20%', '--fill-pattern', 'gyroid',
-                    '--perimeters', '3', '--center', '122.5,117.5', '--output', HERE, os.path.join(HERE, 'sumo_copy.stl')], check=True, capture_output=True)
+    subprocess.run(['prusa-slicer', '--export-gcode', '--load', os.path.join(HERE, 'cr6se_petg_fast.ini'), '--fill-density', '10%', '--fill-pattern', 'lightning', '--top-solid-layers', '3', '--bottom-solid-layers', '3',
+                    '--perimeters', '2', '--center', '122.5,117.5', '--output', HERE, os.path.join(HERE, 'sumo_copy.stl')], check=True, capture_output=True)
     print(glob.glob(os.path.join(HERE, '*.gcode')))
     import matplotlib; matplotlib.use('Agg'); import matplotlib.pyplot as plt
     from mpl_toolkits.mplot3d.art3d import Poly3DCollection
