@@ -23,18 +23,18 @@ ax = fig.add_subplot(gs[0, 0]); ax.set_title('TOP VIEW (board see-through)', loc
 for x, y in HOLES:
     for s in (1, -1): ax.plot(x, s * y, 'o', mfc='white', mec='r', ms=6)
 ax.annotate('4 × M3 board screws\n(88 × 48 mm)', (HOLES[1][0], 44), (TIP + 5, 55), fontsize=8, color='r', arrowprops=dict(arrowstyle='-', color='r', lw=0.6))
-dim(ax, (XR, -62), (TIP, -62), f'{TIP - XR:.1f}'); dim(ax, (XR - 10, -50), (XR - 10, 50), '100')
+dim(ax, (XR - 3, -62), (TIP, -62), f'{TIP - XR + 3:.1f}'); dim(ax, (XR - 10, -50), (XR - 10, 50), '100')
 ax.text(TIP + 3, -5, 'FRONT ▶', rotation=90, weight='bold'); ax.set_xlim(XR - 18, TIP + 35); ax.set_ylim(-70, 70)
 ax = fig.add_subplot(gs[0, 1]); ax.set_title('SIDE VIEW', loc='left', weight='bold'); draw(ax, 'side')
 ax.plot([XR - 5, TIP + 5], [0, 0], color='#555'); dim(ax, (XR - 8, 0), (XR - 8, H), f'{H:.0f}')
-ax.annotate(f'board on ledges at {ZBD:.0f} mm', (10, ZBD + 1), (20, ZBD + 12), fontsize=8, arrowprops=dict(arrowstyle='-', lw=0.6))
-ax.annotate(f'wedge {WA:.0f}°', (TIP - 10, 6), (TIP, 20), fontsize=8, arrowprops=dict(arrowstyle='-', lw=0.6))
+ax.annotate(f'board on 4 gussets at {ZBD:.0f} mm', (10, ZBD + 1), (20, ZBD + 12), fontsize=8, arrowprops=dict(arrowstyle='-', lw=0.6))
+ax.annotate(f'blade {WA:.0f}°', (TIP - 10, 6), (TIP, 20), fontsize=8, arrowprops=dict(arrowstyle='-', lw=0.6))
 ax.set_xlim(XR - 15, TIP + 15); ax.set_ylim(-5, 55)
 ax = fig.add_subplot(gs[1, 0]); ax.set_title('FRONT VIEW', loc='left', weight='bold'); draw(ax, 'front')
 ax.plot([-55, 55], [0, 0], color='#555'); ax.set_xlim(-60, 60); ax.set_ylim(-5, 50)
 ax = fig.add_subplot(gs[1, 1]); ax.axis('off')
-ax.text(0, 0.95, '\n'.join(['PRINT  CR-6 SE · PETG · 0.32 mm · no supports · 4h12m', '  sumo_2350_chassis_and_caps.stl (1 plate)', '',
-        'ASSEMBLY', '  N20: drop into holder, shaft in slot,', '       cap on top, 2 × M3 × 12 per motor', '  sensors: 2 windows in the front slope', '  wheels: N20 34 × 12 hub + mold (wheel-mold-v2)',
-        '  board: drop in, 4 × M3 into the ledges', '  USB / wires: notch in the back wall']), family='DejaVu Sans Mono', fontsize=11, va='top', transform=ax.transAxes)
+ax.text(0, 0.95, '\n'.join(['PRINT  CR-6 SE · PETG · 0.32 mm · no supports · 4h10m', '  sumo_2350_chassis_and_caps.stl (1 plate)', '',
+        'ASSEMBLY', '  N20: drop into holder, shaft in slot,', '       cap on top, 2 × M3 × 12 per motor', '  sensors: 1 front + 2 side windows', '  wheels: N20 34 × 12 hub + mold (wheel-mold-v2)',
+        '  board: drop in, 4 × M3 into the gussets', '  USB / wires: notch in the back wall']), family='DejaVu Sans Mono', fontsize=11, va='top', transform=ax.transAxes)
 ax.legend(handles=[Patch(fc=c, ec='k', label=l) for _, c, l in parts] + [Patch(fc='white', ec='r', label='board screw hole')], loc='lower left', fontsize=10, frameon=False)
 fig.savefig(os.path.join(HERE, 'diagram.png'), dpi=110)

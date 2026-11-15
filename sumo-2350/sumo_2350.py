@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Copy of the grey printed sumo chassis: box, front = blade lip + sloped face with 2 square sensor windows + steep upper
-face, 2 screw holes on the front top; motor holders like the photo: block against the rear wall with 2 screw holes on
-top, rounded front, N20 lying across (split at the motor axis: lower half printed in the chassis, upper half = cap,
-2 x M3 x 12 each). Cytron MOTION 2350 Pro (95.2 x 57.2) drops in on ledges, 4 x M3 (assumed 88 x 48).
-Wheels 34 x 12 inside the walls. x forward, y left, z up."""
+"""Sumo chassis from the photo: box, front = blade lip + short low slope + steep upper face with 1 centre sensor window,
+1 sensor window in each side wall near the front, 4 screw holes on the top corners, triangular gussets on the side
+walls carrying the Cytron MOTION 2350 Pro (95.2 x 57.2, 4 x M3, assumed 88 x 48). Motor holders like the photo: block
+against the rear wall with 2 screw holes on top, rounded front, N20 lying across, gearbox end plate by the wheel
+(split at the motor axis: lower half in the chassis, upper half = cap, 2 x M3 x 12). Wheels 34 x 12 inside. x fwd, z up."""
 import os, glob, subprocess
 import numpy as np
 from manifold3d import CrossSection, Manifold, set_circular_segments
@@ -11,12 +11,12 @@ set_circular_segments(48)
 HERE = os.path.dirname(os.path.abspath(__file__))
 S, XR, XW = 50.0, -17.4, 45.2
 ZF0, ZF1, H, ZBD = 0.6, 3.6, 40.0, 36.0                       # floor, floor top, wall top, board underside
-WH, WA, UA = 24.0, 38.0, 70.0                                 # lower slope top, slope angle, upper face angle
-UP = (H - WH) / np.tan(np.radians(UA)); TIP = XW + 3 + UP + (WH - ZF0 - 1) / np.tan(np.radians(WA)) + 2
+ZC, WA, UA = 14.0, 35.0, 75.0                                 # crease height, blade slope, upper face angle
+UP = (H - ZC) / np.tan(np.radians(UA)); TIP = XW + 3 + UP + (ZC - ZF0 - 1) / np.tan(np.radians(WA)) + 2
 AX, AZ, WD, WW = 6.0, 17.0, 34.0, 12.0
-MY0, MY1, OW, HL = 5.0, 29.5, 3.0, 15.0                       # motor y range, end plate, holder length
+MY0, MY1, OW, HL = 5.0, 29.5, 3.0, 21.0                       # motor y range, end plate, holder length
 HX0, HX1, HR = XR + 2.2, AX + 9, 9.0                          # holder rear (at rear wall), front, round radius
-SX, SYS = (XR + 2.2 + AX - 6.2) / 2, (MY0 + 3.5, MY0 + 11.5)  # cap screws
+SX, SYS = (XR + 2.2 + AX - 6.2) / 2, (MY0 + 4, MY0 + 17)      # cap screws
 WY0, WY1 = 33.0, 47.0
 BX0, BX1 = XR + 2.2, XW - 3.2                                 # board x range (57.2)
 HOLES = [(BX0 + 4.6, 44.0), (BX1 - 4.6, 44.0)]
@@ -30,6 +30,10 @@ def xz(pts, y0, y1):
     p = np.asarray(pts, float)
     if np.sum(p[:, 0] * np.roll(p[:, 1], -1) - np.roll(p[:, 0], -1) * p[:, 1]) < 0: p = p[::-1]
     return Manifold.extrude(CrossSection([p.tolist()]), y1 - y0).rotate([90, 0, 0]).translate([0, y1, 0])
+def yz(pts, x0, x1):
+    p = np.asarray(pts, float)
+    if np.sum(p[:, 0] * np.roll(p[:, 1], -1) - np.roll(p[:, 0], -1) * p[:, 1]) < 0: p = p[::-1]
+    return Manifold.extrude(CrossSection([p.tolist()]), x1 - x0).transform([[0, 0, 1, x0], [1, 0, 0, 0], [0, 1, 0, 0]])
 
 
 def holder(z0, z1):
@@ -38,10 +42,10 @@ def holder(z0, z1):
 
 
 def chassis():
-    m = box(XR, XW, -S, S, ZF0, ZF1) + both(box(XR, XW, S - 2, S, ZF0, H)) + box(XR, XR + 2, -S, S, ZF0, H) + box(XW - 3, XW, -S, S, ZF0, H)
-    m += xz([(XW - 0.01, ZF0), (TIP, ZF0), (TIP, ZF0 + 1), (TIP - 2, ZF0 + 1), (XW + 3 + UP, WH), (XW + 3, H), (XW - 0.01, H)], -S, S)  # front
-    m += xz([(XR + 1.9, ZBD - 9), (XR + 1.9, ZBD), (XR + 11, ZBD)], -S + 1, S - 1)                   # rear board ledge
-    m += xz([(XW - 2.9, ZBD - 9), (XW - 2.9, ZBD), (XW - 12, ZBD)], -S + 1, S - 1)                   # front board ledge
+    m = box(XR, XW, -S, S, ZF0, ZF1) + both(box(XR, XW, S - 2, S, ZF0, H)) + box(XR - 3, XR + 2, -S, S, ZF0, H) + box(XW - 3, XW, -S, S, ZF0, H)
+    m += xz([(XW - 0.01, ZF0), (TIP, ZF0), (TIP, ZF0 + 1), (TIP - 2, ZF0 + 1), (XW + 3 + UP, ZC), (XW + 3, H), (XW - 0.01, H)], -S, S)  # front
+    for x, y in HOLES:                                                                               # board gussets
+        m += both(yz([(S - 1.99, ZBD - 10), (S - 1.99, ZBD), (S - 9, ZBD)], x - 4, x + 4) - cyl(x, y, ZBD - 8, ZBD + 1, 2.6))
     h = holder(ZF0, AZ) + box(AX - 8.2, AX + 8.2, MY0 + HL, MY1, ZF0, AZ) + box(AX - 9, AX + 9, MY1, MY1 + OW, ZF0, AZ + 8)
     h -= box(AX - 6.2, AX + 6.2, MY0 - 1, MY1, AZ - 5.2, AZ + 9)                                         # motor seat
     h -= cyly(AX, AZ, MY1 - 1, MY1 + OW + 1, 4.4) + box(AX - 2.2, AX + 2.2, MY1 - 1, MY1 + OW + 1, AZ, AZ + 9)  # shaft slot
@@ -49,10 +53,10 @@ def chassis():
     for sy in SYS: h -= cyl(SX, sy, AZ - 12, AZ + 1, 2.6)                                               # cap screw pilots
     m += both(h)
     m -= both(box(AX - 18, AX + 18, WY0, WY1, -1, AZ) + cyly(AX, AZ, WY0, WY1, 37))                  # wheel wells
-    for yc in (-25, 25): m -= box(XW - 4, TIP + 1, yc - 6, yc + 6, 7, 17)                              # sensor windows
-    for yc in (-40, 40): m -= cyl(XW, yc, H - 10, H + 1, 2.6)                                         # front top screw holes
-    for x, y in HOLES: m -= both(cyl(x, y, ZBD - 8, ZBD + 1, 2.6))                                   # board screws M3
-    m -= box(XR - 1, XR + 3, -8, 8, ZBD + 0.5, H + 1)                                                # USB notch
+    m -= box(XW - 4, TIP + 1, -7, 7, 18, 30)                                                         # front sensor window
+    m -= both(box(26, 40, S - 3, S + 1, 12, 26))                                                     # side sensor windows
+    for x in (XR - 0.5, XW): m -= both(cyl(x, 42, H - 10, H + 1, 2.6))                               # top corner screw holes
+    m -= box(XR - 4, XR + 3, -8, 8, ZBD + 0.5, H + 1)                                                # USB notch
     return m
 
 
