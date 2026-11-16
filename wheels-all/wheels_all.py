@@ -40,13 +40,14 @@ def stl(m, name):
 
 MOLD_ARGS = ['--fill-density', '10%', '--fill-pattern', 'lightning', '--perimeters', '2', '--bottom-solid-layers', '4', '--top-solid-layers', '3']
 if __name__ == '__main__':
-    for g in glob.glob(os.path.join(HERE, '*.gcode')): os.remove(g)
+    for g in glob.glob(os.path.join(HERE, '*', '*.gcode')): os.remove(g)
+    os.makedirs(os.path.join(HERE, 'hubs'), exist_ok=True); os.makedirs(os.path.join(HERE, 'molds'), exist_ok=True)
     for D, W in SIZES:
         tag = f'{D}x{W}'; H, M = hub(D, W), mold(D, W)
         print(tag, 'hub^mold', round((H.translate([0, 0, BASE]) ^ M).volume(), 2), 'parts', len(H.decompose()), len(M.decompose()))
-        stl(H, f'hub_{tag}.stl'); stl(M, f'mold_{tag}.stl')
-        for nm, ex in ((f'hub_{tag}', ['--fill-density', '30%', '--perimeters', '4']), (f'mold_{tag}', MOLD_ARGS)):
+        stl(H, f'hubs/hub_{tag}.stl'); stl(M, f'molds/mold_{tag}.stl')           # hub file = hub only, mold file = mold only
+        for nm, ex in ((f'hubs/hub_{tag}', ['--fill-density', '30%', '--perimeters', '4']), (f'molds/mold_{tag}', MOLD_ARGS)):
             subprocess.run(['prusa-slicer', '--export-gcode', '--load', os.path.join(HERE, 'cr6se_petg_fast.ini'), *ex, '--center', '122.5,117.5',
-                            '--output', HERE, os.path.join(HERE, nm + '.stl')], check=True, capture_output=True)
-    for g in sorted(glob.glob(os.path.join(HERE, '*.gcode'))):
+                            '--output', os.path.dirname(os.path.join(HERE, nm)), os.path.join(HERE, nm + '.stl')], check=True, capture_output=True)
+    for g in sorted(glob.glob(os.path.join(HERE, '*', '*.gcode'))):
         print(os.path.basename(g), re.search(r'filament used \[g\] = ([\d.]+)', open(g).read()[-400000:]).group(1), 'g')
