@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Wheel hubs + silicone molds in the format of tire_mold_and_hub_27x33 (user file), made simpler / faster.
-Hub: spool with a flange at each end, top flange with 45 deg chamfer underneath and 6 notches (silicone flows under it
-and locks), 2.4 centre hole that sits on the mold pin. Silicone covers the whole hub.
+Hub: smooth spool with a flange at each end, top flange with 45 deg chamfer underneath (prints without support);
+6 notches only on the 42 mm hubs (stop the tyre slipping on the high-torque motors), 2.4 centre hole that sits on the mold pin. Silicone covers the whole hub.
 Mold: thin base + low spill-tray rim + plain tube (cavity = tyre OD, 1 deg draft, chamfered top) + centre pin.
 Pull the hub and the tyre straight up out of the tube. 1 part per file with G-code."""
 import os, glob, re, subprocess
@@ -20,7 +20,8 @@ def hub(D, W):
     FD = D - 15.0; BD = FD - 2.97; FT = 3.0 if W >= 20 else (2.0 if W >= 12 else 1.5); CH = (FD - BD) / 2
     h = cyl(0, FT, FD) + cyl(FT - 0.01, W - FT - CH + 0.01, BD) + cyl(W - FT - CH, W - FT + 0.01, BD, FD) + cyl(W - FT, W, FD)
     n = Manifold.cube([FD / 2, 0.22 * FD, FT + CH + 1]).translate([BD / 2 + 0.1, -0.11 * FD, W - FT - CH])
-    for a in range(0, 360, 60): h -= n.rotate([0, 0, a])
+    if D >= 42:                                  # keys kept only where needed: high-torque 25/37 mm gear motors
+        for a in range(0, 360, 60): h -= n.rotate([0, 0, a])
     return h - cyl(-1, W + 1, 2.4)
 
 
