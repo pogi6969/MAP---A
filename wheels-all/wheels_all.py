@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """All wheel hubs + silicone molds in the spool format (wheel-copy-n20): hub = body with a flange at each end, D bore
-with entry cone on face A, 2.2 through hole, radial M3 set-screw hole (2.6 pilot + 4.8 counterbore). Silicone tyre
+with entry cone on face A, 2.2 through hole, no screw. Silicone tyre
 covers the whole hub (3 mm over the flanges). Mold = low-cost thin cup (1.6 wall / floor, 1.5 deg draft) with centre
-pin, 3 push-out holes under the flange, 2 pry notches and a side pin (printed with it) that keeps the screw hole open.
+pin, 3 push-out holes under the flange, 2 pry notches. Mold file = mold only.
 1 part per file, each with its own CR-6 SE PETG G-code."""
 import os, glob, subprocess
 import numpy as np
@@ -32,7 +32,6 @@ def hub(D, W, sd, flat, dd, bd):
     if dd: b = b ^ Manifold.cube([sd + 1, flat + 0.05, 2 * W], center=True)                                      # double D
     else: b = b ^ Manifold.cube([sd + 1, sd + 1, 2 * W], center=True).translate([0, flat + 0.05 - (sd + 0.05) / 2 - (sd + 1) / 2, 0])  # D flat
     h -= b + cyl(W - 1.5, W + 0.01, sd + 0.05, sd + 3.5) + cyl(-1, W, 2.2)
-    h -= radial(ZS, 0, BD / 2 + 1, 2.6) + radial(ZS, BD / 2 - 2.5, BD / 2 + 1, 4.8)
     return h
 
 
@@ -40,18 +39,10 @@ def mold(D, W, sd, flat, dd, bd):
     FD, BD, FT, ZS, bd = geo(D, W, bd)
     ro = D / 2 + (W + 0.5) * np.tan(DRAFT); zp = FLOOR + ZS
     m = cyl(0, FLOOR + W + 0.5, 2 * (ro + WALL)) - cyl(FLOOR, FLOOR + W + 0.51, D, 2 * ro)
-    m += radial(zp, ro, ro + WALL + 2, 9.0) + cyl(FLOOR - 0.01, FLOOR + min(4, W / 3), 2.0)                     # pin boss, centre pin
+    m += cyl(FLOOR - 0.01, FLOOR + min(4, W / 3), 2.0)                                                          # centre pin
     for a in (60, 180, 300): m -= Manifold.cylinder(FLOOR + 2, 2).translate([(FD / 2 - 3) * np.cos(np.radians(a)), (FD / 2 - 3) * np.sin(np.radians(a)), -1])
     for a in (90, 270): m -= Manifold.cube([8, 4 * WALL + 2, 6], center=True).translate([0, 0, FLOOR + W + 0.5]).translate([0, ro + WALL / 2, 0]).rotate([0, 0, a - 90])
-    m -= radial(zp, D / 2 - 2, ro + WALL + 3, 4.9)
     return m, zp, ro
-
-
-def pin(D, W, sd, flat, dd, bd):
-    FD, BD, FT, ZS, bd = geo(D, W, bd); _, zp, ro = mold(D, W, sd, flat, dd, bd)
-    r0 = BD / 2 - 2.4; L = ro + WALL + 2 - r0
-    return (Manifold.cylinder(L, 2.3).rotate([0, 90, 0]) + Manifold.cylinder(2, 4).rotate([0, 90, 0]).translate([L, 0, 0])) ^ \
-        Manifold.cube([L + 4, 9, 4.2], center=True).translate([L / 2 + 1, 0, 0]), r0, zp
 
 
 def stl(m, name):
@@ -66,13 +57,12 @@ def floor0(m): b = m.bounding_box(); return m.translate([-b[0], -b[1], -b[2]])
 if __name__ == '__main__':
     for g in glob.glob(os.path.join(HERE, '*.gcode')): os.remove(g)
     for tag, p in SETS.items():
-        H = hub(*p); M, zp, ro = mold(*p); P, r0, _ = pin(*p)
+        H = hub(*p); M, zp, ro = mold(*p)
         sd, flat = p[2], p[3]; Ht = H.translate([0, 0, FLOOR])
         shaft = cyl(p[1] - geo(p[0], p[1], p[5])[4] + FLOOR, p[1] + FLOOR + 5, sd) ^ (Manifold.cube([sd, flat, 99], center=True) if p[4] else
                                                                                         Manifold.cube([sd, sd, 99], center=True).translate([0, flat - sd, 0]))
-        print(tag, 'hub^mold', round((Ht ^ M).volume(), 2), 'pin^mold+hub', round((P.translate([r0, 0, zp]) ^ (M + Ht)).volume(), 2),
-              'shaft^hub', round((shaft ^ Ht).volume(), 2), 'parts', len(H.decompose()), len(M.decompose()))
-        stl(floor0(H), f'hub_{tag}.stl'); Mf = floor0(M); stl(Mf + floor0(P).translate([Mf.bounding_box()[3] + 5, 0, 0]), f'mold_{tag}.stl')
+        print(tag, 'hub^mold', round((Ht ^ M).volume(), 2), 'shaft^hub', round((shaft ^ Ht).volume(), 2), 'parts', len(H.decompose()), len(M.decompose()))
+        stl(floor0(H), f'hub_{tag}.stl'); stl(floor0(M), f'mold_{tag}.stl')
         for nm, ex in ((f'hub_{tag}', ['--fill-density', '30%', '--perimeters', '4']),
                        (f'mold_{tag}', ['--fill-density', '10%', '--fill-pattern', 'lightning', '--perimeters', '2', '--bottom-solid-layers', '5', '--top-solid-layers', '3'])):
             subprocess.run(['prusa-slicer', '--export-gcode', '--load', os.path.join(HERE, 'cr6se_petg_fast.ini'), *ex, '--center', '122.5,117.5',
