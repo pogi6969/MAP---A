@@ -17,9 +17,9 @@ for k, (D, W) in enumerate(SIZES):
     ax.set_xlim(-r, r); ax.set_ylim(-r, r); ax.set_zlim(W / 2 - r, W / 2 + r); ax.set_box_aspect((1, 1, 1), zoom=1.25)
     ax.view_init(28, -55); ax.axis('off')
     ax.set_title(f'hub_{D}x{W}', fontsize=14, weight='bold', pad=0)
-    ax.text2D(0.5, 0.02, f'flange Ø{FD:.0f} · body Ø{BD:.1f} · height {W} · centre hole Ø2.4' + ('\n6 notches (high-torque)' if D >= 42 else '\nsmooth'),
+    ax.text2D(0.5, 0.02, f'flange Ø{FD:.0f} · body Ø{BD:.1f} · height {W}\npin socket Ø2.6 bottom · drill mark top\n' + ('6 notches (high-torque)' if D >= 42 else 'smooth'),
               transform=ax.transAxes, ha='center', fontsize=9.5)
 ax = fig.add_subplot(2, 4, 8); ax.axis('off')
-ax.text(0.05, 0.6, 'HUBS (silicone wheel)\n\nPrint: flange down, no supports\nCR-6 SE · PETG · 30% · 4 walls\n\nN20: 27x33, 34x27, 34x12, 32x12, 32x8\nJGA25 / TT: 42x20   JGB37: 42x30',
+ax.text(0.05, 0.6, 'HUBS (silicone wheel)\n\nPrint: flange down, no supports\nCR-6 SE · PETG · 100% solid · 0.32 mm\n\nN20: 27x33, 34x27, 34x12,\n       32x12, 32x8\nJGA25 / TT: 42x20\nJGB37: 42x30\n\nAfter casting: drill the shaft hole\nat the top centre mark',
         fontsize=12, va='center', family='DejaVu Sans')
 plt.tight_layout(); plt.savefig(os.path.join(HERE, 'hubs', 'preview_hubs_zoom.png'), dpi=130)
