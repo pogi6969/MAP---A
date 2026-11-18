@@ -1,0 +1,18 @@
+{
+  "id": "app/",
+  "name": "BUHAY-AH",
+  "short_name": "BUHAY-AH",
+  "description": "Design, price and check public buildings and bridges: budget-to-blueprint designs, standards-based start quotations and over-budget detection.",
+  "lang": "en",
+  "start_url": "app/",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#1E3A6E",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
