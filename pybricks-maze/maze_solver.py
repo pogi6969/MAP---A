@@ -1,4 +1,8 @@
-# SPIKE Prime maze robot (Pybricks): drive straight until an obstacle is in front, then turn to the open side
+# SPIKE Prime maze robot (Pybricks)
+# 1) drive forward until an obstacle is in front
+# 2) stop and SCAN: turn from left to right, measuring the distance at each angle
+# 3) turn to the direction with the most free space (the path)
+# 4) drive forward again, repeat
 from pybricks.hubs import PrimeHub
 from pybricks.pupdevices import Motor, UltrasonicSensor
 from pybricks.parameters import Port, Direction, Color, Icon
@@ -12,26 +16,24 @@ FRONT_EYE = Port.C
 RIGHT_EYE = Port.A
 LEFT_EYE = Port.D          # change to Port.F if your left sensor is there
 
-# ---------------- SETTINGS (mm) ----------------
-RULE = "right"             # which side to try first at an obstacle: "right" or "left"
-USE_GYRO = False           # True only if the hub is mounted flat, screen up
+# ---------------- SETTINGS (mm, deg) ----------------
 WHEEL = 56
-AXLE = 112
-FRONT_STOP = 120           # obstacle closer than this in front = stop and turn
-WALL = 170                 # side reading below this = wall on that side
-SIDE_TARGET = 70           # keep this far from a side wall while driving
+AXLE = 112                 # distance between the wheels: bigger number = turns more
+FRONT_STOP = 120           # obstacle closer than this in front = stop and scan
+SIDE_MIN = 60              # a side wall closer than this = steer away while driving
+OPEN = 250                 # a direction with more free space than this counts as a path
+SCAN_FROM = -90            # scan from 90 deg left ...
+SCAN_TO = 90               # ... to 90 deg right
+SCAN_STEP = 15             # one reading every 15 deg
+BACK_UP = 30               # back up a little before scanning
 SPEED = 250
-TURN_SPEED = 180
-KP = 1.0
-MAX_STEER = 40
+TURN_SPEED = 150
 
 hub = PrimeHub()
 left_motor = Motor(LEFT_MOTOR)
 right_motor = Motor(RIGHT_MOTOR, Direction.COUNTERCLOCKWISE)
 robot = DriveBase(left_motor, right_motor, WHEEL, AXLE)
 robot.settings(straight_speed=SPEED, turn_rate=TURN_SPEED)
-if USE_GYRO:
-    robot.use_gyro(True)
 
 front = UltrasonicSensor(FRONT_EYE)
 right = UltrasonicSensor(RIGHT_EYE)
@@ -45,27 +47,22 @@ def dist(eye):
     return r[1]
 
 
-def clamp(v, lo, hi):
-    return max(lo, min(hi, v))
-
-
-def steer_from_walls():
-    l = dist(left)
-    r = dist(right)
-    if l < WALL and r < WALL:
-        return (r - l) * KP / 2
-    if r < WALL:
-        return (r - SIDE_TARGET) * KP
-    if l < WALL:
-        return (SIDE_TARGET - l) * KP
-    return 0
-
-
-def turn(angle, icon):
-    robot.stop()
-    hub.display.icon(icon)
-    robot.turn(angle)
-    hub.display.icon(Icon.ARROW_UP)
+def scan():
+    """Turn left to right, read the front sensor at each step, return (best angle, its distance)."""
+    hub.light.on(Color.ORANGE)
+    hub.display.icon(Icon.CIRCLE)
+    robot.turn(SCAN_FROM)
+    angle = SCAN_FROM
+    best_angle, best_dist = angle, dist(front)
+    while angle < SCAN_TO:
+        robot.turn(SCAN_STEP)
+        angle += SCAN_STEP
+        wait(50)
+        d = dist(front)
+        if d > best_dist:
+            best_angle, best_dist = angle, d
+    robot.turn(best_angle - angle)          # face the best direction
+    return best_angle, best_dist
 
 
 # ---------------- MAIN ----------------
@@ -74,28 +71,20 @@ hub.display.icon(Icon.ARROW_UP)
 wait(1000)
 
 while True:
-    if dist(front) > FRONT_STOP:
-        robot.drive(SPEED, clamp(steer_from_walls(), -MAX_STEER, MAX_STEER))    # straight
+    if dist(front) > FRONT_STOP:            # path ahead: drive forward
+        steer = 0
+        if dist(right) < SIDE_MIN:
+            steer = -30                     # too close to the right wall: steer left
+        elif dist(left) < SIDE_MIN:
+            steer = 30                      # too close to the left wall: steer right
+        robot.drive(SPEED, steer)
         wait(10)
         continue
 
-    robot.stop()                                   # obstacle in front
-    hub.light.on(Color.ORANGE)
-    wait(100)
-    right_open = dist(right) > WALL
-    left_open = dist(left) > WALL
-    if RULE == "right":
-        if right_open:
-            turn(90, Icon.ARROW_RIGHT)
-        elif left_open:
-            turn(-90, Icon.ARROW_LEFT)
-        else:
-            turn(180, Icon.ARROW_DOWN)
-    else:
-        if left_open:
-            turn(-90, Icon.ARROW_LEFT)
-        elif right_open:
-            turn(90, Icon.ARROW_RIGHT)
-        else:
-            turn(180, Icon.ARROW_DOWN)
+    robot.stop()                            # obstacle: back up a little, then scan
+    robot.straight(-BACK_UP)
+    best_angle, best_dist = scan()
+    if best_dist < OPEN:                    # nothing open from left to right: turn around
+        robot.turn(180)
     hub.light.on(Color.GREEN)
+    hub.display.icon(Icon.ARROW_UP)
