@@ -1,11 +1,13 @@
-# SPIKE Prime MICROMOUSE (Pybricks)
-# Maps the maze cell by cell with 3 ultrasonic sensors, uses flood fill to find the shortest way to the goal,
-# drives back to the start, then does a fast SPEED RUN on the shortest known path (long straights in one go).
+# SPIKE Prime fast maze robot (Pybricks) - right-hand wall follower, no scanning turns
+# - drives fast, keeps the right wall at a fixed distance
+# - takes every opening on the RIGHT as soon as the right sensor sees it
+# - at a wall in front: right if open, else left, else turn around
+# - anti-trap: if the wheels get stuck or it keeps turning without moving, it backs up and turns around
 from pybricks.hubs import PrimeHub
 from pybricks.pupdevices import Motor, UltrasonicSensor
 from pybricks.parameters import Port, Direction, Color, Icon
 from pybricks.robotics import DriveBase
-from pybricks.tools import wait
+from pybricks.tools import wait, StopWatch
 
 # ---------------- PORTS ----------------
 LEFT_MOTOR = Port.B
@@ -14,205 +16,127 @@ FRONT_EYE = Port.C
 RIGHT_EYE = Port.A
 LEFT_EYE = Port.D          # change to Port.F if your left sensor is there
 
-# ---------------- MAZE ----------------
-MAZE_W = 6                 # cells across
-MAZE_H = 6                 # cells forward
-START = (0, 0)             # start cell = bottom-left corner, robot facing "up" (north)
-GOALS = [(2, 2), (2, 3), (3, 2), (3, 3)]   # goal cells (centre of a 6 x 6 maze)
-CELL = 180                 # size of one cell in mm (centre to centre)
-
-# ---------------- ROBOT (mm) ----------------
+# ---------------- SETTINGS (mm) ----------------
 WHEEL = 56
 AXLE = 112                 # distance between the wheels: bigger number = turns more
-USE_GYRO = False           # True = more accurate turns, ONLY if the hub is mounted flat, screen up
-WALL = 120                 # sensor reading below this = wall next to / in front of this cell
-FRONT_CENTER = 55          # front sensor reading when the robot is centred in a cell with a wall ahead
-SIDE_CENTER = 55           # side sensor reading when the robot is centred between walls
-KP = 1.5                   # steering strength (wall centring)
-MAX_STEER = 60
-EXPLORE_SPEED = 300        # mm/s while mapping
-RUN_SPEED = 600            # mm/s on the speed run
+SPEED = 450                # top speed mm/s
 TURN_SPEED = 360           # deg/s
+FRONT_STOP = 110           # wall in front closer than this = stop and choose
+SLOW_ZONE = 250            # start slowing down when the front wall is closer than this
+WALL = 180                 # side reading below this = there is a wall on that side
+OPEN = 260                 # side reading above this (2 reads in a row) = opening
+RIGHT_TARGET = 80          # distance to keep from the right wall
+KP = 1.2                   # steering strength
+MAX_STEER = 70
+PASS = 70                  # after an opening appears on the right, drive this far before turning
+ENTER = 120                # after turning into an opening, drive this far in before looking again
 
 hub = PrimeHub()
 left_motor = Motor(LEFT_MOTOR)
 right_motor = Motor(RIGHT_MOTOR, Direction.COUNTERCLOCKWISE)
 robot = DriveBase(left_motor, right_motor, WHEEL, AXLE)
-robot.settings(straight_speed=EXPLORE_SPEED, straight_acceleration=1500,
-               turn_rate=TURN_SPEED, turn_acceleration=2000)
-if USE_GYRO:
-    robot.use_gyro(True)
+robot.settings(straight_speed=SPEED, straight_acceleration=1500, turn_rate=TURN_SPEED, turn_acceleration=2000)
 front = UltrasonicSensor(FRONT_EYE)
 right = UltrasonicSensor(RIGHT_EYE)
 left = UltrasonicSensor(LEFT_EYE)
 
-DX = [0, 1, 0, -1]         # 0 = north, 1 = east, 2 = south, 3 = west
-DY = [1, 0, -1, 0]
-walls = [[0] * MAZE_H for _ in range(MAZE_W)]      # bit d set = wall on side d of the cell
-seen = [[False] * MAZE_H for _ in range(MAZE_W)]   # cells the robot has measured
 
-
-def inside(x, y):
-    return 0 <= x < MAZE_W and 0 <= y < MAZE_H
-
-
-def add_wall(x, y, d):
-    walls[x][y] |= 1 << d
-    nx, ny = x + DX[d], y + DY[d]
-    if inside(nx, ny):
-        walls[nx][ny] |= 1 << ((d + 2) % 4)
-
-
-for i in range(MAZE_W):                            # outer walls
-    add_wall(i, 0, 2)
-    add_wall(i, MAZE_H - 1, 0)
-for j in range(MAZE_H):
-    add_wall(0, j, 3)
-    add_wall(MAZE_W - 1, j, 1)
-
-
-def flood(targets, known_only=False):
-    """Distance (in cells) from every cell to the nearest target. Unknown walls count as open."""
-    dist = [[999] * MAZE_H for _ in range(MAZE_W)]
-    queue = []
-    for (x, y) in targets:
-        dist[x][y] = 0
-        queue.append((x, y))
-    i = 0
-    while i < len(queue):
-        x, y = queue[i]
-        i += 1
-        for d in range(4):
-            if walls[x][y] & (1 << d):
-                continue
-            nx, ny = x + DX[d], y + DY[d]
-            if not inside(nx, ny) or (known_only and not seen[nx][ny]):
-                continue
-            if dist[nx][ny] > dist[x][y] + 1:
-                dist[nx][ny] = dist[x][y] + 1
-                queue.append((nx, ny))
-    return dist
+def read(eye):
+    """Median of 3 readings. 2000 means nothing in range (open)."""
+    a, b, c = eye.distance(), eye.distance(), eye.distance()
+    return sorted([a, b, c])[1]
 
 
 def clamp(v, lo, hi):
     return max(lo, min(hi, v))
 
 
-def sense(x, y, h):
-    """Read the 3 sensors in the middle of a cell and store the walls."""
-    if left.distance() < WALL:
-        add_wall(x, y, (h + 3) % 4)
-    if front.distance() < WALL:
-        add_wall(x, y, h)
-    if right.distance() < WALL:
-        add_wall(x, y, (h + 1) % 4)
-    seen[x][y] = True
-
-
-def turn_to(h, d):
-    diff = (d - h) % 4
-    if diff == 1:
-        robot.turn(90)
-    elif diff == 2:
-        robot.turn(180)
-    elif diff == 3:
-        robot.turn(-90)
-    return d
-
-
-def drive_cells(n, speed):
-    """Drive n cells straight, centred between the walls, then fix the position on a front wall."""
-    target = n * CELL
-    robot.reset()
-    while robot.distance() < target:
-        f = front.distance()
-        if f < FRONT_CENTER:
-            break
-        l = left.distance()
-        r = right.distance()
-        if l < WALL and r < WALL:
-            steer = (r - l) * KP / 2
-        elif r < WALL:
-            steer = (r - SIDE_CENTER) * KP
-        elif l < WALL:
-            steer = (SIDE_CENTER - l) * KP
-        else:
-            steer = 0
-        left_to_go = target - robot.distance()
-        v = speed if left_to_go > 120 else max(150, speed * left_to_go / 120)   # slow down at the end
-        robot.drive(v, clamp(steer, -MAX_STEER, MAX_STEER))
+def turn(angle, icon):
     robot.stop()
-    f = front.distance()
-    if f < WALL:                                   # wall ahead: correct the distance error
-        robot.straight(f - FRONT_CENTER)
-
-
-def best_dir(x, y, h, dist):
-    best, best_d = None, 999
-    for k in (0, 1, 3, 2):                         # prefer straight, then right, left, back
-        d = (h + k) % 4
-        if walls[x][y] & (1 << d):
-            continue
-        nx, ny = x + DX[d], y + DY[d]
-        if inside(nx, ny) and dist[nx][ny] < best_d:
-            best, best_d = d, dist[nx][ny]
-    return best
-
-
-def explore(x, y, h, targets, icon):
-    """Map while driving to the targets (flood fill after every cell)."""
     hub.display.icon(icon)
-    while (x, y) not in targets:
-        sense(x, y, h)
-        dist = flood(targets)
-        d = best_dir(x, y, h, dist)
-        if d is None:                              # no way out (maze settings wrong)
-            hub.light.on(Color.RED)
-            return x, y, h
-        h = turn_to(h, d)
-        drive_cells(1, EXPLORE_SPEED)
-        x, y = x + DX[h], y + DY[h]
-    sense(x, y, h)
-    return x, y, h
+    robot.turn(angle)
+    hub.display.icon(Icon.ARROW_UP)
 
 
-def speed_run(x, y, h):
-    """Follow the shortest known path; join straight cells into one fast move."""
-    hub.display.icon(Icon.FULL)
-    dist = flood(GOALS, known_only=True)
-    if dist[x][y] >= 999:
-        dist = flood(GOALS)
-    while (x, y) not in GOALS:
-        d = best_dir(x, y, h, dist)
-        if d is None:
-            break
-        h = turn_to(h, d)
-        n = 0
-        cx, cy = x, y
-        while True:                                # count cells in this straight line
-            nx, ny = cx + DX[h], cy + DY[h]
-            if walls[cx][cy] & (1 << h) or not inside(nx, ny) or dist[nx][ny] != dist[cx][cy] - 1:
-                break
-            cx, cy = nx, ny
-            n += 1
-            if (cx, cy) in GOALS:
-                break
-        drive_cells(n, RUN_SPEED)
-        x, y = cx, cy
-    return x, y, h
+def unstuck():
+    hub.light.on(Color.RED)
+    robot.stop()
+    robot.straight(-80)
+    turn(180, Icon.ARROW_DOWN)
+    hub.light.on(Color.GREEN)
+
+
+def at_front_wall():
+    """Stopped at a wall: check RIGHT first, then left, else turn around."""
+    robot.stop()
+    r, l = read(right), read(left)
+    if r > OPEN:
+        turn(90, Icon.ARROW_RIGHT)
+    elif l > OPEN:
+        turn(-90, Icon.ARROW_LEFT)
+    elif r > l and r > WALL:
+        turn(90, Icon.ARROW_RIGHT)          # right is a bit more open
+    elif l > WALL:
+        turn(-90, Icon.ARROW_LEFT)
+    else:
+        turn(180, Icon.ARROW_DOWN)          # dead end
 
 
 # ---------------- MAIN ----------------
 hub.light.on(Color.GREEN)
-wait(1000)
-x, y, h = START[0], START[1], 0
-x, y, h = explore(x, y, h, GOALS, Icon.ARROW_UP)          # 1. search to the goal
-hub.light.on(Color.YELLOW)
-x, y, h = explore(x, y, h, [START], Icon.ARROW_DOWN)       # 2. search back to the start
-h = turn_to(h, 0)
-hub.light.on(Color.MAGENTA)
-wait(1000)
-x, y, h = speed_run(x, y, h)                               # 3. fast run on the shortest path
-hub.light.on(Color.BLUE)
-hub.display.icon(Icon.HAPPY)
-wait(5000)
+hub.display.icon(Icon.ARROW_UP)
+wait(500)
+had_right_wall = False
+open_count = 0
+turns_in_a_row = 0
+stuck = StopWatch()
+
+while True:
+    f = front.distance()
+    r = right.distance()
+    l = left.distance()
+
+    # 1) wall in front -> choose a side
+    if f < FRONT_STOP:
+        at_front_wall()
+        turns_in_a_row += 1
+        if turns_in_a_row >= 4:              # spinning in place = trapped
+            unstuck()
+            turns_in_a_row = 0
+        had_right_wall, open_count = False, 0
+        stuck.reset()
+        continue
+
+    # 2) opening on the right -> take it (right-hand rule)
+    if r < WALL:
+        had_right_wall = True
+        open_count = 0
+    elif r > OPEN and had_right_wall:
+        open_count += 1
+        if open_count >= 2:
+            robot.straight(PASS)
+            turn(90, Icon.ARROW_RIGHT)
+            robot.straight(ENTER)
+            had_right_wall, open_count, turns_in_a_row = False, 0, 0
+            stuck.reset()
+            continue
+
+    # 3) drive: follow the right wall, avoid the left wall, slow down near a front wall
+    if r < WALL:
+        steer = (r - RIGHT_TARGET) * KP
+    elif l < WALL:
+        steer = (RIGHT_TARGET - l) * KP
+    else:
+        steer = 0
+    v = SPEED if f > SLOW_ZONE else max(150, SPEED * (f - FRONT_STOP) / (SLOW_ZONE - FRONT_STOP))
+    robot.drive(v, clamp(steer, -MAX_STEER, MAX_STEER))
+
+    # 4) anti-stuck: wheels not turning while driving
+    if abs(robot.state()[1]) > 40:
+        stuck.reset()
+        if robot.distance() > 50:
+            turns_in_a_row = 0
+    elif stuck.time() > 600:
+        unstuck()
+        stuck.reset()
+    wait(5)
