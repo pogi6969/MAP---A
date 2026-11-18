@@ -3,6 +3,10 @@
 #  1. SEARCH  : maps the maze cell by cell, flood fill picks the shortest way to the goal
 #  2. RETURN  : maps more on the way back to the start
 #  3. SPEED RUN: shortest known path, straights joined, braking curve v = sqrt(2*a*d)
+#  MEMORY: the map is saved in the hub (hub.system.storage). Next run it skips the search and
+#  goes straight to a SMOOTH run: no stops at corners, 90 deg turns are driven as arcs (radius = CELL/2).
+#  Hold the LEFT button while starting to forget the saved map. Turn the hub off with the button
+#  (not by pulling the battery) so the map is written to memory.
 #  Math used:
 #   - sensor geometry  -> expected readings when centred (SIDE_CENTER, FRONT_CENTER)
 #   - wall threshold   -> half way into the next cell
@@ -14,7 +18,7 @@
 # ================================================================
 from pybricks.hubs import PrimeHub
 from pybricks.pupdevices import Motor, UltrasonicSensor
-from pybricks.parameters import Port, Direction, Color, Icon
+from pybricks.parameters import Port, Direction, Color, Icon, Button, Stop
 from pybricks.robotics import DriveBase
 from pybricks.tools import wait, StopWatch
 import umath
@@ -53,6 +57,8 @@ SENSOR_MIN = 30                          # ultrasonic blind zone; below this = v
 # ---------------- MOTION ----------------
 SEARCH_SPEED = 350           # mm/s
 RUN_SPEED = 700              # mm/s (speed run)
+SMOOTH_SPEED = 600           # mm/s on remembered runs
+ARC_SPEED = 300              # mm/s through the arc turns
 V_MIN = 120                  # mm/s minimum while braking
 ACCEL = 1800                 # mm/s^2 (used for the braking curve too)
 TURN_SPEED = 400             # deg/s
@@ -116,6 +122,42 @@ for i in range(MAZE_W):
 for j in range(MAZE_H):
     add_wall(0, j, 3)
     add_wall(MAZE_W - 1, j, 1)
+
+
+# ---------------- MEMORY (map saved in the hub) ----------------
+MAGIC = b"MZ"
+
+
+def save_map():
+    data = bytes([MAGIC[0], MAGIC[1], MAZE_W, MAZE_H, CELL // 10])
+    data += bytes([(walls[x][y] & 15) | (16 if seen[x][y] else 0) for x in range(MAZE_W) for y in range(MAZE_H)])
+    try:
+        hub.system.storage(0, write=data)
+    except Exception:
+        print("this firmware has no storage - update Pybricks to save the map")
+
+
+def load_map():
+    try:
+        data = hub.system.storage(0, read=5 + MAZE_W * MAZE_H)
+    except Exception:
+        return False
+    if data[0] != MAGIC[0] or data[1] != MAGIC[1] or data[2] != MAZE_W or data[3] != MAZE_H or data[4] != CELL // 10:
+        return False
+    k = 5
+    for x in range(MAZE_W):
+        for y in range(MAZE_H):
+            walls[x][y] |= data[k] & 15
+            seen[x][y] = bool(data[k] & 16)
+            k += 1
+    return True
+
+
+def forget_map():
+    try:
+        hub.system.storage(0, write=bytes(5))
+    except Exception:
+        pass
 
 
 def flood(targets, known_only=False):
@@ -283,22 +325,121 @@ def speed_run(x, y, h):
     return x, y, h
 
 
+def path_dirs(x, y, dist):
+    """List of headings, one per cell, from (x, y) down the flood-fill distances to the goal."""
+    dirs = []
+    h = None
+    while (x, y) not in GOALS:
+        d = best_dir(x, y, h if h is not None else 0, dist)
+        if d is None or dist[x + DX[d]][y + DY[d]] >= dist[x][y]:
+            return None
+        dirs.append(d)
+        x, y, h = x + DX[d], y + DY[d], d
+    return dirs
+
+
+def drive_mm(dist_mm, vmax, stop_end):
+    """Drive a distance with PD wall centring; keeps rolling at the end if stop_end is False."""
+    robot.reset()
+    while True:
+        s = robot.distance()
+        to_go = dist_mm - s
+        if to_go <= 2:
+            break
+        f, l, r = read(front, 1), read(left, 1), read(right, 1)
+        if f < FRONT_CENTER + 5:
+            break
+        if l < SIDE_WALL and r < SIDE_WALL:
+            e = (r - l) / 2
+        elif r < SIDE_WALL:
+            e = r - SIDE_CENTER
+        elif l < SIDE_WALL:
+            e = SIDE_CENTER - l
+        else:
+            e = 0
+        end_v = V_MIN if stop_end else ARC_SPEED
+        v = clamp(umath.sqrt(end_v * end_v + 2 * ACCEL * max(to_go, 0)) * 0.9, end_v, vmax)   # v^2 = v_end^2 + 2*a*d
+        robot.drive(v, clamp(KP * e, -MAX_STEER, MAX_STEER))
+        wait(5)
+    if stop_end:
+        robot.stop()
+
+
+def smooth_run(x, y, h):
+    """Remembered map: drive the shortest path without stopping, corners as arcs of radius CELL/2."""
+    dist = flood(GOALS, known_only=True)
+    dirs = path_dirs(x, y, dist)
+    if not dirs:
+        return None
+    hub.display.icon(Icon.FULL)
+    runs = []                                            # [heading, cells]
+    for d in dirs:
+        if runs and runs[-1][0] == d:
+            runs[-1][1] += 1
+        else:
+            runs.append([d, 1])
+    h = turn_to(h, runs[0][0])
+    robot.settings(straight_speed=ARC_SPEED)              # arcs use this speed (set while stopped)
+    for i, (d, n) in enumerate(runs):
+        length = n * CELL
+        if i > 0:
+            length -= CELL / 2                           # came out of an arc half way into the cell
+        last = i == len(runs) - 1
+        if not last:
+            length -= CELL / 2                           # start the next arc half a cell early
+        if length > 0:
+            drive_mm(length, SMOOTH_SPEED, last)
+        if not last:
+            diff = (runs[i + 1][0] - d) % 4
+            angle = 90 if diff == 1 else -90
+            robot.curve(CELL / 2, angle, Stop.NONE)      # arc turn without stopping
+    robot.stop()
+    f = read(front, 3)
+    if f < FRONT_WALL:
+        robot.straight(f - FRONT_CENTER)
+    for d, n in runs:
+        x, y = x + DX[d] * n, y + DY[d] * n
+    return x, y, runs[-1][0]
+
+
 # ---------------- MAIN ----------------
 print("side centred", SIDE_CENTER, "| front centred", FRONT_CENTER, "| side wall <", SIDE_WALL, "| front wall <", FRONT_WALL)
 if SIDE_CENTER < 40 or FRONT_CENTER < 40:
     print("WARNING: robot too wide for this CELL - sensors would be closer than 4 cm (ultrasonic blind zone)")
-hub.light.on(Color.GREEN)
-wait(1000)
-x, y, h = START[0], START[1], 0
-x, y, h = explore(x, y, h, GOALS, Icon.ARROW_UP)          # 1. search
-hub.light.on(Color.YELLOW)
-x, y, h = explore(x, y, h, [START], Icon.ARROW_DOWN)       # 2. back to start
-h = turn_to(h, 0)
-print_map()
-hub.light.on(Color.MAGENTA)
-wait(1500)
-x, y, h = speed_run(x, y, h)                               # 3. speed run
-hub.light.on(Color.BLUE)
-hub.display.icon(Icon.HAPPY)
-print("done at", x, y)
-wait(5000)
+def main():
+    if Button.LEFT in hub.buttons.pressed():
+        forget_map()
+        print("map forgotten")
+    remembered = load_map()
+    hub.light.on(Color.GREEN)
+    wait(1000)
+    x, y, h = START[0], START[1], 0
+    if remembered and path_dirs(x, y, flood(GOALS, known_only=True)):
+        print("map remembered - smooth run")
+        print_map()
+        hub.light.on(Color.CYAN)
+        res = smooth_run(x, y, h)
+        if res:
+            hub.light.on(Color.BLUE)
+            hub.display.icon(Icon.HAPPY)
+            print("done at", res[0], res[1])
+            wait(5000)
+            return
+    x, y, h = explore(x, y, h, GOALS, Icon.ARROW_UP)          # 1. search
+    save_map()
+    hub.light.on(Color.YELLOW)
+    x, y, h = explore(x, y, h, [START], Icon.ARROW_DOWN)       # 2. back to start
+    h = turn_to(h, 0)
+    save_map()
+    print_map()
+    hub.light.on(Color.MAGENTA)
+    wait(1500)
+    x, y, h = speed_run(x, y, h)                               # 3. speed run
+    save_map()
+    hub.light.on(Color.BLUE)
+    hub.display.icon(Icon.HAPPY)
+    print("done at", x, y, "- map saved, next run will be smooth")
+    wait(5000)
+
+
+main()
