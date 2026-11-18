@@ -27,8 +27,8 @@ KP = 1.2                   # steering strength for keeping straight
 MAX_STEER = 60             # deg/s
 
 hub = PrimeHub()
-left_motor = Motor(LEFT_MOTOR, Direction.COUNTERCLOCKWISE)
-right_motor = Motor(RIGHT_MOTOR)
+left_motor = Motor(LEFT_MOTOR)                                 # forward fixed: directions swapped
+right_motor = Motor(RIGHT_MOTOR, Direction.COUNTERCLOCKWISE)
 robot = DriveBase(left_motor, right_motor, WHEEL, AXLE)
 robot.settings(straight_speed=SPEED, turn_rate=TURN_SPEED)
 try:
