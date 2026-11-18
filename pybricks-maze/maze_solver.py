@@ -116,6 +116,29 @@ def add_wall(x, y, d):
         walls[nx][ny] |= 1 << ((d + 2) % 4)
 
 
+def remove_wall(x, y, d):
+    """Clear a wall that was misread (outer walls always stay)."""
+    nx, ny = x + DX[d], y + DY[d]
+    if not inside(nx, ny):
+        return
+    walls[x][y] &= ~(1 << d)
+    walls[nx][ny] &= ~(1 << ((d + 2) % 4))
+
+
+def reset_inner_walls():
+    """Forget every inside wall (keeps the outer walls) - used when the map has no way out."""
+    for i in range(MAZE_W):
+        for j in range(MAZE_H):
+            walls[i][j] = 0
+            seen[i][j] = False
+    for i in range(MAZE_W):
+        add_wall(i, 0, 2)
+        add_wall(i, MAZE_H - 1, 0)
+    for j in range(MAZE_H):
+        add_wall(0, j, 3)
+        add_wall(MAZE_W - 1, j, 1)
+
+
 for i in range(MAZE_W):
     add_wall(i, 0, 2)
     add_wall(i, MAZE_H - 1, 0)
@@ -183,14 +206,18 @@ def flood(targets, known_only=False):
     return dist
 
 
+HYST = 40                    # mm: reading must be this far past the threshold to REMOVE a wall
+
+
 def sense(x, y, h):
-    """At a cell centre: read the 3 sensors (5 samples each) and store the walls."""
-    if read(left, 5) < SIDE_WALL:
-        add_wall(x, y, (h + 3) % 4)
-    if read(front, 5) < FRONT_WALL:
-        add_wall(x, y, h)
-    if read(right, 5) < SIDE_WALL:
-        add_wall(x, y, (h + 1) % 4)
+    """At a cell centre: read the 3 sensors (5 samples each). Adds walls it sees and removes walls
+    that were misread before, so one bad reading can no longer block the maze forever."""
+    for eye, d, th in ((left, (h + 3) % 4, SIDE_WALL), (front, h, FRONT_WALL), (right, (h + 1) % 4, SIDE_WALL)):
+        v = read(eye, 5)
+        if v < th:
+            add_wall(x, y, d)
+        elif v > th + HYST:
+            remove_wall(x, y, d)
     seen[x][y] = True
 
 
@@ -281,20 +308,45 @@ def best_dir(x, y, h, dist):
     return best
 
 
+def any_open_dir(x, y, h):
+    """Right-hand rule fallback: right, straight, left, back - first side without a wall."""
+    for k in (1, 0, 3, 2):
+        d = (h + k) % 4
+        if not walls[x][y] & (1 << d) and inside(x + DX[d], y + DY[d]):
+            return d
+    return (h + 2) % 4
+
+
 def explore(x, y, h, targets, icon):
+    """Map while driving to the targets. Never gives up: if the map says there is no way out
+    (a misread wall), it forgets the inside walls, re-reads the sensors and keeps going."""
     hub.display.icon(icon)
+    steps, resets = 0, 0
     while (x, y) not in targets:
         sense(x, y, h)
-        d = best_dir(x, y, h, flood(targets))
+        dist = flood(targets)
+        d = best_dir(x, y, h, dist) if dist[x][y] < 999 else None
         if d is None:
-            hub.light.on(Color.RED)
-            print("no path - check MAZE_W / MAZE_H / GOALS / thresholds")
-            return x, y, h
+            print("no way out on the map - forgetting inside walls and re-mapping")
+            hub.light.on(Color.ORANGE)
+            reset_inner_walls()
+            resets += 1
+            sense(x, y, h)
+            dist = flood(targets)
+            d = best_dir(x, y, h, dist) if dist[x][y] < 999 else None
+            if d is None:
+                d = any_open_dir(x, y, h)              # still blocked: follow the right wall
+            hub.light.on(Color.GREEN if targets == GOALS else Color.YELLOW)
         h = turn_to(h, d)
         if drive_cells(1, SEARCH_SPEED):
             x, y = x + DX[h], y + DY[h]
         else:
             add_wall(x, y, h)                          # stuck = there is a wall the sensor missed
+        steps += 1
+        if steps > MAZE_W * MAZE_H * 6:                # wandering too long = map is wrong
+            print("too many steps - re-mapping")
+            reset_inner_walls()
+            steps = 0
     sense(x, y, h)
     return x, y, h
 
