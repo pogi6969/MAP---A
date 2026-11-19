@@ -1,0 +1,172 @@
+<title>SPIKE Line Coder</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* layout: setup panel, three generator tabs, code box under each */
+:root{--bg:#f5f5f2;--panel:#fff;--fg:#1b1d1f;--muted:#5f656b;--line:#d9dbd6;--accent:#c2410c;--accent-fg:#fff;--ok:#15803d;--bad:#b91c1c;--code-bg:#111315;--code-fg:#e4e6e8;
+--display:"Space Grotesk",system-ui,sans-serif;--body:Inter,system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,monospace}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121314;--panel:#1b1d1f;--fg:#ecedee;--muted:#a1a6ab;--line:#2d3033;--accent:#fb923c;--accent-fg:#1b1d1f;--ok:#4ade80;--bad:#f87171;--code-bg:#0a0b0c;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#121314;--panel:#1b1d1f;--fg:#ecedee;--muted:#a1a6ab;--line:#2d3033;--accent:#fb923c;--accent-fg:#1b1d1f;--ok:#4ade80;--bad:#f87171;--code-bg:#0a0b0c;color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font:14px/1.5 var(--body);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
+.wrap{max-width:1040px;margin:0 auto;display:grid;gap:16px}
+h1{font:700 26px var(--display);margin:0}h2{font:700 17px var(--display);margin:0 0 8px}
+.sub,.note{color:var(--muted);margin:2px 0 0;font-size:13px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;min-width:0}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+label{display:grid;gap:3px;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+input,select{font:14px var(--body);color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:6px 8px;min-width:0;text-transform:none;letter-spacing:0}
+:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.tabs,.row,.chips{display:flex;gap:8px;flex-wrap:wrap;align-items:end}
+.tab,.btn{font:600 14px var(--body);padding:8px 14px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--fg);cursor:pointer}
+.tab[aria-selected="true"],.btn{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}@media(max-width:760px){.two{grid-template-columns:minmax(0,1fr)}}
+canvas{max-width:100%;border:1px solid var(--line);border-radius:6px;background:#fff;cursor:crosshair;touch-action:none}
+.code{position:relative}.code pre{background:var(--code-bg);color:var(--code-fg);font:12px/1.5 var(--mono);padding:12px;border-radius:8px;overflow:auto;max-height:420px;margin:0}
+.code .btn{position:absolute;top:8px;right:8px;padding:5px 10px;font-size:12px}
+.chip{font:600 12px var(--mono);padding:4px 9px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer}
+.ok{color:var(--ok);font-weight:600}.bad{color:var(--bad);font-weight:600}ol{margin:6px 0 0;padding-left:20px}
+</style>
+<div class="wrap">
+<header><h1>SPIKE Line Coder</h1><p class="sub">Pybricks code for a SPIKE Prime line follower: from a line map, from calibration, or from your choices at each junction.</p></header>
+<section class="panel"><h2>Robot setup <span class="note">(used by all 3 generators)</span></h2><div class="grid">
+<label>Left motor<select id="pLM"></select></label><label>Right motor<select id="pRM"></select></label>
+<label>Sensors<select id="ns"><option value="2">2 colour sensors</option><option value="1">1 colour sensor</option></select></label>
+<label>Left colour sensor<select id="pS1"></select></label><label>Right colour sensor<select id="pS2"></select></label>
+<label>Wheel Ø mm<input id="wheel" type="number" value="56"></label><label>Axle track mm<input id="axle" type="number" value="112"></label>
+<label>Black reflection %<input id="blk" type="number" value="10"></label><label>White reflection %<input id="wht" type="number" value="80"></label>
+<label>Fast speed mm/s<input id="vfast" type="number" value="350"></label><label>Curve speed mm/s<input id="vslow" type="number" value="160"></label>
+<label>Kp<input id="kp" type="number" step="0.1" value="2.5"></label><label>Kd<input id="kd" type="number" step="0.1" value="8"></label>
+<label>Sensor → axle mm<input id="sofs" type="number" value="60"></label>
+<label>Motors reversed<select id="rev"><option value="1">yes</option><option value="0">no</option></select></label>
+</div></section>
+<nav class="tabs" role="tablist"><button class="tab" id="t-map" aria-selected="true">1 · Line map → code</button><button class="tab" id="t-cal" aria-selected="false">2 · Calibrate sensors</button><button class="tab" id="t-teach" aria-selected="false">3 · Teach &amp; replay</button></nav>
+
+<section class="panel" id="v-map"><h2>Upload a line map</h2>
+<div class="row"><label>Map image (black line on white)<input id="file" type="file" accept="image/*"></label><label>Map width mm<input id="mapw" type="number" value="1200"></label>
+<label>Line darkness<input id="thr" type="range" min="40" max="200" value="110"></label><button class="btn" id="trace">Trace line</button></div>
+<p class="note">Click the map on the line where the robot starts, then click once more a bit ahead to set its direction. A sample track is loaded.</p>
+<div class="two" style="margin-top:10px"><div><canvas id="cv" width="520" height="360" aria-label="Line map: green is the traced route, numbers are junctions"></canvas></div>
+<div><h2>Route</h2><p id="info" class="note"></p><div class="chips" id="jn"></div><p class="note">Click a junction to choose S (straight), L or R.</p>
+<h2 style="margin-top:12px">What the code does</h2><ol class="note"><li>PD line following: turn = Kp·error + Kd·Δerror, error from the reflection values.</li><li>Speed from the map: fast on straights, slow before curves (the map's curvature at each distance).</li><li>At each junction (both sensors on black) it takes the choice you set, then finds the line again. Gaps: drives straight until it sees the line.</li></ol></div></div>
+<div class="code" style="margin-top:12px"><button class="btn" data-copy="oMap">Copy code</button><pre id="oMap"></pre></div></section>
+
+<section class="panel" id="v-cal" hidden><h2>Calibrate sensors</h2>
+<ol class="note"><li>Run this program. Put the sensors over <b>white</b> and press <b>right</b>.</li><li>Put them over the <b>black line</b> and press <b>left</b>.</li><li>Copy the <code>CAL</code> line from the console and paste it here.</li></ol>
+<div class="row" style="margin-top:10px"><label style="flex:1 1 320px">Paste the CAL line<input id="calin" placeholder="CAL black=9 white=78"></label><button class="btn" id="calapply">Apply to setup</button></div>
+<p class="note" id="calmsg"></p><div class="code" style="margin-top:12px"><button class="btn" data-copy="oCal">Copy code</button><pre id="oCal"></pre></div></section>
+
+<section class="panel" id="v-teach" hidden><h2>Teach &amp; replay</h2>
+<ol class="note"><li><b>First run:</b> it follows the line. At every junction it stops and waits: <b>left</b> = turn left, <b>right</b> = turn right, <b>Bluetooth</b> = straight. Each choice is saved in the hub.</li><li>Hold <b>left + right</b> together at a junction to finish and save.</li><li><b>Next runs:</b> no stopping. It uses the saved choices at full speed.</li><li>Hold <b>left</b> while starting the program to teach again.</li></ol>
+<div class="code" style="margin-top:12px"><button class="btn" data-copy="oTeach">Copy code</button><pre id="oTeach"></pre></div></section>
+</div>
+<script>
+const $=id=>document.getElementById(id),num=id=>parseFloat($(id).value)||0,PORTS="ABCDEF".split("");
+[["pLM","B"],["pRM","E"],["pS1","C"],["pS2","D"]].forEach(([id,v])=>$(id).innerHTML=PORTS.map(p=>`<option${p===v?" selected":""}>${p}</option>`).join(""));
+["map","cal","teach"].forEach(k=>$("t-"+k).onclick=()=>["map","cal","teach"].forEach(j=>{$("t-"+j).setAttribute("aria-selected",j===k);$("v-"+j).hidden=j!==k;}));
+
+function header(t){const rev=$("rev").value==="1",two=$("ns").value==="2";return[
+`# ${t} - generated by SPIKE Line Coder (Pybricks, SPIKE Prime)`,
+`from pybricks.hubs import PrimeHub`,`from pybricks.pupdevices import Motor, ColorSensor`,`from pybricks.parameters import Port, Direction, Color, Icon, Button`,
+`from pybricks.robotics import DriveBase`,`from pybricks.tools import wait, StopWatch`,``,
+`WHEEL = ${num("wheel")}`,`AXLE = ${num("axle")}`,`BLACK = ${num("blk")}            # reflection % on the line`,`WHITE = ${num("wht")}            # reflection % on the background`,
+`TARGET = (BLACK + WHITE) / 2    # edge value`,`ON_LINE = BLACK + (WHITE - BLACK) * 0.3   # below this = sensor sees black`,
+`FAST = ${num("vfast")}            # mm/s straights`,`SLOW = ${num("vslow")}            # mm/s curves`,`KP = ${num("kp")}`,`KD = ${num("kd")}`,`SENSOR_OFS = ${num("sofs")}       # sensors ahead of the wheels, mm`,`TWO_SENSORS = ${two?"True":"False"}`,``,
+`hub = PrimeHub()`,`left_motor = Motor(Port.${$("pLM").value}${rev?"":", Direction.COUNTERCLOCKWISE"})`,`right_motor = Motor(Port.${$("pRM").value}${rev?", Direction.COUNTERCLOCKWISE":""})`,
+`robot = DriveBase(left_motor, right_motor, WHEEL, AXLE)`,`robot.settings(straight_speed=FAST, turn_rate=300)`,
+`s1 = ColorSensor(Port.${$("pS1").value})`,two?`s2 = ColorSensor(Port.${$("pS2").value})`:`s2 = None`,``,``,
+`def error():`,`    """+ = line is to the right of the robot"""`,`    if TWO_SENSORS:`,`        return s1.reflection() - s2.reflection()`,`    return s1.reflection() - TARGET      # 1 sensor follows the right edge of the line`,``,``,
+`def junction():`,`    """both sensors on black = crossing / T-junction"""`,`    return TWO_SENSORS and s1.reflection() < ON_LINE and s2.reflection() < ON_LINE`,``,``,
+`def lost():`,`    if TWO_SENSORS:`,`        return s1.reflection() > WHITE - 10 and s2.reflection() > WHITE - 10`,`    return s1.reflection() > WHITE - 10`,``,``,
+`def find_line(direction):`,`    """spin slowly until a sensor is back on the line (direction: +1 right, -1 left)"""`,`    robot.drive(0, 120 * direction)`,`    t = StopWatch()`,
+`    while lost() and t.time() < 3000:`,`        wait(5)`,`    robot.stop()`,``,``,
+`def take(choice):`,`    """S = straight, L / R = turn at a junction"""`,`    robot.straight(SENSOR_OFS)              # wheels onto the junction`,`    if choice == "L":`,`        robot.turn(-70)`,`        find_line(-1)`,`    elif choice == "R":`,`        robot.turn(70)`,`        find_line(1)`,`    else:`,`        robot.straight(25)`,``,``];}
+const follow=(speedExpr)=>[`    e = error()`,`    turn = KP * e + KD * (e - last_e)`,`    last_e = e`,`    if lost():`,`        robot.drive(${speedExpr}, 0)              # gap: keep straight`,`        gap.resume()`,`        if gap.time() > 1500:`,`            find_line(1 if last_e > 0 else -1)`,`            gap.reset()`,`    else:`,`        gap.reset()`,`        gap.pause()`,`        robot.drive(${speedExpr}, turn)`];
+
+/* ---- line map ---- */
+const cv=$("cv"),cx=cv.getContext("2d");let img=null,startP=null,dirP=null,route=null,choices={};
+function sampleTrack(){cx.fillStyle="#fff";cx.fillRect(0,0,cv.width,cv.height);cx.strokeStyle="#111";cx.lineWidth=14;cx.lineCap="round";cx.lineJoin="round";
+ cx.beginPath();cx.moveTo(40,320);cx.lineTo(40,120);cx.quadraticCurveTo(40,40,120,40);cx.lineTo(380,40);cx.bezierCurveTo(500,40,500,200,380,200);cx.lineTo(160,200);cx.quadraticCurveTo(120,200,120,240);cx.lineTo(120,320);cx.lineTo(480,320);cx.stroke();
+ cx.beginPath();cx.moveTo(270,40);cx.lineTo(270,320);cx.stroke();
+ startP=[40,320];dirP=[40,290];}
+let base=null;
+function grab(){base=cx.getImageData(0,0,cv.width,cv.height);}
+function dark(x,y){const W=cv.width,H=cv.height;if(x<0||y<0||x>=W||y>=H)return false;const i=((y|0)*W+(x|0))*4,d=base.data;return d[i]*.3+d[i+1]*.59+d[i+2]*.11<num("thr");}
+function trace(){
+ if(!startP||!dirP){$("info").innerHTML='<span class="bad">Click the start on the line, then a point ahead of it.</span>';return;}
+ const r=9,pts=[startP.slice()],js=[];let h=Math.atan2(dirP[1]-startP[1],dirP[0]-startP[0]),p=startP.slice(),cool=0,jn=0;
+ for(let step=0;step<1500;step++){
+  const arcs=[];let run=null;
+  for(let k=0;k<=96;k++){const a=k/96*2*Math.PI,on=dark(p[0]+r*Math.cos(a),p[1]+r*Math.sin(a));if(on&&run===null)run=a;if((!on||k===96)&&run!==null){arcs.push((run+a)/2);run=null;}}
+  let cands=arcs.map(a=>{let d=Math.atan2(Math.sin(a-h),Math.cos(a-h));return{a,d};}).filter(c=>Math.abs(c.d)<1.75);
+  if(!cands.length){ // gap: look further ahead
+   let found=null;for(let R=2*r;R<=8*r&&!found;R+=r){for(let d=-.4;d<=.4;d+=.1){const a=h+d;if(dark(p[0]+R*Math.cos(a),p[1]+R*Math.sin(a))){found=[p[0]+R*Math.cos(a),p[1]+R*Math.sin(a)];break;}}}
+   if(!found)break;p=found;pts.push(p.slice());continue;}
+  let pick;cands.sort((x,y)=>Math.abs(x.d)-Math.abs(y.d));
+  if(cands.length>1&&cool<=0){const c=choices[jn]||"S";const L=cands.filter(c=>c.d<-.5),Rr=cands.filter(c=>c.d>.5),S=cands.filter(c=>Math.abs(c.d)<=.5);
+   js.push({i:jn,at:pts.length,opts:(L.length?"L":"")+(S.length?"S":"")+(Rr.length?"R":"")});
+   pick=(c==="L"&&L[0])||(c==="R"&&Rr[0])||S[0]||cands[0];jn++;cool=4;}
+  else{pick=cands[0];cool--;}
+  h=pick.a;p=[p[0]+r*Math.cos(h),p[1]+r*Math.sin(h)];pts.push(p.slice());
+  if(step>20&&Math.hypot(p[0]-startP[0],p[1]-startP[1])<r)break;}
+ route={pts,js};drawRoute();gen();}
+function drawRoute(){cx.putImageData(base,0,0);if(!route)return;const{pts,js}=route;
+ cx.strokeStyle="#16a34a";cx.lineWidth=4;cx.beginPath();pts.forEach((q,i)=>i?cx.lineTo(...q):cx.moveTo(...q));cx.stroke();
+ cx.font="bold 13px Inter,sans-serif";js.forEach(j=>{const q=pts[j.at-1];cx.fillStyle="#c2410c";cx.beginPath();cx.arc(q[0],q[1],9,0,7);cx.fill();cx.fillStyle="#fff";cx.textAlign="center";cx.textBaseline="middle";cx.fillText(j.i+1,q[0],q[1]);});
+ cx.fillStyle="#2563eb";cx.beginPath();cx.arc(startP[0],startP[1],7,0,7);cx.fill();}
+cv.addEventListener("pointerdown",e=>{const b=cv.getBoundingClientRect(),x=(e.clientX-b.left)*cv.width/b.width,y=(e.clientY-b.top)*cv.height/b.height;
+ if(!startP||dirP){startP=[x,y];dirP=null;route=null;cx.putImageData(base,0,0);cx.fillStyle="#2563eb";cx.beginPath();cx.arc(x,y,7,0,7);cx.fill();$("info").textContent="Now click a point a little ahead on the line.";}
+ else{dirP=[x,y];choices={};trace();}});
+function gen(){
+ if(!route||route.pts.length<5){$("oMap").textContent="# trace the line first";return;}
+ const mm=num("mapw")/cv.width,P=route.pts,seg=[];let L=0;const step=[];for(let i=1;i<P.length;i++){L+=Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1])*mm;step.push(L);}
+ // curvature: heading change over ~5 steps -> speed (curve if > 25 deg)
+ const hd=i=>Math.atan2(P[i+1][1]-P[i][1],P[i+1][0]-P[i][0]);let plan=[];
+ for(let i=0;i<P.length-6;i++){let d=Math.abs(Math.atan2(Math.sin(hd(i+5)-hd(i)),Math.cos(hd(i+5)-hd(i))))*180/Math.PI;const curve=d>25;const at=Math.max(0,(step[i-1]||0)-120);
+  if(!plan.length||plan[plan.length-1][1]!==curve)plan.push([Math.round(at),curve]);}
+ const js=route.js;$("info").innerHTML=`<span class="ok">${(L/1000).toFixed(2)} m traced</span>, ${js.length} junctions, ${plan.filter(p=>p[1]).length} curves.`;
+ $("jn").innerHTML=js.map(j=>`<button class="chip" data-i="${j.i}">#${j.i+1} ${choices[j.i]||"S"} <span style="opacity:.6">(${j.opts})</span></button>`).join("");
+ $("jn").querySelectorAll("button").forEach(b=>b.onclick=()=>{const i=+b.dataset.i,o="SLR",c=choices[i]||"S";choices[i]=o[(o.indexOf(c)+1)%3];trace();});
+ const lines=header("LINE MAP RUN").concat([
+`SPEED_PLAN = [${plan.map(p=>`(${p[0]}, ${p[1]?"SLOW":"FAST"})`).join(", ")}]   # (from mm, speed) - slows 120 mm before curves`,
+`JUNCTIONS = [${js.map(j=>`"${choices[j.i]||"S"}"`).join(", ")}]   # choice at each junction, in order`,
+`TRACK_MM = ${Math.round(L)}`,``,``,
+`def plan_speed(d):`,`    v = FAST`,`    for at, s in SPEED_PLAN:`,`        if d >= at:`,`            v = s`,`    return v`,``,``,
+`hub.light.on(Color.GREEN)`,`wait(500)`,`last_e = 0`,`k = 0`,`gap = StopWatch()`,`gap.pause()`,`odo = 0                                 # distance along the track`,`robot.reset()`,
+`while odo < TRACK_MM + 100:`,`    odo = robot.distance()`,`    if junction():`,`        c = JUNCTIONS[k] if k < len(JUNCTIONS) else "S"`,`        k += 1`,`        hub.display.char(c)`,`        d0 = robot.distance()`,`        take(c)`,`        robot.reset()`,`        robot.straight(0)`,`        odo_base = d0`,`        continue`].concat(follow("plan_speed(odo)")).concat([`    wait(5)`,`robot.stop()`,`hub.display.icon(Icon.HAPPY)`,`wait(2000)`]));
+ // keep odometry across junction resets
+ $("oMap").textContent=lines.join("\n").replace("        robot.reset()\n        robot.straight(0)\n        odo_base = d0\n","").replace("    odo = robot.distance()","    odo = robot.distance()                  # DriveBase keeps counting through turns");}
+$("file").onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{const im=new Image();im.onload=()=>{img=im;const s=Math.min(520/im.width,520/im.height);cv.width=Math.round(im.width*s);cv.height=Math.round(im.height*s);cx.drawImage(im,0,0,cv.width,cv.height);grab();startP=dirP=route=null;$("info").textContent="Click the start on the line.";$("oMap").textContent="# click the start and direction on the map";};im.src=rd.result;};rd.readAsDataURL(f);};
+$("trace").onclick=trace;$("thr").oninput=()=>{if(route)trace();};$("mapw").oninput=gen;
+
+/* ---- calibration ---- */
+function genCal(){$("oCal").textContent=header("CALIBRATION").concat([
+`def avg(eye):`,`    s = 0`,`    for _ in range(20):`,`        s += eye.reflection()`,`        wait(15)`,`    return s / 20`,``,``,
+`white, black = WHITE, BLACK`,`print("RIGHT = over white, LEFT = over the black line")`,`while True:`,`    p = hub.buttons.pressed()`,
+`    if Button.RIGHT in p:`,`        white = avg(s1) if not TWO_SENSORS else (avg(s1) + avg(s2)) / 2`,`        print("white", white)`,
+`    elif Button.LEFT in p:`,`        black = avg(s1) if not TWO_SENSORS else (avg(s1) + avg(s2)) / 2`,`        print("black", black)`,
+`    else:`,`        print("S1", s1.reflection(), " S2", s2.reflection() if TWO_SENSORS else "-")`,`        wait(200)`,`        continue`,
+`    print("CAL black=%d white=%d" % (black, white))`,`    wait(600)`]).join("\n");}
+$("calapply").onclick=()=>{const t=$("calin").value,g=k=>{const m=t.match(new RegExp(k+"=([\\d.]+)"));return m&&m[1];};let n=0;
+ if(g("black")){$("blk").value=g("black");n++;}if(g("white")){$("wht").value=g("white");n++;}
+ $("calmsg").innerHTML=n?`<span class="ok">Applied ${n} values.</span>`:'<span class="bad">No CAL values found.</span> Paste the whole line that starts with CAL.';regen();};
+
+/* ---- teach & replay ---- */
+function genTeach(){$("oTeach").textContent=header("TEACH AND REPLAY").concat([
+`MAGIC = 76`,``,``,`def load():`,`    try:`,`        d = hub.system.storage(0, read=2)`,`        return list(hub.system.storage(2, read=d[1])) if d[0] == MAGIC else None`,`    except Exception:`,`        return None`,``,``,
+`def save(ch):`,`    try:`,`        hub.system.storage(0, write=bytes([MAGIC, len(ch)] + ch))`,`    except Exception:`,`        print("update Pybricks firmware to save")`,``,``,
+`def ask():`,`    """LEFT = L, RIGHT = R, BLUETOOTH = straight, LEFT+RIGHT = finish"""`,`    robot.stop()`,`    hub.light.blink(Color.MAGENTA, [200, 200])`,`    while True:`,`        p = hub.buttons.pressed()`,
+`        if Button.LEFT in p and Button.RIGHT in p:`,`            return None`,`        for b, c in ((Button.LEFT, 76), (Button.RIGHT, 82), (Button.BLUETOOTH, 83)):`,`            if b in p:`,`                wait(150)`,`                if Button.LEFT in hub.buttons.pressed() and Button.RIGHT in hub.buttons.pressed():`,`                    return None`,
+`                while hub.buttons.pressed():`,`                    wait(10)`,`                hub.light.on(Color.GREEN)`,`                return c`,`        wait(10)`,``,``,
+`teach = Button.LEFT in hub.buttons.pressed()`,`saved = None if teach else load()`,`replay = bool(saved)`,`choices = []`,`k = 0`,
+`hub.light.on(Color.CYAN if replay else Color.GREEN)`,`print("REPLAY" if replay else "TEACH")`,`wait(800)`,`last_e = 0`,`gap = StopWatch()`,`gap.pause()`,`speed = FAST if replay else SLOW`,
+`while True:`,`    if junction():`,`        if replay:`,`            c = saved[k] if k < len(saved) else 83`,`            k += 1`,`            if k > len(saved):`,`                break                            # past the last saved junction = finish`,
+`        else:`,`            c = ask()`,`            if c is None:`,`                break`,`            choices.append(c)`,`            save(choices)`,`        take(chr(c))`,`        continue`].concat(follow("speed")).concat([`    wait(5)`,
+`robot.stop()`,`hub.display.icon(Icon.HAPPY)`,`print("saved", len(choices), "junctions" if not replay else "")`,`wait(2000)`])).join("\n");}
+
+function regen(){gen();genCal();genTeach();}
+document.querySelectorAll(".grid input,.grid select").forEach(el=>el.addEventListener("input",regen));
+document.querySelectorAll("[data-copy]").forEach(b=>b.onclick=()=>{const el=$(b.dataset.copy);const ok=()=>{b.textContent="Copied";setTimeout(()=>b.textContent="Copy code",1500);};
+ const sel=()=>{const r=document.createRange();r.selectNodeContents(el);const s=getSelection();s.removeAllRanges();s.addRange(r);b.textContent="Press Ctrl+C";};
+ navigator.clipboard?navigator.clipboard.writeText(el.textContent).then(ok,sel):sel();});
+sampleTrack();grab();trace();genCal();genTeach();
+</script>
