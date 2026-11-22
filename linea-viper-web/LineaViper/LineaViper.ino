@@ -3,6 +3,7 @@
 //  Phone -> Wi-Fi "LineaViper" (password 12345678) -> open 192.168.4.1
 //  Calibration : live sensor bars, Capture WHITE / BLACK, Reset, Save
 //  LineaTrack  : Speed / Kp / Kd / Duration, Run / Stop, copy LineaTrack(...) code
+//  RC Drive    : joystick / arrows drive by hand, stops if the phone stops sending (0.4 s)
 //  Settings    : number of sensors, mux or direct wiring, every pin, line colour - saved, no re-upload
 //  Arduino IDE board: "ESP32S3 Dev Module". No extra library needed.
 // =====================================================================
@@ -28,6 +29,7 @@ int raw[16], cal[16], whiteV[16], blackV[16];
 long linePos = 0, center = 7500;
 int lastErr = 0;
 bool running = false;
+bool rcMode = false; unsigned long rcLast = 0;     // RC drive from the phone
 unsigned long runEnd = 0;
 int runSpeed = 79; float runKp = 0.035, runKd = 0.10;
 
@@ -138,7 +140,7 @@ pre{margin:0;background:#0a1120;border:1px solid var(--line);border-radius:8px;p
 </style>
 <div class="wrap">
 <header><h1>LINEA <b>VIPER</b> <span id="nch">X16</span></h1><div class="st" id="st">connecting…</div></header>
-<nav class="tabs"><button class="tab" id="t1" aria-selected="true">Calibration</button><button class="tab" id="t2" aria-selected="false">LineaTrack</button><button class="tab" id="t3" aria-selected="false">Settings</button></nav>
+<nav class="tabs"><button class="tab" id="t1" aria-selected="true">Calibration</button><button class="tab" id="t2" aria-selected="false">LineaTrack</button><button class="tab" id="t4" aria-selected="false">RC Drive</button><button class="tab" id="t3" aria-selected="false">Settings</button></nav>
 
 <section class="card" id="v1">
 <div class="row"><button class="btn" data-a="capture?c=white">Capture WHITE</button><button class="btn" data-a="capture?c=black">Capture BLACK</button><button class="btn dark" data-a="reset">Reset</button><button class="btn dark" data-a="save">Save to ESP32</button></div>
@@ -157,6 +159,13 @@ pre{margin:0;background:#0a1120;border:1px solid var(--line);border-radius:8px;p
 <div class="row"><button class="btn dark" data-t="5000">5s</button><button class="btn dark" data-t="10000">10s</button><button class="btn dark" data-t="20000">20s</button><button class="btn dark" data-t="60000">60s</button></div>
 <p class="note">Generated sequence (paste into the Arduino sketch's Program1):</p>
 <pre id="code"></pre><div class="row"><button class="btn dark" id="copy">Copy code</button></div>
+</section>
+<section class="card" id="v4" hidden>
+<p class="note">Drag the joystick (or hold the arrows). Let go = stop. The robot also stops by itself if the connection drops.</p>
+<div class="pad" id="pad"><i id="knob"></i></div>
+<div class="dp"><span></span><button class="btn dark" data-d="1,0">▲</button><span></span><button class="btn dark" data-d="0,-1">◀</button><button class="btn stop" data-d="0,0">■</button><button class="btn dark" data-d="0,1">▶</button><span></span><button class="btn dark" data-d="-1,0">▼</button><span></span></div>
+<div class="sl"><span>Max speed</span><input id="rcmax" type="range" min="40" max="255" value="180"><output id="orc">180</output></div>
+<p class="note" id="rcst">L 0 · R 0</p>
 </section>
 <section class="card" id="v3" hidden>
 <p class="note">Change the board setup here, press Save &amp; restart. No re-upload needed.</p>
@@ -177,7 +186,7 @@ pre{margin:0;background:#0a1120;border:1px solid var(--line);border-radius:8px;p
 const $=id=>document.getElementById(id);let demo=false,t=0;
 let N=0;function build(n){N=n;document.documentElement.style.setProperty("--n",n);$("nch").textContent="X"+n;$("bars").innerHTML=$("lbl").innerHTML=$("tb").innerHTML="";
 for(let i=0;i<n;i++){$("bars").insertAdjacentHTML("beforeend","<div></div>");$("lbl").insertAdjacentHTML("beforeend",`<span>${i}</span>`);$("tb").insertAdjacentHTML("beforeend",`<tr><td>S${i}</td><td></td><td></td><td></td></tr>`);}}
-const TB=[["t1","v1"],["t2","v2"],["t3","v3"]];TB.forEach(([b,v])=>$(b).onclick=()=>{TB.forEach(([x,w])=>{$(x).setAttribute("aria-selected",x===b);$(w).hidden=w!==v;});});
+const TB=[["t1","v1"],["t2","v2"],["t4","v4"],["t3","v3"]];TB.forEach(([b,v])=>$(b).onclick=()=>{TB.forEach(([x,w])=>{$(x).setAttribute("aria-selected",x===b);$(w).hidden=w!==v;});});
 function api(p){if(demo){$("st").textContent="demo: "+p;return Promise.resolve();}return fetch("/"+p).then(r=>r.text()).then(m=>$("st").textContent=m).catch(()=>$("st").textContent="no connection");}
 document.querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>api(b.dataset.a));
 document.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{$("du").value=b.dataset.t;upd();});
@@ -190,6 +199,13 @@ function show(d){if(d.raw.length!==N)build(d.raw.length);const bars=$("bars").ch
 function fake(){t+=.12;const n=16,c=7500+5500*Math.sin(t),raw=[],cal=[];for(let i=0;i<n;i++){const v=Math.max(0,1000-Math.abs(i*1000-c)/1.2);cal.push(Math.round(v));raw.push(Math.round(300+v*2.8));}
  return{raw,cal,wh:Array(16).fill(300),bk:Array(16).fill(3100),pos:c,run:false};}
 function poll(){if(demo){show(fake());return setTimeout(poll,120);}fetch("/data").then(r=>r.json()).then(d=>{show(d);setTimeout(poll,150);}).catch(()=>{demo=true;$("st").textContent="demo mode (not connected to the robot)";poll();});}
+/* RC */
+let rcL=0,rcR=0,last="";function drive(f,t){const m=+$("rcmax").value;rcL=Math.round(Math.max(-1,Math.min(1,f+t))*m);rcR=Math.round(Math.max(-1,Math.min(1,f-t))*m);$("rcst").textContent=`L ${rcL} · R ${rcR}`;}
+setInterval(()=>{if($("v4").hidden)return;const k=rcL+","+rcR;if(k==="0,0"&&last==="0,0")return;last=k;if(!demo)fetch(`/rc?l=${rcL}&r=${rcR}`).catch(()=>{});},100);
+$("rcmax").oninput=()=>$("orc").value=$("rcmax").value;
+const pad=$("pad"),knob=$("knob");function mv(e){const b=pad.getBoundingClientRect(),R=b.width/2;let x=(e.clientX-b.left-R)/R,y=(e.clientY-b.top-R)/R;const d=Math.hypot(x,y);if(d>1){x/=d;y/=d;}knob.style.left=50+x*40+"%";knob.style.top=50+y*40+"%";drive(-y,x);}
+pad.onpointerdown=e=>{pad.setPointerCapture(e.pointerId);mv(e);};pad.onpointermove=e=>{if(e.buttons)mv(e);};pad.onpointerup=pad.onpointercancel=()=>{knob.style.left=knob.style.top="50%";drive(0,0);};
+document.querySelectorAll("[data-d]").forEach(b=>{const[f,t]=b.dataset.d.split(",").map(Number);b.onpointerdown=()=>drive(f,t);b.onpointerup=b.onpointerleave=()=>drive(0,0);});
 /* settings */
 const CF=["cN","cM","cB","cS","cG","cD","cA","cBm","cO","cW"];
 fetch("/cfg").then(r=>r.json()).then(c=>CF.forEach(k=>{if(c[k]!==undefined)$(k).value=c[k];})).catch(()=>{});
@@ -213,7 +229,8 @@ void setupWeb() {
   server.on("/reset", [] { for (int i = 0; i < 16; i++) { whiteV[i] = 300; blackV[i] = 3000; } server.send(200, "text/plain", "calibration reset"); });
   server.on("/save", [] { saveCal(); server.send(200, "text/plain", "saved to ESP32"); });
   server.on("/run", [] { runSpeed = q("s").toInt(); runKp = q("kp").toFloat(); runKd = q("kd").toFloat(); runEnd = millis() + q("t").toInt(); lastErr = 0; running = true; server.send(200, "text/plain", "RUNNING"); });
-  server.on("/stop", [] { Stop(); server.send(200, "text/plain", "stopped"); });
+  server.on("/stop", [] { Stop(); rcMode = false; server.send(200, "text/plain", "stopped"); });
+  server.on("/rc", [] { running = false; rcMode = true; rcLast = millis(); Motor(q("l").toInt(), q("r").toInt()); server.send(200, "text/plain", "RC"); });
   server.on("/cfg", [] {
     server.send(200, "application/json", "{\"cN\":\"" + String(N) + "\",\"cM\":\"" + String(useMux) + "\",\"cB\":\"" + String(blackLine) + "\",\"cS\":\"" + list(muxS, 4) +
                 "\",\"cG\":\"" + String(muxSig) + "\",\"cD\":\"" + list(direct, N == 16 ? 8 : N) + "\",\"cA\":\"" + list(mA, 3) + "\",\"cBm\":\"" + list(mB, 3) +
@@ -250,6 +267,7 @@ void setup() {
 
 void loop() {
   server.handleClient();
+  if (rcMode && millis() - rcLast > 400) { Motor(0, 0); rcMode = false; }   // RC failsafe
   if (running) { if (millis() >= runEnd) Stop(); else pidStep(runSpeed, runKp, runKd); }
   if (okBtn >= 0 && !running && digitalRead(okBtn) == LOW) { delay(300); runEnd = millis() + 10000; lastErr = 0; running = true; }
   delay(2);
