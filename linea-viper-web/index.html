@@ -1,0 +1,73 @@
+<title>Linea Viper Control</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* layout: phone-first control panel, two tabs (Calibration / LineaTrack) */
+:root{--bg:#0b1220;--panel:#121b2e;--line:#22304d;--fg:#e6edf7;--muted:#8a9bb8;--accent:#22c3ee;--accent-fg:#06202a;--stop:#f2643c;--bar:#1da1d6;--white:#e6edf7;color-scheme:dark;
+--body:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--mono:ui-monospace,Menlo,Consolas,monospace}
+body{background:var(--bg);color:var(--fg);font:15px/1.45 var(--body);margin:0;padding-left:max(14px,env(safe-area-inset-left,0px));padding-right:max(14px,env(safe-area-inset-right,0px));padding-block:14px 30px}
+.wrap{max-width:560px;margin:0 auto;display:grid;gap:12px}
+h1{font-size:20px;margin:0;letter-spacing:.06em}h1 b{color:var(--accent)}
+.st{font-size:12px;color:var(--muted)}
+.tabs{display:flex;gap:18px;border-bottom:1px solid var(--line)}
+.tab{background:none;border:0;color:var(--muted);font:600 15px var(--body);padding:8px 2px;cursor:pointer;border-bottom:2px solid transparent}
+.tab[aria-selected="true"]{color:var(--accent);border-color:var(--accent)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;gap:12px;min-width:0}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.btn{font:600 14px var(--body);border:0;border-radius:8px;padding:9px 14px;background:var(--accent);color:var(--accent-fg);cursor:pointer}
+.btn.dark{background:#1c2740;color:var(--fg)}.btn.stop{background:var(--stop);color:#fff}
+.btn:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.bars{display:grid;grid-template-columns:repeat(16,1fr);gap:3px;height:150px;align-items:end;background:#0a1120;border:1px solid var(--line);border-radius:8px;padding:6px}
+.bars div{background:var(--bar);border-radius:2px;min-height:2px;transition:height .08s}
+.lbl{display:grid;grid-template-columns:repeat(16,1fr);gap:3px;font:10px var(--mono);color:var(--muted);text-align:center;padding:0 6px}
+.pos{position:relative;height:8px;background:#0a1120;border-radius:4px;border:1px solid var(--line)}.pos i{position:absolute;top:-3px;width:12px;height:12px;border-radius:50%;background:var(--accent);margin-left:-6px}
+table{width:100%;border-collapse:collapse;font:12px var(--mono)}th,td{padding:3px 6px;border-bottom:1px solid var(--line);text-align:right}th:first-child,td:first-child{text-align:left;color:var(--muted)}
+.tw{overflow-x:auto}
+.sl{display:grid;grid-template-columns:70px 1fr 64px;gap:10px;align-items:center}
+.sl input[type=range]{width:100%;accent-color:var(--accent)}
+.sl output{font:600 14px var(--mono);text-align:right}
+input[type=number]{background:#0a1120;color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:6px 8px;font:14px var(--mono);width:110px}
+pre{margin:0;background:#0a1120;border:1px solid var(--line);border-radius:8px;padding:10px;font:13px var(--mono);overflow-x:auto}
+.note{font-size:13px;color:var(--muted);margin:0}
+</style>
+<div class="wrap">
+<header><h1>LINEA <b>VIPER</b> X16</h1><div class="st" id="st">connecting…</div></header>
+<nav class="tabs"><button class="tab" id="t1" aria-selected="true">Calibration</button><button class="tab" id="t2" aria-selected="false">LineaTrack</button></nav>
+
+<section class="card" id="v1">
+<div class="row"><button class="btn" data-a="capture?c=white">Capture WHITE</button><button class="btn" data-a="capture?c=black">Capture BLACK</button><button class="btn dark" data-a="reset">Reset</button><button class="btn dark" data-a="save">Save to ESP32</button></div>
+<p class="note">Live line values below. Move the robot over white and black surfaces, then capture.</p>
+<div class="bars" id="bars"></div><div class="lbl" id="lbl"></div>
+<div class="pos" aria-label="line position"><i id="pi" style="left:50%"></i></div>
+<div class="tw"><table><thead><tr><th>Sensor</th><th>Raw</th><th>White</th><th>Black</th></tr></thead><tbody id="tb"></tbody></table></div>
+</section>
+
+<section class="card" id="v2" hidden>
+<div class="row"><button class="btn" id="run">Run</button><button class="btn stop" data-a="stop">Stop</button></div>
+<div class="sl"><span>Speed</span><input id="sp" type="range" min="0" max="255" value="79"><output id="osp"></output></div>
+<div class="sl"><span>Kp</span><input id="kp" type="range" min="0" max="0.2" step="0.001" value="0.035"><output id="okp"></output></div>
+<div class="sl"><span>Kd</span><input id="kd" type="range" min="0" max="2" step="0.01" value="0.10"><output id="okd"></output></div>
+<div class="row" style="align-items:center"><span style="width:70px">Duration</span><input id="du" type="number" value="10000" min="500" step="500"> ms</div>
+<div class="row"><button class="btn dark" data-t="5000">5s</button><button class="btn dark" data-t="10000">10s</button><button class="btn dark" data-t="20000">20s</button><button class="btn dark" data-t="60000">60s</button></div>
+<p class="note">Generated sequence (paste into the Arduino sketch's Program1):</p>
+<pre id="code"></pre><div class="row"><button class="btn dark" id="copy">Copy code</button></div>
+</section>
+</div>
+<script>
+const $=id=>document.getElementById(id);let demo=false,t=0;
+for(let i=0;i<16;i++){$("bars").insertAdjacentHTML("beforeend","<div></div>");$("lbl").insertAdjacentHTML("beforeend",`<span>${i}</span>`);$("tb").insertAdjacentHTML("beforeend",`<tr><td>S${i}</td><td></td><td></td><td></td></tr>`);}
+[["t1","v1"],["t2","v2"]].forEach(([b,v])=>$(b).onclick=()=>{["t1","t2"].forEach(x=>$(x).setAttribute("aria-selected",x===b));$("v1").hidden=v!=="v1";$("v2").hidden=v!=="v2";});
+function api(p){if(demo){$("st").textContent="demo: "+p;return Promise.resolve();}return fetch("/"+p).then(r=>r.text()).then(m=>$("st").textContent=m).catch(()=>$("st").textContent="no connection");}
+document.querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>api(b.dataset.a));
+document.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{$("du").value=b.dataset.t;upd();});
+function upd(){const s=$("sp").value,kp=(+$("kp").value).toFixed(3),kd=(+$("kd").value).toFixed(2),d=$("du").value;$("osp").value=s;$("okp").value=kp;$("okd").value=kd;$("code").textContent=`LineaTrack(${s}, ${kp}, ${kd}, ${d});`;return{s,kp,kd,d};}
+["sp","kp","kd","du"].forEach(i=>$(i).oninput=upd);upd();
+$("run").onclick=()=>{const v=upd();api(`run?s=${v.s}&kp=${v.kp}&kd=${v.kd}&t=${v.d}`);};
+$("copy").onclick=()=>{const txt=$("code").textContent;navigator.clipboard?navigator.clipboard.writeText(txt).then(()=>$("copy").textContent="Copied",()=>{}):0;};
+function show(d){const bars=$("bars").children,rows=$("tb").children;for(let i=0;i<16;i++){bars[i].style.height=(d.cal[i]/10)+"%";const c=rows[i].children;c[1].textContent=d.raw[i];c[2].textContent=d.wh[i];c[3].textContent=d.bk[i];}
+ $("pi").style.left=(d.pos/150)+"%";if(!demo)$("st").textContent=(d.run?"RUNNING":"idle")+" · 192.168.4.1";}
+function fake(){t+=.12;const c=7500+5500*Math.sin(t),raw=[],cal=[];for(let i=0;i<16;i++){const v=Math.max(0,1000-Math.abs(i*1000-c)/1.2);cal.push(Math.round(v));raw.push(Math.round(300+v*2.8));}
+ return{raw,cal,wh:Array(16).fill(300),bk:Array(16).fill(3100),pos:c,run:false};}
+function poll(){if(demo){show(fake());return setTimeout(poll,120);}fetch("/data").then(r=>r.json()).then(d=>{show(d);setTimeout(poll,150);}).catch(()=>{demo=true;$("st").textContent="demo mode (not connected to the robot)";poll();});}
+poll();
+</script>
