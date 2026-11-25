@@ -25,7 +25,7 @@ print("step 1: opening port F")
 wait(300)
 uart = UARTDevice(PORT, 9600, timeout=100)
 print("step 2: port F open - asking the HuskyLens")
-found, anything = None, False
+found, anything, counts = None, False, {}
 for rnd in range(4):
     for baud in (9600, 115200, 1000000):
         uart.set_baudrate(baud)
@@ -35,6 +35,7 @@ for rnd in range(4):
         n = uart.waiting()
         data = uart.read(n) if n else b""
         anything = anything or n > 0
+        counts[baud] = counts.get(baud, 0) + n
         print("  baud", baud, "->", n, "bytes", " ".join("%02x" % b for b in data[:12]))
         if data.find(OK) >= 0:
             found = baud
@@ -45,6 +46,10 @@ for rnd in range(4):
 if found:
     hub.light.on(Color.GREEN)
     print("OK: HuskyLens answers at", found, "baud - the maze programs find it by themselves")
+elif counts.get(1000000) and not counts.get(9600) and not counts.get(115200):
+    hub.light.on(Color.ORANGE)
+    print("The HuskyLens is set to 1000000 baud - too fast for the hub port (its answer arrives as 00 00 ...).")
+    print("On the HuskyLens: General Settings > UART Baudrate = 115200, save, restart it, run this test again.")
 elif anything:
     hub.light.on(Color.ORANGE)
     print("Bytes arrive but no HuskyLens answer: HuskyLens General Settings > Protocol Type = Serial, restart it")

@@ -203,7 +203,7 @@ elif cam.ok:
 else:
     print("HuskyLens not answering - running on ultrasonic only. Check: 1) HuskyLens General Settings >")
     print("Protocol Type = Serial  2) T -> pin 6, R -> pin 5 (pin 5 = hub TX, pin 6 = hub RX)  3) + to 5 V power")
-    print("bank, its GND joined to pin 3  4) run husky_test.py to see what comes back")
+    print("bank, its GND joined to pin 3  4) HuskyLens UART Baudrate = 115200 (1000000 is too fast for the hub)")
 
 
 # ---------------- SENSORS ----------------
