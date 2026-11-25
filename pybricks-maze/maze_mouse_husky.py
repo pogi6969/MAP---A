@@ -16,7 +16,7 @@
 #  HuskyLens: Color Recognition, Learn Multiple ON, learn: ID1 = BLACK wall, ID2 = obstacle,
 #             ID3 = LEFT card, ID4 = RIGHT card, ID5 = GOAL card (2-5 optional).
 #             General Settings: Protocol Type = Serial, UART Baudrate = 115200.
-#  Wiring: HuskyLens T -> port F pin 5, R -> pin 6, GND -> pin 3, + to a 5 V power bank (its GND to pin 3 too).
+#  Wiring: HuskyLens T -> port F pin 6, R -> pin 5, GND -> pin 3, + to a 5 V power bank (its GND to pin 3 too).
 #  Set CALIBRATE = True first: robot stands still and prints the 3 ultrasonic values + what the camera sees.
 #  Hold the LEFT button while starting to forget the saved map. Turn the hub off with its button.
 #  Math: sensor geometry -> expected readings, wall threshold half way into the next cell,
@@ -194,7 +194,7 @@ if cam.ok:
     print("HuskyLens OK on port F at", cam.baud, "baud")
 else:
     print("HuskyLens not answering - running on ultrasonic only. Check: 1) HuskyLens General Settings >")
-    print("Protocol Type = Serial  2) T -> pin 5, R -> pin 6 (swap T and R if still silent)  3) + to 5 V power")
+    print("Protocol Type = Serial  2) T -> pin 6, R -> pin 5 (pin 5 = hub TX, pin 6 = hub RX)  3) + to 5 V power")
     print("bank, its GND joined to pin 3  4) run husky_test.py to see what comes back")
 
 
@@ -291,6 +291,7 @@ DY = [1, 0, -1, 0]
 walls = [[0] * MAZE_H for _ in range(MAZE_W)]
 seen = [[False] * MAZE_H for _ in range(MAZE_W)]
 goal_card = None             # goal cell found with the GOAL card
+GOALS_SET = list(GOALS)      # goals as set in the code
 used_cards = set()           # (x, y, heading) where a card was already followed
 
 
@@ -370,6 +371,12 @@ def forget_map():
         hub.system.storage(0, write=bytes(7))
     except Exception:
         pass
+
+
+def inner_walls():
+    """number of walls inside the maze (outer walls not counted)"""
+    return sum(1 for x in range(MAZE_W) for y in range(MAZE_H) for d in range(4)
+               if walls[x][y] & (1 << d) and inside(x + DX[d], y + DY[d])) // 2
 
 
 def flood(targets, known_only=False):
@@ -717,10 +724,17 @@ if SIDE_CENTER < 40 or FRONT_CENTER < 40:
 
 
 def main():
+    global goal_card
     if Button.LEFT in hub.buttons.pressed():
         forget_map()
         print("map forgotten")
     remembered = load_map()
+    if remembered and inner_walls() == 0:              # saved from a run where no wall was seen (test on a table)
+        print("saved map has no walls - forgetting it and searching")
+        reset_inner_walls()
+        goal_card = None
+        GOALS[:] = GOALS_SET
+        remembered = False
     hub.light.on(Color.GREEN)
     wait(1000)
     x, y, h = START[0], START[1], 0

@@ -12,7 +12,7 @@
 #    WHEN         opening on the wanted side -> drive to its middle -> turn 90
 #  Ultrasonic C (front), A (right), D (left) help: exact stop point + side openings.
 #  USE_SONAR = False = camera only (then mount the camera above the wall tops, tilted down, CAM_HIGH = True).
-#  Wiring: HuskyLens T -> port F pin 5, R -> pin 6, GND -> pin 3, + to a 5 V power bank (its GND to pin 3 too).
+#  Wiring: HuskyLens T -> port F pin 6, R -> pin 5, GND -> pin 3, + to a 5 V power bank (its GND to pin 3 too).
 #  Tuning: LOOK_ONLY = True -> robot stands still and prints what the camera sees.
 # ================================================================
 from pybricks.hubs import PrimeHub
@@ -328,7 +328,7 @@ def choose_turn(want):
 cam = HuskyLens(HUSKY_PORT, BAUD)
 if not cam.ok:
     hub.light.on(Color.RED)
-    print("HuskyLens not answering - check: Protocol Type = Serial, T -> pin 5 / R -> pin 6 (swap if silent),")
+    print("HuskyLens not answering - check: Protocol Type = Serial, T -> pin 6 / R -> pin 5,")
     print("5 V power with GND joined to pin 3. Run husky_test.py to see what comes back.")
     raise SystemExit
 cam.color_mode()

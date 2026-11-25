@@ -7,7 +7,7 @@
 #  - a sign seen early while driving is remembered for the next wall
 #  HuskyLens: set "Protocol Type" to Serial 9600 (or 115200 and change BAUD), choose the
 #  Tag Recognition (or Color Recognition) algorithm and LEARN the signs: ID1, ID2, ID3, ID4.
-#  Wiring (UART): HuskyLens T -> hub port pin 5 (RX), R -> pin 6 (TX), GND -> pin 3,
+#  Wiring (UART): HuskyLens T -> hub port pin 6 (hub RX), R -> pin 5 (hub TX), GND -> pin 3,
 #  power the HuskyLens from 5 V (power bank / regulator) with GND shared - the hub port's 3.3 V is too weak.
 # ================================================================
 from pybricks.hubs import PrimeHub

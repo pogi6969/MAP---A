@@ -2,6 +2,7 @@
 #  HuskyLens LINK TEST - Pybricks, SPIKE Prime (camera on port F)
 #  Sends the HuskyLens "knock" at every baud rate and prints what comes back.
 #  Last line tells you what to fix.
+#  Wiring: HuskyLens T -> pin 6 (hub RX), R -> pin 5 (hub TX), - -> pin 3, + -> 5 V power bank (its GND to pin 3)
 # ================================================================
 from pybricks.iodevices import UARTDevice
 from pybricks.parameters import Port
@@ -34,5 +35,5 @@ if found:
 elif anything:
     print("Bytes arrive but no HuskyLens answer: HuskyLens General Settings > Protocol Type = Serial, restart it")
 else:
-    print("Nothing arrives: 1) swap the T and R wires  2) HuskyLens + on 5 V (screen must be on)")
+    print("Nothing arrives: 1) T -> pin 6, R -> pin 5 (swap them if T is on pin 5)  2) HuskyLens + on 5 V (screen on)")
     print("3) power bank GND joined to pin 3  4) wires really on port F")

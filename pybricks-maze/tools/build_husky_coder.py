@@ -16,7 +16,8 @@ def sub(old, new):
 
 sub('#  SPIKE Prime MICROMOUSE + HuskyLens camera - Pybricks        (black walls, HuskyLens on port F)',
     '#  SPIKE Prime MICROMOUSE + HuskyLens camera - Pybricks   made with Husky Maze Coder (your maze map is built in)')
-sub('#  Wiring: HuskyLens T -> port F pin 5,', '#  Wiring: HuskyLens T -> port {{HP}} pin 5,')
+sub('#  Wiring: HuskyLens T -> port F pin 6,', '#  Wiring: HuskyLens T -> port {{HP}} pin 6,')
+sub('print("HuskyLens OK on port F at"', 'print("HuskyLens OK on port {{HP}} at"')
 for old, key in (('LEFT_MOTOR = Port.B', 'LM'), ('RIGHT_MOTOR = Port.E', 'RM'), ('FRONT_EYE = Port.C', 'FE'),
                  ('RIGHT_EYE = Port.A', 'RE'), ('LEFT_EYE = Port.D', 'LE')):
     sub(old + '\n', old.split('Port.')[0] + 'Port.{{' + key + '}}\n')
@@ -60,18 +61,13 @@ sub('''def flood(targets, known_only=False):''', '''def load_app_map():
 
 def flood(targets, known_only=False):''')
 sub('''    remembered = load_map()
-    hub.light.on(Color.GREEN)
-    wait(1000)
-    x, y, h = START[0], START[1], 0
-    if remembered and path_dirs(x, y, flood(GOALS, known_only=True)):''', '''    if USE_APP_MAP:
+    if remembered and inner_walls() == 0:''', '''    if USE_APP_MAP:
         load_app_map()
-        remembered = True
         print("map from the app:", APP_PATH)
-    else:
-        remembered = load_map()
-    hub.light.on(Color.GREEN)
-    wait(1000)
-    x, y, h = START[0], START[1], START_H
+    remembered = USE_APP_MAP or load_map()
+    if remembered and not USE_APP_MAP and inner_walls() == 0:''')
+sub('''    x, y, h = START[0], START[1], 0
+    if remembered and path_dirs(x, y, flood(GOALS, known_only=True)):''', '''    x, y, h = START[0], START[1], START_H
     if USE_APP_MAP and RUN_STYLE == "cells":
         print_map()
         hub.light.on(Color.CYAN)
