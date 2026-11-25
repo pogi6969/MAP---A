@@ -90,15 +90,26 @@ def us(eye):
 # ================= HuskyLens (UART protocol) =================
 class HuskyLens:
     HEAD = b"\x55\xaa\x11"
+    BAUDS = (115200, 9600, 1000000)                            # every HuskyLens "UART Baudrate" setting
 
     def __init__(self, port, baud):
-        self.uart = UARTDevice(port, baud, timeout=50)
-        self.ok = False
-        for _ in range(6):                                     # camera may still be starting up
-            if self.cmd(0x2C) == 0x2E:                         # knock -> OK
-                self.ok = True
-                break
-            wait(300)
+        self.ok, self.baud = False, None
+        try:
+            self.uart = UARTDevice(port, baud, timeout=50)
+        except Exception as e:
+            print("HuskyLens port error:", e)
+            return
+        order = [baud] + [b for b in self.BAUDS if b != baud]
+        for _ in range(6):                                     # camera needs about 3 s to start up
+            for b in order:
+                try:
+                    self.uart.set_baudrate(b)
+                except AttributeError:
+                    self.uart = UARTDevice(port, b, timeout=50)
+                if self.cmd(0x2C) == 0x2E:                     # knock -> OK
+                    self.ok, self.baud = True, b
+                    return
+            wait(400)
 
     def _send(self, cmd, data=b""):
         f = self.HEAD + bytes([len(data), cmd]) + data
@@ -317,7 +328,8 @@ def choose_turn(want):
 cam = HuskyLens(HUSKY_PORT, BAUD)
 if not cam.ok:
     hub.light.on(Color.RED)
-    print("HuskyLens not answering - check wiring, 5 V power, Protocol Type = Serial", BAUD)
+    print("HuskyLens not answering - check: Protocol Type = Serial, T -> pin 5 / R -> pin 6 (swap if silent),")
+    print("5 V power with GND joined to pin 3. Run husky_test.py to see what comes back.")
     raise SystemExit
 cam.color_mode()
 hub.light.on(Color.GREEN)

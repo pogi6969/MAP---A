@@ -109,18 +109,26 @@ left = UltrasonicSensor(LEFT_EYE)
 # ---------------- HUSKYLENS (UART protocol) ----------------
 class HuskyLens:
     HEAD = b"\x55\xaa\x11"
+    BAUDS = (115200, 9600, 1000000)                            # every HuskyLens "UART Baudrate" setting
 
     def __init__(self, port, baud):
-        self.ok = False
+        self.ok, self.baud = False, None
         try:
             self.uart = UARTDevice(port, baud, timeout=50)
-        except Exception:
+        except Exception as e:
+            print("HuskyLens port error:", e)
             return
-        for _ in range(6):                                     # camera may still be starting up
-            if self.cmd(0x2C) == 0x2E:                         # knock -> OK
-                self.ok = True
-                break
-            wait(300)
+        order = [baud] + [b for b in self.BAUDS if b != baud]
+        for _ in range(6):                                     # camera needs about 3 s to start up
+            for b in order:
+                try:
+                    self.uart.set_baudrate(b)
+                except AttributeError:
+                    self.uart = UARTDevice(port, b, timeout=50)
+                if self.cmd(0x2C) == 0x2E:                     # knock -> OK
+                    self.ok, self.baud = True, b
+                    return
+            wait(400)
 
     def _send(self, cmd, data=b""):
         f = self.HEAD + bytes([len(data), cmd]) + data
@@ -183,9 +191,11 @@ class HuskyLens:
 cam = HuskyLens(HUSKY_PORT, BAUD)
 if cam.ok:
     cam.color_mode()
-    print("HuskyLens OK on port F")
+    print("HuskyLens OK on port F at", cam.baud, "baud")
 else:
-    print("HuskyLens not answering (wiring, 5 V power, Serial", BAUD, ") - running on ultrasonic only")
+    print("HuskyLens not answering - running on ultrasonic only. Check: 1) HuskyLens General Settings >")
+    print("Protocol Type = Serial  2) T -> pin 5, R -> pin 6 (swap T and R if still silent)  3) + to 5 V power")
+    print("bank, its GND joined to pin 3  4) run husky_test.py to see what comes back")
 
 
 # ---------------- SENSORS ----------------
