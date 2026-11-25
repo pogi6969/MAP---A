@@ -77,7 +77,6 @@ sub('''    x, y, h = START[0], START[1], 0
             hub.light.on(Color.BLUE)
             hub.display.icon(Icon.HAPPY)
             print("done at", x, y)
-            wait(5000)
             return
         print("path blocked - searching from", x, y)
     elif remembered and path_dirs(x, y, flood(GOALS, known_only=True)):''')

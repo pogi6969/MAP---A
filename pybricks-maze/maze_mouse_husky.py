@@ -19,6 +19,7 @@
 #  Wiring: HuskyLens T -> port F pin 6, R -> pin 5, GND -> pin 3, + to a 5 V power bank (its GND to pin 3 too).
 #  Set CALIBRATE = True first: robot stands still and prints the 3 ultrasonic values + what the camera sees.
 #  Hold the LEFT button while starting to forget the saved map. Turn the hub off with its button.
+#  The program never ends by itself (camera stays on): RIGHT button = run again, CENTER button = you end it.
 #  Math: sensor geometry -> expected readings, wall threshold half way into the next cell,
 #  steering turn_rate = KP*e + KH*th (+ KC*camera error), braking v^2 = 2*a*d, median filter, stall detection.
 # ================================================================
@@ -767,7 +768,6 @@ def main():
             hub.light.on(Color.BLUE)
             hub.display.icon(Icon.HAPPY)
             print("done at", res[0], res[1])
-            wait(5000)
             return
         if res:
             x, y, h = res[0], res[1], res[2]
@@ -785,7 +785,15 @@ def main():
     hub.light.on(Color.BLUE)
     hub.display.icon(Icon.HAPPY)
     print("done at", x, y, "- map saved, next run will be smooth")
-    wait(5000)
 
 
-main()
+# runs until YOU press the CENTER button - the camera stays on the whole time
+while True:
+    main()
+    robot.stop()
+    print("finished - camera stays on. Put the robot on the start and press RIGHT to run again. CENTER ends it.")
+    while Button.RIGHT not in hub.buttons.pressed():
+        wait(20)
+    while Button.RIGHT in hub.buttons.pressed():
+        wait(20)
+    used_cards.clear()
