@@ -22,6 +22,7 @@ for old, key in (('LEFT_MOTOR = Port.B', 'LM'), ('RIGHT_MOTOR = Port.E', 'RM'), 
                  ('RIGHT_EYE = Port.A', 'RE'), ('LEFT_EYE = Port.D', 'LE')):
     sub(old + '\n', old.split('Port.')[0] + 'Port.{{' + key + '}}\n')
 sub('HUSKY_PORT = Port.F ', 'HUSKY_PORT = Port.{{HP}} ')
+sub('HUSKY_POWER = 2              #', 'HUSKY_POWER = {{HPOW}}              #')
 sub('MAZE_W, MAZE_H = 6, 6        # cells across, cells forward', 'MAZE_W, MAZE_H = {{W}}, {{H}}        # cells across, cells up the picture')
 sub('START = (0, 0)               # bottom-left corner, robot facing north (up)',
     'START = ({{SX}}, {{SY}})               # start cell: x from the left, y from the bottom of the picture\n'
@@ -81,7 +82,7 @@ sub('''    x, y, h = START[0], START[1], 0
         print("path blocked - searching from", x, y)
     elif remembered and path_dirs(x, y, flood(GOALS, known_only=True)):''')
 sub('    h = turn_to(h, 0)\n', '    h = turn_to(h, START_H)\n')
-assert '</script' not in src.lower()
+assert '</script' not in src.lower() and '<!--' not in src
 page = open(os.path.join(HERE, 'husky_coder.src.html')).read()
 assert page.count('@@TEMPLATE@@') == 1
 page = page.replace('@@TEMPLATE@@', src)
