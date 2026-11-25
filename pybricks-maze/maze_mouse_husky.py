@@ -38,7 +38,7 @@ RIGHT_EYE = Port.A
 LEFT_EYE = Port.D
 HUSKY_PORT = Port.F          # HuskyLens camera (UART)
 BAUD = 115200                # = HuskyLens UART Baudrate
-HUSKY_POWER = 1              # LEGO cable wire feeding the 5 V converter IN+: 1 = pin 1, 2 = pin 2, 0 = own power
+HUSKY_POWER = 2              # LEGO cable wire feeding the 5 V converter IN+: 1 = pin 1, 2 = pin 2, 0 = own power
 USE_CAMERA = True            # False = run without the HuskyLens (unplug it from port F)
 
 CALIBRATE = False            # True = only print sensor + camera values (robot does not move)

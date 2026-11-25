@@ -11,7 +11,7 @@ from pybricks.parameters import Port, Color
 from pybricks.tools import wait
 
 PORT = Port.F
-POWER_PIN = 1                 # cable wire on the converter IN+: 1 = pin 1, 2 = pin 2, 0 = camera has its own power
+POWER_PIN = 2                 # cable wire on the converter IN+: 1 = pin 1, 2 = pin 2, 0 = camera has its own power
 KNOCK = bytes([0x55, 0xAA, 0x11, 0x00, 0x2C, 0x3C])       # header, length 0, command knock, checksum
 OK = b"\x55\xaa\x11\x00\x2e"                              # HuskyLens "OK" answer
 
@@ -55,7 +55,7 @@ if found:
     print("OK: HuskyLens answers at", found, "baud - the maze programs find it by themselves")
 elif counts.get(1000000) and not counts.get(9600) and not counts.get(115200):
     hub.light.on(Color.ORANGE)
-    print("Only 00 noise: is the HuskyLens screen on? If not: POWER_PIN = the other wire (1 <-> 2), LM2596 OUT 5 V.")
+    print("Only 00 noise: is the HuskyLens screen on? If not: try POWER_PIN = the other wire (1 <-> 2), measure below.")
     print("If the screen is on: HuskyLens General Settings > UART Baudrate = 115200, then run this test again.")
 elif anything:
     hub.light.on(Color.ORANGE)
@@ -64,4 +64,7 @@ else:
     hub.light.on(Color.RED)
     print("Nothing arrives: 1) HuskyLens screen on? (POWER_PIN, LM2596 OUT 5 V)  2) T -> pin 6, R -> pin 5")
     print("3) Protocol Type = Serial  4) cable really on port F")
+if not found and POWER_PIN:
+    print("Power stays on 20 s - measure now: LM2596 IN+ to IN- about +8 V, OUT+ to OUT- 5.0 V")
+    wait(20000)
 wait(2000)

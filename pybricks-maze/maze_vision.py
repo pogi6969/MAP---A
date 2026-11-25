@@ -25,7 +25,7 @@ from pybricks.tools import wait, StopWatch
 # ---------------- PORTS ----------------
 LEFT_MOTOR, RIGHT_MOTOR = Port.B, Port.E
 HUSKY_PORT, BAUD = Port.F, 115200       # BAUD = HuskyLens Protocol Type
-HUSKY_POWER = 1                         # LEGO cable wire feeding the 5 V converter IN+: 1 = pin 1, 2 = pin 2, 0 = own power
+HUSKY_POWER = 2                         # LEGO cable wire feeding the 5 V converter IN+: 1 = pin 1, 2 = pin 2, 0 = own power
 FRONT_EYE, RIGHT_EYE, LEFT_EYE = Port.C, Port.A, Port.D
 USE_SONAR = True                        # missing ultrasonic sensors are skipped automatically
 LOOK_ONLY = False                       # True = stand still and print what the camera sees
