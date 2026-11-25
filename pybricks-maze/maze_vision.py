@@ -25,6 +25,7 @@ from pybricks.tools import wait, StopWatch
 # ---------------- PORTS ----------------
 LEFT_MOTOR, RIGHT_MOTOR = Port.B, Port.E
 HUSKY_PORT, BAUD = Port.F, 115200       # BAUD = HuskyLens Protocol Type
+HUSKY_POWER = 1                         # LEGO cable wire feeding the 5 V converter IN+: 1 = pin 1, 2 = pin 2, 0 = own power
 FRONT_EYE, RIGHT_EYE, LEFT_EYE = Port.C, Port.A, Port.D
 USE_SONAR = True                        # missing ultrasonic sensors are skipped automatically
 LOOK_ONLY = False                       # True = stand still and print what the camera sees
@@ -92,24 +93,35 @@ class HuskyLens:
     HEAD = b"\x55\xaa\x11"
     BAUDS = (115200, 9600, 1000000)                            # every HuskyLens "UART Baudrate" setting
 
-    def __init__(self, port, baud):
+    def __init__(self, port, baud, power_pin=0):
         self.ok, self.baud = False, None
         try:
-            self.uart = UARTDevice(port, baud, timeout=50)
+            self.uart = self._open(port, baud, power_pin)
         except Exception as e:
             print("HuskyLens port error:", e)
             return
+        if power_pin:
+            print("power on pin", power_pin, "- HuskyLens screen should light up")
+            wait(2500)                                         # camera boots after the power comes on
         order = [baud] + [b for b in self.BAUDS if b != baud]
         for _ in range(6):                                     # camera needs about 3 s to start up
             for b in order:
                 try:
                     self.uart.set_baudrate(b)
                 except AttributeError:
-                    self.uart = UARTDevice(port, b, timeout=50)
+                    self.uart = self._open(port, b, power_pin)
                 if self.cmd(0x2C) == 0x2E:                     # knock -> OK
                     self.ok, self.baud = True, b
                     return
             wait(400)
+
+    def _open(self, port, b, power_pin):
+        try:
+            return UARTDevice(port, b, timeout=50, power_pin=power_pin)    # Pybricks v4: power on pin 1 / 2
+        except TypeError:
+            if power_pin:
+                print("this Pybricks has no power_pin - update it to v4 so the hub can power the camera")
+            return UARTDevice(port, b, timeout=50)
 
     def _send(self, cmd, data=b""):
         f = self.HEAD + bytes([len(data), cmd]) + data
@@ -325,7 +337,7 @@ def choose_turn(want):
 
 
 # ================= MAIN =================
-cam = HuskyLens(HUSKY_PORT, BAUD)
+cam = HuskyLens(HUSKY_PORT, BAUD, HUSKY_POWER)
 if not cam.ok:
     hub.light.on(Color.RED)
     print("HuskyLens not answering - check: Protocol Type = Serial, T -> pin 6 / R -> pin 5,")
