@@ -38,6 +38,7 @@ RIGHT_EYE = Port.A
 LEFT_EYE = Port.D
 HUSKY_PORT = Port.F          # HuskyLens camera (UART)
 BAUD = 115200                # = HuskyLens UART Baudrate
+USE_CAMERA = True            # False = run without the HuskyLens (unplug it from port F)
 
 CALIBRATE = False            # True = only print sensor + camera values (robot does not move)
 
@@ -188,8 +189,15 @@ class HuskyLens:
         return out
 
 
-cam = HuskyLens(HUSKY_PORT, BAUD)
-if cam.ok:
+class NoCamera:
+    ok = False
+
+
+print("starting - camera", "on port F" if USE_CAMERA else "off")
+cam = HuskyLens(HUSKY_PORT, BAUD) if USE_CAMERA else NoCamera()
+if not USE_CAMERA:
+    pass
+elif cam.ok:
     cam.color_mode()
     print("HuskyLens OK on port F at", cam.baud, "baud")
 else:
