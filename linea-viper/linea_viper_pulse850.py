@@ -4,10 +4,13 @@ Motor (from its drawing): shaft 3 mm D (2.5 flat) x 10, gearbox 12 x 13 x 11 lon
 Motor lies on its flat (12 high, 15.5 wide), shaft at the same place as the old N20 (x 25.9), gearbox front at y 32.5.
 Chassis: the 4 small N20 bracket holes (2.7) are replaced by 4 bigger M3 holes (3.3), 28 mm apart, under the new clamp.
 Clamp: saddle shaped to the can (flat top, round sides), 11 long, sits just behind the gearbox, 0.2 mm press on the can,
-2 ears with M3 holes + nut traps. Print 2."""
+2 ears with M3 holes + nut traps. Print 2.
+Rear wing (F1 style, part of the chassis): 2 endplates + centre swan-neck pylon, wing with rounded nose and a flap lip,
+"MR.D DRACOBOTS" raised on top (reads from behind). Sits behind the motors, wing hangs out behind the chassis like an F1 car;
+45 deg undersides + 27 mm bridges, so it prints on the chassis without supports."""
 import os, glob, subprocess
 import numpy as np
-from manifold3d import CrossSection, Manifold
+from manifold3d import CrossSection, Manifold, FillRule
 import linea_viper_multi as lv
 
 HERE = lv.HERE
@@ -42,16 +45,45 @@ def motor():                               # simple motor model for checks / pre
     return can + gb + sh
 
 
+ZB, WTK, XT, XL = 28.0, 3.0, -15.0, 5.0         # wing underside height, thickness, trailing / leading edge x
+EP_OUT, EP_T = 31.0, 2.4                       # endplate outer face (from centre line), thickness
+
+
+def xz(poly, y0, y1):                          # side profile (x, z) extruded across y0..y1
+    return Manifold.extrude(CrossSection([poly]) if isinstance(poly, list) else poly, y1 - y0).rotate([90, 0, 0]).translate([0, y1, 0])
+
+
+def spoiler(text='MR.D DRACOBOTS'):
+    T, YC = lv.T, lv.YC
+    top = ZB + WTK + 5.5
+    ep = [(0.5, T), (7.5, T), (7.5, top), (-17.0, top), (-17.0, T + 17.5)]                       # 45 deg underside
+    m = xz(ep, YC + EP_OUT - EP_T, YC + EP_OUT) + xz(ep, YC - EP_OUT, YC - EP_OUT + EP_T)
+    m += xz([(0.5, T), (6.0, T), (6.0, ZB + 0.5), (-14.0, ZB + 0.5), (-14.0, T + 14.5)], YC - 1.5, YC + 1.5)   # pylon
+    wing = (CrossSection.square([XL - 1.5 - XT, WTK]).translate([XT, ZB]) + CrossSection.circle(WTK / 2, 32).translate([XL - 1.5, ZB + WTK / 2])
+            + CrossSection.square([2.2, WTK + 4.0]).translate([XT, ZB]))                          # nose + flap lip
+    m += xz(wing, YC - EP_OUT + EP_T - 0.1, YC + EP_OUT - EP_T + 0.1)
+    from matplotlib.textpath import TextPath
+    from matplotlib.font_manager import FontProperties
+    tp = TextPath((0, 0), text, size=10, prop=FontProperties(family='DejaVu Sans', weight='bold'))
+    cs = CrossSection([np.asarray(q) for q in tp.to_polygons() if len(q) > 2], FillRule.EvenOdd)
+    b = cs.bounds(); k = min((2 * (EP_OUT - EP_T) - 5) / (b[2] - b[0]), 6.5 / (b[3] - b[1]))
+    cs = cs.translate([-(b[0] + b[2]) / 2, -(b[1] + b[3]) / 2]).scale([k, k]).rotate(-90)         # reads from behind the car
+    xc = (XT + 2.2 + XL - 1.5) / 2
+    return m + Manifold.extrude(cs.translate([xc, YC]), 0.8 + 0.01).translate([0, 0, ZB + WTK - 0.01])
+
+
 if __name__ == '__main__':
     yl = 2 * lv.YC - YH
     lv.HOLES = [h for h in lv.HOLES if abs(h[2] - 2.7) > 0.01] + [(MX - S / 2, YH, 3.3), (MX + S / 2, YH, 3.3), (MX - S / 2, yl, 3.3), (MX + S / 2, yl, 3.3)]
     A, s0 = lv.VERSIONS['X16']
     ch, cb = lv.chassis(A), lv.crossbar(A, s0)
+    sp = spoiler(); ch = ch + sp
     C = clamp()
     Cm = C.translate([MX, Y0, lv.T])                                 # clamp in place on top of the plate
     M = motor().translate([0, 0, lv.T])
     print('motor/clamp overlap', round((Cm ^ M).volume(), 2), 'mm3 (press fit on the can)', '| clamp parts', len(C.decompose()),
-          '| clamp/chassis overlap', round((Cm ^ ch).volume(), 3), '| motor rear end y', YF + GB_L + CAN_L, '| left motor rear y', 2 * lv.YC - (YF + GB_L + CAN_L))
+          '| clamp/chassis overlap', round((Cm ^ ch).volume(), 3), '| wing vs motors', round(((M + M.mirror([0, 1, 0]).translate([0, 2 * lv.YC, 0])) ^ sp).volume(), 3),
+          '| chassis parts', len(ch.decompose()), '| wing top z', round(sp.bounding_box()[5], 1), '| rear x', round(ch.bounding_box()[0], 1), '| motor rear end y', YF + GB_L + CAN_L, '| left motor rear y', 2 * lv.YC - (YF + GB_L + CAN_L))
     def stl(m, name):
         me = m.to_mesh(); V = np.asarray(me.vert_properties)[:, :3]; Tr = V[np.asarray(me.tri_verts)].astype('<f4')
         r = np.zeros(len(Tr), dtype=[('n', '<f4', 3), ('v', '<f4', (3, 3)), ('a', '<u2')]); r['v'] = Tr
