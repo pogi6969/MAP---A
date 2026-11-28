@@ -52,20 +52,59 @@ if __name__ == '__main__':
     M = motor().translate([0, 0, lv.T])
     print('motor/clamp overlap', round((Cm ^ M).volume(), 2), 'mm3 (press fit on the can)', '| clamp parts', len(C.decompose()),
           '| clamp/chassis overlap', round((Cm ^ ch).volume(), 3), '| motor rear end y', YF + GB_L + CAN_L, '| left motor rear y', 2 * lv.YC - (YF + GB_L + CAN_L))
-    b = C.bounding_box(); w = b[3] - b[0]
-    clamps = Manifold.compose([C.translate([0, 0, 0]), C.translate([0, CL + 6, 0])])
-    plate = ch + cb.rotate([0, 0, 90]).translate([lv.XE + 12, lv.YC, 0]) + clamps.translate([lv.XE + 34, lv.YC - CL - 3, 0])
     def stl(m, name):
         me = m.to_mesh(); V = np.asarray(me.vert_properties)[:, :3]; Tr = V[np.asarray(me.tri_verts)].astype('<f4')
         r = np.zeros(len(Tr), dtype=[('n', '<f4', 3), ('v', '<f4', (3, 3)), ('a', '<u2')]); r['v'] = Tr
         open(os.path.join(HERE, name), 'wb').write(b'\0' * 80 + np.uint32(len(Tr)).tobytes() + r.tobytes())
+    def floor0(m): bb = m.bounding_box(); return m.translate([-(bb[0] + bb[3]) / 2, -(bb[1] + bb[4]) / 2, -bb[2]])
     for g in glob.glob(os.path.join(HERE, '*PULSE850*.gcode')): os.remove(g)
-    stl(plate, 'LineaViper-X16_PULSE850.stl'); stl(ch, 'LineaViper-X16_PULSE850_chassis_only.stl'); stl(clamps, 'PULSE850_motor_clamp_x2.stl')
-    print('plate bbox', np.round(plate.bounding_box(), 1))
-    for nm, ex in (('LineaViper-X16_PULSE850', ['--fill-density', '15%', '--perimeters', '2']), ('PULSE850_motor_clamp_x2', ['--fill-density', '40%', '--perimeters', '3'])):
-        subprocess.run(['prusa-slicer', '--export-gcode', '--load', os.path.join(HERE, 'cr6se_petg_fast.ini'), *ex, '--center', '117.5,117.5',
-                        '--output', HERE, os.path.join(HERE, nm + '.stl')], check=True, capture_output=True)
-    print(sorted(os.path.basename(g) for g in glob.glob(os.path.join(HERE, '*PULSE850*'))))
+    for f in ('LineaViper-X16_PULSE850.stl', 'LineaViper-X16_PULSE850_chassis_only.stl'):
+        if os.path.exists(os.path.join(HERE, f)): os.remove(os.path.join(HERE, f))
+    cbr = cb.rotate([0, 0, 90])                                          # crossbar lying along y
+    clamps = Manifold.compose([C, C.translate([0, CL + 6, 0])])         # 2 pcs in one file
+    items = {'LineaViper-X16_PULSE850_chassis': ch, 'LineaViper-X16_PULSE850_crossbar': cbr, 'PULSE850_motor_clamp_x2': clamps}
+    for nm, m in items.items(): stl(floor0(m), nm + '.stl')
+    # all items on one CR-6 SE bed (235 x 235): separate objects, laid out so they fit together
+    cbb, clb = floor0(cbr), floor0(C)
+    bc = ch.bounding_box(); ox, oy = 4 - bc[0], 117.5 - (bc[1] + bc[4]) / 2
+    place = [('chassis', ch.translate([ox, oy, 0])),
+             ('crossbar', cbb.translate([ox + bc[3] + 14, 117.5, 0])),
+             ('clamp', clb.translate([ox + 130, 117.5 - 10, 0])),                # between the sensor arms
+             ('clamp', clb.translate([ox + 130, 117.5 + 10, 0]))]
+    allm = Manifold.compose([m for _, m in place]); ab = allm.bounding_box()
+    assert ab[0] >= 0 and ab[1] >= 0 and ab[3] <= 235 and ab[4] <= 235, ab
+    assert sum(1 for i in range(len(place)) for j in range(i) if (place[i][1] ^ place[j][1]).volume() > 0) == 0
+    stl(allm, 'LineaViper-X16_PULSE850_all_items.stl')
+    SET = {'chassis': {'fill_density': '15%', 'perimeters': '2'}, 'crossbar': {'fill_density': '15%', 'perimeters': '2'},
+           'clamp': {'fill_density': '40%', 'perimeters': '3'}}
+    import zipfile
+    objs = items3 = cfg = ''
+    for i, (name, m) in enumerate(place, 1):
+        bb = m.bounding_box(); cx, cy = (bb[0] + bb[3]) / 2, (bb[1] + bb[4]) / 2
+        me = m.translate([-cx, -cy, 0]).to_mesh(); V = np.asarray(me.vert_properties)[:, :3]; T = np.asarray(me.tri_verts)
+        objs += f'<object id="{i}" type="model"><mesh><vertices>\n' + ''.join(f'<vertex x="{x:.4f}" y="{y:.4f}" z="{z:.4f}"/>\n' for x, y, z in V)
+        objs += '</vertices><triangles>\n' + ''.join(f'<triangle v1="{u}" v2="{v}" v3="{w}"/>\n' for u, v, w in T) + '</triangles></mesh></object>\n'
+        items3 += f'<item objectid="{i}" transform="1 0 0 0 1 0 0 0 1 {cx:.3f} {cy:.3f} 0"/>\n'
+        cfg += f'<object id="{i}" instances_count="1">\n<metadata type="object" key="name" value="{name}{i}"/>\n'
+        cfg += ''.join(f'<metadata type="object" key="{k}" value="{v}"/>\n' for k, v in SET[name].items())
+        cfg += f'<volume firstid="0" lastid="{len(T) - 1}">\n<metadata type="volume" key="name" value="{name}"/>\n</volume>\n</object>\n'
+    with zipfile.ZipFile(os.path.join(HERE, 'LineaViper-X16_PULSE850_all_items.3mf'), 'w', zipfile.ZIP_DEFLATED) as z:
+        z.writestr('[Content_Types].xml', '<?xml version="1.0" encoding="UTF-8"?>\n<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="model" ContentType="application/vnd.ms-package.3dmanufacturing-3dmodel+xml"/></Types>')
+        z.writestr('_rels/.rels', '<?xml version="1.0" encoding="UTF-8"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Target="/3D/3dmodel.model" Id="rel0" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel"/></Relationships>')
+        z.writestr('3D/3dmodel.model', '<?xml version="1.0" encoding="UTF-8"?>\n<model unit="millimeter" xml:lang="en-US" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02">\n<resources>\n' + objs + '</resources>\n<build>\n' + items3 + '</build>\n</model>\n')
+        z.writestr('Metadata/Slic3r_PE_model.config', '<?xml version="1.0" encoding="UTF-8"?>\n<config>\n' + cfg + '</config>\n')
+    import re
+    def slice_one(src, args, base):
+        gc = os.path.join(HERE, base + '.gcode')
+        subprocess.run(['prusa-slicer', '--export-gcode', '--load', os.path.join(HERE, 'cr6se_petg_fast.ini'), *args, '--output', gc, src], check=True, capture_output=True)
+        t = re.search(r'estimated printing time \(normal mode\) = ([^\n]+)', open(gc).read()).group(1)
+        os.replace(gc, os.path.join(HERE, base + '_PETG_' + ''.join(n + u for n, u in re.findall(r'(\d+)([dhm])', t)) + '.gcode'))
+    for nm, ex in (('LineaViper-X16_PULSE850_chassis', ['--fill-density', '15%', '--perimeters', '2']), ('LineaViper-X16_PULSE850_crossbar', ['--fill-density', '15%', '--perimeters', '2']),
+                   ('PULSE850_motor_clamp_x2', ['--fill-density', '40%', '--perimeters', '3'])):
+        slice_one(os.path.join(HERE, nm + '.stl'), ex + ['--center', '117.5,117.5'], nm)
+    slice_one(os.path.join(HERE, 'LineaViper-X16_PULSE850_all_items.3mf'), ['--dont-arrange'], 'LineaViper-X16_PULSE850_all_items')
+    print('all items bbox', np.round(ab, 1))
+    print(sorted(f for f in os.listdir(HERE) if 'PULSE850' in f))
     import matplotlib; matplotlib.use('Agg'); import matplotlib.pyplot as plt
     fig, (a1, a2) = plt.subplots(1, 2, figsize=(13, 6.2), gridspec_kw={'width_ratios': [1.25, 1]})
     for poly in ch.project().to_polygons(): q = np.asarray(poly); a1.fill(q[:, 0], q[:, 1], color='#d9dee5', ec='#333', lw=0.6)
