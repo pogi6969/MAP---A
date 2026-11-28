@@ -5,9 +5,9 @@ Motor lies on its flat (12 high, 15.5 wide), shaft at the same place as the old 
 Chassis: the 4 small N20 bracket holes (2.7) are replaced by 4 bigger M3 holes (3.3), 28 mm apart, under the new clamp.
 Clamp: saddle shaped to the can (flat top, round sides), 11 long, sits just behind the gearbox, 0.2 mm press on the can,
 2 ears with M3 holes + nut traps. Print 2.
-Rear wing (F1 style, part of the chassis): 2 endplates + centre swan-neck pylon, wing with rounded nose and a flap lip,
-"MR.D DRACOBOTS" raised on top (reads from behind). Sits behind the motors, wing hangs out behind the chassis like an F1 car;
-45 deg undersides + 27 mm bridges, so it prints on the chassis without supports."""
+Rear wing (F1 style, part of the chassis): raised high on 3 slim swan-neck struts with diamond lightening holes,
+airfoil wing (flat bottom, rounded nose, thin trailing edge) with small swept endplates, "MR.D DRACOBOTS" raised
+on top in 2 lines (reads from behind). Edges under 30 deg + 22 mm bridges: prints on the chassis without supports."""
 import os, glob, subprocess
 import numpy as np
 from manifold3d import CrossSection, Manifold, FillRule
@@ -45,31 +45,45 @@ def motor():                               # simple motor model for checks / pre
     return can + gb + sh
 
 
-ZB, WTK, XT, XL = 28.0, 3.0, -15.0, 5.0         # wing underside height, thickness, trailing / leading edge x
-EP_OUT, EP_T = 31.0, 2.4                       # endplate outer face (from centre line), thickness
+ZB, XT, XL, TMAX = 40.0, -18.0, -2.0, 0.17      # wing underside height, trailing / leading edge x, thickness ratio
+STRUT_Y, STRUT_T = (-25.0, 0.0, 25.0), 2.4     # 3 slim swan-neck struts (from the centre line), thickness
+WING_HALF = 25.0 + STRUT_T / 2                 # wing half span
 
 
 def xz(poly, y0, y1):                          # side profile (x, z) extruded across y0..y1
     return Manifold.extrude(CrossSection([poly]) if isinstance(poly, list) else poly, y1 - y0).rotate([90, 0, 0]).translate([0, y1, 0])
 
 
-def spoiler(text='MR.D DRACOBOTS'):
+def wing_profile(lift=0.0):                    # flat bottom (prints as a bridge), airfoil top, thin trailing edge
+    c = XL - XT; pts = []
+    for s in np.linspace(0, 1, 41):
+        th = 2 * 5 * TMAX * c * (0.2969 * np.sqrt(s) - 0.1260 * s - 0.3516 * s ** 2 + 0.2843 * s ** 3 - 0.1015 * s ** 4)
+        pts.append((XL - s * c, ZB + max(1.0 if s > 0.05 else 0.0, th) + lift))
+    return [(XL, ZB)] + pts[1:] + [(XT, ZB)]
+
+
+def spoiler():
     T, YC = lv.T, lv.YC
-    top = ZB + WTK + 5.5
-    ep = [(0.5, T), (7.5, T), (7.5, top), (-17.0, top), (-17.0, T + 17.5)]                       # 45 deg underside
-    m = xz(ep, YC + EP_OUT - EP_T, YC + EP_OUT) + xz(ep, YC - EP_OUT, YC - EP_OUT + EP_T)
-    m += xz([(0.5, T), (6.0, T), (6.0, ZB + 0.5), (-14.0, ZB + 0.5), (-14.0, T + 14.5)], YC - 1.5, YC + 1.5)   # pylon
-    wing = (CrossSection.square([XL - 1.5 - XT, WTK]).translate([XT, ZB]) + CrossSection.circle(WTK / 2, 32).translate([XL - 1.5, ZB + WTK / 2])
-            + CrossSection.square([2.2, WTK + 4.0]).translate([XT, ZB]))                          # nose + flap lip
-    m += xz(wing, YC - EP_OUT + EP_T - 0.1, YC + EP_OUT - EP_T + 0.1)
+    tilt_front, tilt_rear = (XL - 6.8) / (ZB - T), (XT - 0.8) / (ZB - T)
+    strut = CrossSection([[(0.8, T), (6.8, T), (XL, ZB + 0.6), (XT, ZB + 0.6)]])                          # narrow foot, fans out to the wing
+    zc = T + 0.48 * (ZB - T); xf, xr = 6.8 + tilt_front * (zc - T), 0.8 + tilt_rear * (zc - T)
+    hole = CrossSection([[((xf + xr) / 2, T + 8), (xf - 2.2, zc), ((xf + xr) / 2, ZB - 6), (xr + 2.6, zc)]])  # diamond lightening hole
+    strut -= hole
+    m = Manifold.compose([xz(strut, YC + y - STRUT_T / 2, YC + y + STRUT_T / 2) for y in STRUT_Y])
+    m += xz(wing_profile(), YC - WING_HALF, YC + WING_HALF)
+    fin = [(XT - 0.5, ZB + 0.5), (XL - 0.8, ZB + 0.5), (XL - 5.0, ZB + 7.0), (XT - 0.5, ZB + 7.0)]           # small swept endplates
+    m += xz(fin, YC + WING_HALF - 1.6, YC + WING_HALF) + xz(fin, YC - WING_HALF, YC - WING_HALF + 1.6)
     from matplotlib.textpath import TextPath
     from matplotlib.font_manager import FontProperties
-    tp = TextPath((0, 0), text, size=10, prop=FontProperties(family='DejaVu Sans', weight='bold'))
-    cs = CrossSection([np.asarray(q) for q in tp.to_polygons() if len(q) > 2], FillRule.EvenOdd)
-    b = cs.bounds(); k = min((2 * (EP_OUT - EP_T) - 5) / (b[2] - b[0]), 6.5 / (b[3] - b[1]))
-    cs = cs.translate([-(b[0] + b[2]) / 2, -(b[1] + b[3]) / 2]).scale([k, k]).rotate(-90)         # reads from behind the car
-    xc = (XT + 2.2 + XL - 1.5) / 2
-    return m + Manifold.extrude(cs.translate([xc, YC]), 0.8 + 0.01).translate([0, 0, ZB + WTK - 0.01])
+    fp = FontProperties(family='DejaVu Sans', weight='bold')
+    def line(txt, cap):                        # text line, reading from behind the car (up = +x)
+        tp = TextPath((0, 0), txt, size=10, prop=fp)
+        cs = CrossSection([np.asarray(q) for q in tp.to_polygons() if len(q) > 2], FillRule.EvenOdd)
+        b = cs.bounds(); k = min(cap / (b[3] - b[1]), (2 * WING_HALF - 6) / (b[2] - b[0]))
+        return cs.translate([-(b[0] + b[2]) / 2, -(b[1] + b[3]) / 2]).scale([k, k]).rotate(-90)
+    txt = line('MR.D', 4.6).translate([XL - 4.6, YC]) + line('DRACOBOTS', 4.0).translate([XL - 11.2, YC])
+    raised = Manifold.extrude(txt, 10).translate([0, 0, ZB]) ^ xz(wing_profile(0.6), YC - WING_HALF, YC + WING_HALF)
+    return m + raised
 
 
 if __name__ == '__main__':
@@ -83,7 +97,7 @@ if __name__ == '__main__':
     M = motor().translate([0, 0, lv.T])
     print('motor/clamp overlap', round((Cm ^ M).volume(), 2), 'mm3 (press fit on the can)', '| clamp parts', len(C.decompose()),
           '| clamp/chassis overlap', round((Cm ^ ch).volume(), 3), '| wing vs motors', round(((M + M.mirror([0, 1, 0]).translate([0, 2 * lv.YC, 0])) ^ sp).volume(), 3),
-          '| chassis parts', len(ch.decompose()), '| wing top z', round(sp.bounding_box()[5], 1), '| rear x', round(ch.bounding_box()[0], 1), '| motor rear end y', YF + GB_L + CAN_L, '| left motor rear y', 2 * lv.YC - (YF + GB_L + CAN_L))
+          '| chassis parts', len(ch.decompose()), '| wing top z', round(sp.bounding_box()[5], 1), '| wing volume', round(sp.volume() / 1000, 2), 'cm3', '| rear x', round(ch.bounding_box()[0], 1), '| motor rear end y', YF + GB_L + CAN_L, '| left motor rear y', 2 * lv.YC - (YF + GB_L + CAN_L))
     def stl(m, name):
         me = m.to_mesh(); V = np.asarray(me.vert_properties)[:, :3]; Tr = V[np.asarray(me.tri_verts)].astype('<f4')
         r = np.zeros(len(Tr), dtype=[('n', '<f4', 3), ('v', '<f4', (3, 3)), ('a', '<u2')]); r['v'] = Tr
